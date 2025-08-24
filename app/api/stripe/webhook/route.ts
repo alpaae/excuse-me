@@ -3,6 +3,9 @@ import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase-server';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 
+// Node.js runtime для работы с Stripe и Supabase
+export const runtime = 'nodejs';
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
 });

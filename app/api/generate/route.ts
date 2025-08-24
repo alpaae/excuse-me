@@ -5,6 +5,9 @@ import { SYSTEM_PROMPT, generateUserPrompt } from '@/lib/prompts';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 
+// Node.js runtime для работы с OpenAI и Supabase
+export const runtime = 'nodejs';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });

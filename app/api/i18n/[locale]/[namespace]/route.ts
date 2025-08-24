@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getTranslation, bulkTranslate } from '@/lib/i18n-fallback';
 
+// Node.js runtime для работы с Supabase
+export const runtime = 'nodejs';
+
 export async function GET(
   request: NextRequest,
   props: { params: Promise<{ locale: string; namespace: string }> }

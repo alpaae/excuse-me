@@ -4,6 +4,9 @@ import { createServiceClient } from '@/lib/supabase-server';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 
+// Node.js runtime для работы с OpenAI и Supabase Storage
+export const runtime = 'nodejs';
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
