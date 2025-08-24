@@ -7,12 +7,13 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Wand2, Zap, Users, Sparkles, ArrowRight, CheckCircle } from 'lucide-react';
+import { Wand2, Zap, Users, Sparkles, ArrowRight, CheckCircle, X } from 'lucide-react';
 import { SocialProofBar } from '@/components/social-proof-bar';
 import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
 import { OnboardingModal } from '@/components/onboarding-modal';
+import { AuthForm } from '@/components/auth/auth-form';
 
 export default function HomePage() {
   const [formData, setFormData] = useState({
@@ -26,6 +27,7 @@ export default function HomePage() {
   const [resultRarity, setResultRarity] = useState<'common' | 'rare' | 'legendary' | null>(null);
   const [resultExcuseId, setResultExcuseId] = useState<string | null>(null);
   const [showLegendaryPop, setShowLegendaryPop] = useState(false);
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,6 +92,12 @@ export default function HomePage() {
               <Button 
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 data-testid="btn-login"
+                onClick={() => {
+                  // Временно показываем alert вместо модального окна
+                  // пока не настроен Supabase
+                  alert('Sign In functionality requires Supabase setup. Check AUTH_SETUP.md for instructions.');
+                  // setShowAuthModal(true);
+                }}
               >
                 Sign In
               </Button>
@@ -334,6 +342,28 @@ export default function HomePage() {
       {/* Legendary Pop */}
       {showLegendaryPop && (
         <LegendaryPop onComplete={() => setShowLegendaryPop(false)} />
+      )}
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-6 border-b">
+              <h2 className="text-xl font-semibold text-gray-900">Sign In</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowAuthModal(false)}
+                className="text-gray-400 hover:text-gray-600"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            </div>
+            <div className="p-6">
+              <AuthForm onSuccess={() => setShowAuthModal(false)} />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
