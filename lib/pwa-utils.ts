@@ -8,7 +8,7 @@ interface ServiceWorkerMessage {
 interface PWAConfig {
   swPath: string;
   scope: string;
-  updateViaCache: RequestCache;
+  updateViaCache: ServiceWorkerUpdateViaCache;
 }
 
 // Конфигурация PWA
@@ -175,11 +175,14 @@ function showUpdateNotification(): void {
     max-width: 300px;
   `;
 
-  updateNotification.querySelector('.pwa-update-content')!.style.cssText = `
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  `;
+  const updateContent = updateNotification.querySelector('.pwa-update-content') as HTMLElement;
+  if (updateContent) {
+    updateContent.style.cssText = `
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    `;
+  }
 
   updateNotification.querySelectorAll('button').forEach(button => {
     button.style.cssText = `

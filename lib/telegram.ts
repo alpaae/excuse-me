@@ -1,4 +1,4 @@
-import crypto from 'crypto';
+import * as crypto from 'crypto';
 
 export function verifyInitData(initData: string, botToken: string) {
   const p = new URLSearchParams(initData);

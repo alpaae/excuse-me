@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
       .select('sent_via')
       .eq('user_id', user.id);
 
-    const channelCounts = channelStats?.reduce((acc, excuse) => {
+    const channelCounts = channelStats?.reduce((acc: Record<string, number>, excuse: { sent_via: string }) => {
       acc[excuse.sent_via] = (acc[excuse.sent_via] || 0) + 1;
       return acc;
     }, {} as Record<string, number>) || {};
@@ -69,7 +69,7 @@ export async function GET(request: NextRequest) {
       .select('input')
       .eq('user_id', user.id);
 
-    const toneCounts = toneStats?.reduce((acc, excuse) => {
+    const toneCounts = toneStats?.reduce((acc: Record<string, number>, excuse: { input?: { tone?: string } }) => {
       const tone = excuse.input?.tone;
       if (tone) {
         acc[tone] = (acc[tone] || 0) + 1;
