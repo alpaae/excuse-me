@@ -259,6 +259,62 @@ npm run lighthouse:assert
 /tests/e2e        # Playwright E2E тесты
 ```
 
+## Middleware
+
+### I18n Синхронизация
+
+Middleware автоматически синхронизирует параметр `?lang` и cookie `excuseme_lang`:
+
+#### **Логика работы:**
+
+1. **Если есть `?lang` параметр:**
+   - Нормализует локаль через `normalizeLocale()`
+   - Устанавливает cookie `excuseme_lang=<val>; Path=/; Max-Age=15552000; SameSite=Lax`
+   - **НЕ делает редирект** (избегаем флэки в тестах)
+
+2. **Если нет `?lang`, но есть cookie:**
+   - Ничего не делает (сохраняет существующий выбор пользователя)
+
+3. **Если нет ни `?lang`, ни cookie:**
+   - Определяет язык по `Accept-Language` заголовку
+   - Устанавливает cookie с определенным языком
+   - **НЕ делает редирект**
+
+#### **Обрабатываемые пути:**
+- `/` (корень)
+- `/(web)/*` (веб-приложение)
+- `/dashboard` (личный кабинет)
+- `/account` (настройки аккаунта)
+
+#### **Игнорируемые пути:**
+- `/api/*` (API роуты)
+- `/_next/static/*` (статические файлы)
+- `/_next/image/*` (оптимизированные изображения)
+- `/favicon.ico` (иконка сайта)
+- `/manifest.webmanifest` (PWA манифест)
+
+#### **Примеры работы:**
+
+```bash
+# Установка языка через URL
+GET /?lang=en
+→ Set-Cookie: excuseme_lang=en; Path=/; Max-Age=15552000; SameSite=Lax
+
+# Сохранение существующего выбора
+GET / (с cookie excuseme_lang=ru)
+→ Никаких изменений
+
+# Автоопределение по Accept-Language
+GET / (без cookie, Accept-Language: ru-RU,ru;q=0.9)
+→ Set-Cookie: excuseme_lang=ru; Path=/; Max-Age=15552000; SameSite=Lax
+```
+
+#### **Безопасность:**
+- Cookie устанавливается с `SameSite=Lax`
+- `Max-Age=15552000` (180 дней)
+- `Path=/` (доступен на всех путях)
+- Нормализация через `normalizeLocale()` предотвращает XSS
+
 ## Environments
 
 ### Переменные окружения
