@@ -130,14 +130,17 @@ export default function DashboardPage() {
   return (
     <ErrorBoundary>
       <AuthGuard>
-        <div className="container mx-auto px-4 py-8 pb-32">
-        <div className="space-y-6">
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
           {/* Header */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold">Excuse History</h1>
-            <p className="text-muted-foreground">Your created excuses</p>
-            <div className="mt-4 text-sm text-muted-foreground">
-              Total excuses: {excuses.length}
+          <div className="text-center mb-8">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+              Excuse History
+            </h1>
+            <p className="text-gray-600 mt-2">Your created excuses</p>
+            <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-full px-4 py-2 mt-4 shadow-sm">
+              <span className="text-sm font-medium text-gray-700">
+                {excuses.length} excuse{excuses.length !== 1 ? 's' : ''}
+              </span>
             </div>
           </div>
 
@@ -158,31 +161,43 @@ export default function DashboardPage() {
           )}
 
           {/* Excuses List */}
-          <div className="space-y-4">
+          <div className="space-y-6">
             {excuses.length === 0 ? (
-              <Card>
-                <CardContent className="py-12 text-center">
-                  <p className="text-muted-foreground">
-                    You don&apos;t have any excuses yet. Create your first one!
+              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl">
+                <CardContent className="py-16 text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <MessageSquare className="h-8 w-8 text-blue-600" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">No excuses yet</h3>
+                  <p className="text-gray-600 mb-6">
+                    Create your first excuse to get started
                   </p>
-                  <Button className="mt-4" onClick={() => window.history.back()}>
+                  <Button 
+                    onClick={() => window.history.back()}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  >
                     Create Excuse
                   </Button>
                 </CardContent>
               </Card>
             ) : (
               excuses.map((excuse) => (
-                <Card key={excuse.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2 flex-1">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-lg">{excuse.input.scenario}</CardTitle>
+                <Card key={excuse.id} className="bg-white/90 backdrop-blur-xl border-0 shadow-lg rounded-2xl hover:shadow-xl transition-all duration-200">
+                  <CardContent className="p-6">
+                    {/* Header with metadata */}
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h3 className="font-semibold text-gray-900 text-lg line-clamp-2">
+                            {excuse.input.scenario}
+                          </h3>
                           {excuse.is_favorite && (
-                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 flex-shrink-0" />
                           )}
                         </div>
-                        <CardDescription className="flex items-center gap-4">
+                        
+                        {/* Metadata badges */}
+                        <div className="flex items-center gap-3 text-sm text-gray-500">
                           <span className="flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
                             {new Date(excuse.created_at).toLocaleDateString()}
@@ -192,34 +207,41 @@ export default function DashboardPage() {
                             {excuse.input.channel}
                           </span>
                           <span className="capitalize">{excuse.input.tone}</span>
-                        </CardDescription>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Badge variant="outline">{excuse.input.lang}</Badge>
+                      
+                      {/* Actions */}
+                      <div className="flex items-center gap-2 ml-4">
+                        <Badge variant="outline" className="text-xs">
+                          {excuse.input.lang}
+                        </Badge>
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => toggleFavorite(excuse.id, excuse.is_favorite)}
+                          className="h-8 w-8 p-0"
                         >
-                          <Star className={`h-4 w-4 ${excuse.is_favorite ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                          <Star className={`h-4 w-4 ${excuse.is_favorite ? 'fill-yellow-400 text-yellow-400' : 'text-gray-400'}`} />
                         </Button>
                       </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <ExcuseCard 
-                      text={excuse.result_text} 
-                      rarity={excuse.rarity} 
-                      excuseId={excuse.id}
-                      isFavorite={excuse.is_favorite}
-                      onFavoriteToggle={(isFavorite) => {
-                        setExcuses(excuses.map(e =>
-                          e.id === excuse.id ? { ...e, is_favorite: isFavorite } : e
-                        ));
-                      }}
-                      showCTA={true}
-                      className="mb-4"
-                    />
+                    
+                    {/* Excuse content */}
+                    <div className="bg-gray-50 rounded-xl p-4">
+                      <ExcuseCard 
+                        text={excuse.result_text} 
+                        rarity={excuse.rarity} 
+                        excuseId={excuse.id}
+                        isFavorite={excuse.is_favorite}
+                        onFavoriteToggle={(isFavorite) => {
+                          setExcuses(excuses.map(e =>
+                            e.id === excuse.id ? { ...e, is_favorite: isFavorite } : e
+                          ));
+                        }}
+                        showCTA={true}
+                        className="mb-0"
+                      />
+                    </div>
                   </CardContent>
                 </Card>
               ))
