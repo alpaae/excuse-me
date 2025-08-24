@@ -36,11 +36,20 @@ jobs:
     - name: Build application
       run: npm run build
       env:
-        NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
-        NEXT_PUBLIC_SUPABASE_ANON_KEY: dummy-key
+        NEXT_TELEMETRY_DISABLED: '1'
+        NODE_OPTIONS: --max-old-space-size=4096
         NEXT_PUBLIC_BASE_URL: http://localhost:3000
-        OPENAI_API_KEY: dummy-key
-        SUPABASE_SERVICE_ROLE: dummy-key
+        # ⬇️ валидные фиктивные значения под Zod-схему Supabase
+        NEXT_PUBLIC_SUPABASE_URL: https://demo-project.supabase.co
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.mock.payload.signature
+        # остальное оставь как есть
+        SUPABASE_SERVICE_ROLE: test
+        OPENAI_API_KEY: sk-test
+        NEXT_PUBLIC_FEATURE_PAYMENTS: 'false'
+        STRIPE_SECRET_KEY: test
+        STRIPE_PRICE_PRO_MONTHLY: price_test
+        STRIPE_WEBHOOK_SECRET: whsec_test
+        TG_BOT_TOKEN: test
         
   # Отдельный job для E2E тестов
   e2e:
