@@ -76,7 +76,7 @@ export default function HomePage() {
       // Используем текущую локаль из провайдера для генерации
       const requestData = {
         ...formData,
-        lang: currentLocale || formData.lang, // Приоритет текущей локали
+        lang: currentLocale, // Всегда используем текущую локаль из провайдера
       };
 
       const response = await fetch('/api/generate', {
@@ -200,7 +200,7 @@ export default function HomePage() {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2" key="tone-select">
                     <Label>Тон</Label>
                     <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
@@ -230,15 +230,15 @@ export default function HomePage() {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
 
-                  <div className="space-y-2" key="lang-select">
-                    <Label>Язык</Label>
-                    <LanguageSwitch 
-                      onLanguageChange={(lang) => {
-                        setFormData(prev => ({ ...prev, lang }));
-                      }}
-                    />
-                  </div>
+                <div className="space-y-2" key="lang-select">
+                  <Label>Язык</Label>
+                  <LanguageSwitch 
+                    onLanguageChange={(lang) => {
+                      setFormData(prev => ({ ...prev, lang }));
+                    }}
+                  />
                 </div>
 
                 <div className="space-y-2">
