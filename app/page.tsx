@@ -40,6 +40,7 @@ import {
 import { SocialProofBar } from '@/components/social-proof-bar';
 import { FreeLimitBanner } from '@/components/free-limit-banner';
 import { ExcuseCard } from '@/components/excuse-card';
+import { LegendaryPop } from '@/components/legendary-pop';
 
 interface User {
   id: string;
@@ -52,6 +53,7 @@ export default function HomePage() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState('');
   const [resultRarity, setResultRarity] = useState<'common' | 'rare' | 'legendary' | null>(null);
+  const [showLegendaryPop, setShowLegendaryPop] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showLimitBanner, setShowLimitBanner] = useState(false);
   const [showRateLimitBanner, setShowRateLimitBanner] = useState(false);
@@ -88,6 +90,7 @@ export default function HomePage() {
     setGenerating(true);
     setResult('');
     setResultRarity(null);
+    setShowLegendaryPop(false);
     setShowLimitBanner(false);
     setShowRateLimitBanner(false);
     
@@ -110,6 +113,12 @@ export default function HomePage() {
         setResult(data.text);
         setResultRarity(data.rarity);
         showSuccess('Excuse generated successfully!');
+        
+        // Show legendary pop if it's legendary and hasn't been shown this session
+        if (data.rarity === 'legendary' && !sessionStorage.getItem('legendary:shown')) {
+          setShowLegendaryPop(true);
+          sessionStorage.setItem('legendary:shown', '1');
+        }
         
         // Update limits if provided
         if (data.limits) {
@@ -215,6 +224,10 @@ export default function HomePage() {
   return (
     <ErrorBoundary>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+        {/* Legendary Pop Animation */}
+        {showLegendaryPop && (
+          <LegendaryPop onComplete={() => setShowLegendaryPop(false)} />
+        )}
         {/* Animated Background Elements */}
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
