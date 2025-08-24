@@ -13,17 +13,38 @@ export async function GET(
     const { locale, namespace } = params;
     const { searchParams } = new URL(request.url);
     const keys = searchParams.get('keys');
+    const key = searchParams.get('key');
 
     if (keys) {
       // Bulk translation
       const keyArray = keys.split(',');
       const translations = await bulkTranslate(keyArray, locale, 'en', namespace);
       return NextResponse.json(translations);
-    } else {
+    } else if (key) {
       // Single key translation
-      const key = searchParams.get('key') || '';
       const translation = await getTranslation(key, locale, namespace);
       return NextResponse.json({ [key]: translation });
+    } else {
+      // Load all translations for namespace
+      const { createServiceClient } = await import('@/lib/supabase-server');
+      const supabase = createServiceClient();
+      
+      const { data: translations, error } = await supabase
+        .from('i18n_cache')
+        .select('key, value')
+        .eq('locale', locale)
+        .eq('namespace', namespace);
+
+      if (error) {
+        throw error;
+      }
+
+      const result: Record<string, string> = {};
+      translations?.forEach(t => {
+        result[t.key] = t.value;
+      });
+
+      return NextResponse.json(result);
     }
   } catch (error) {
     console.error('i18n API error:', error);
