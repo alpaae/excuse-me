@@ -152,7 +152,7 @@ export default function DashboardPage() {
             </Card>
           )}
 
-          {/* Список отмазок */}
+          {/* Excuses List */}
           <div className="space-y-4">
             {excuses.length === 0 ? (
               <Card>

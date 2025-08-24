@@ -79,16 +79,16 @@ export function DashboardStats({
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <StatsCard
-        title="Всего отмазок"
+        title="Total Excuses"
         value={totalExcuses}
-        description="За все время"
+        description="All time"
         icon={<History className="h-4 w-4" />}
       />
       
       <StatsCard
-        title="Избранные"
+        title="Favorites"
         value={favoriteExcuses}
-        description="Сохранено в избранное"
+        description="Saved to favorites"
         icon={<Heart className="h-4 w-4" />}
         badge={{
           text: `${Math.round((favoriteExcuses / totalExcuses) * 100)}%`,
@@ -97,9 +97,9 @@ export function DashboardStats({
       />
       
       <StatsCard
-        title="Этот месяц"
+        title="This Month"
         value={thisMonthExcuses}
-        description="Создано в текущем месяце"
+        description="Created this month"
         icon={<Calendar className="h-4 w-4" />}
         trend={{
           value: Math.abs(monthlyGrowth),
@@ -108,9 +108,9 @@ export function DashboardStats({
       />
       
       <StatsCard
-        title="Активность"
-        value={thisMonthExcuses > 0 ? 'Высокая' : 'Низкая'}
-        description="По сравнению с прошлым месяцем"
+        title="Activity"
+        value={thisMonthExcuses > 0 ? 'High' : 'Low'}
+        description="Compared to last month"
         icon={<TrendingUp className="h-4 w-4" />}
         badge={{
           text: thisMonthExcuses > lastMonthExcuses ? '↑' : '↓',

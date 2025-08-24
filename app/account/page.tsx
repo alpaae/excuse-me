@@ -204,7 +204,7 @@ export default function AccountPage() {
               {!subscription && (
                 <div className="bg-muted p-4 rounded-lg">
                   <p className="text-sm mb-3">
-                    Перейдите на Pro для неограниченного количества генераций отмазок
+                    Upgrade to Pro for unlimited excuse generations
                   </p>
                   <Button onClick={handleUpgradeSubscription} className="w-full">
                     <Crown className="mr-2 h-4 w-4" />

@@ -65,7 +65,7 @@ export function AuthForm() {
       <CardHeader>
         <CardTitle>Войти в ExcuseME</CardTitle>
         <CardDescription>
-          Войдите через email или GitHub для доступа к генератору отмазок
+          Sign in with email or GitHub to access the excuse generator
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

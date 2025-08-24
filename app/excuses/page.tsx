@@ -183,7 +183,7 @@ export default function ExcusesPage() {
                 </Card>
               )}
 
-              {/* Список отмазок */}
+              {/* Excuses List */}
               <div className="space-y-6">
                 {excuses.length === 0 ? (
                   <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
