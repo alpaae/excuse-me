@@ -152,15 +152,101 @@ npm run test
 
 ## Деплой
 
-### Vercel
+### Чек-лист деплоя
+
+#### 1. Vercel Environment Variables
+
+Настройте следующие переменные в Vercel Dashboard → Settings → Environment Variables:
+
+**Supabase:**
+```
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE=your-service-role-key
+```
+
+**OpenAI:**
+```
+OPENAI_API_KEY=sk-...
+```
+
+**Stripe:**
+```
+STRIPE_SECRET_KEY=sk_live_... или sk_test_...
+STRIPE_PRICE_PRO_MONTHLY=price_...
+STRIPE_WEBHOOK_SECRET=whsec_...
+```
+
+**Telegram:**
+```
+TG_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+```
+
+**App:**
+```
+NEXT_PUBLIC_BASE_URL=https://your-app.vercel.app
+NEXT_PUBLIC_FEATURE_PAYMENTS=true
+```
+
+#### 2. Supabase Setup
+
+1. **Применение схемы БД:**
+   - Откройте Supabase Dashboard → SQL Editor
+   - Скопируйте содержимое `db/schema.sql`
+   - Выполните SQL скрипт
+
+2. **Создание Storage Bucket:**
+   - Перейдите в Storage → Create bucket
+   - Имя: `tts`
+   - Тип: Private
+   - Примените RLS политики из `db/storage-policies.sql`
+
+#### 3. Stripe Webhook Setup
+
+1. **Создание webhook:**
+   - Stripe Dashboard → Developers → Webhooks
+   - Endpoint URL: `https://your-app.vercel.app/api/stripe/webhook`
+   - Events: `checkout.session.completed`, `invoice.payment_succeeded`, `invoice.payment_failed`, `customer.subscription.deleted`
+
+2. **Получение webhook secret:**
+   - Скопируйте `whsec_...` из webhook деталей
+   - Добавьте в `STRIPE_WEBHOOK_SECRET`
+
+#### 4. Health Check
+
+Создайте `/api/health` endpoint для мониторинга:
+
+```typescript
+// app/api/health/route.ts
+export async function GET() {
+  return Response.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    version: process.env.VERCEL_GIT_COMMIT_SHA || 'local'
+  });
+}
+```
+
+#### 5. Smoke Test
+
+После деплоя проверьте:
+
+```bash
+# Health check
+curl https://your-app.vercel.app/api/health
+
+# Supabase connection
+curl https://your-app.vercel.app/api/excuses
+
+# Stripe webhook (должен вернуть 405 для GET)
+curl https://your-app.vercel.app/api/stripe/webhook
+```
+
+### Автоматический деплой
 
 1. Подключите репозиторий к Vercel
-2. Добавьте переменные окружения в настройках проекта
-3. Настройте автодеплой из main ветки
-
-### GitHub Actions
-
-Рекомендуется настроить CI/CD для автоматического деплоя при пуше в main ветку.
+2. Настройте переменные окружения
+3. Деплой автоматически запустится при push в main
 
 ## PWA
 
