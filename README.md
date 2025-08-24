@@ -575,6 +575,126 @@ SEO: 91.5/100 (target: ≥90)
 📄 Report saved: /path/to/lighthouse-reports/lighthouse-report-2025-01-24T10-30-00-000Z.html
 ```
 
+## Environments
+
+### Environment Variables Matrix
+
+Проект использует разные переменные окружения для разных сред:
+
+| Variable | Dev (.env.local) | Preview (Vercel) | Production (Vercel) | Client/Server |
+|----------|------------------|------------------|---------------------|---------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ Required | ✅ Required | ✅ Required | Client |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ Required | ✅ Required | ✅ Required | Client |
+| `NEXT_PUBLIC_BASE_URL` | ✅ Required | ✅ Required | ✅ Required | Client |
+| `NEXT_PUBLIC_FEATURE_PAYMENTS` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Client |
+| `SUPABASE_SERVICE_ROLE` | ✅ Required | ✅ Required | ✅ Required | Server |
+| `OPENAI_API_KEY` | ✅ Required | ✅ Required | ✅ Required | Server |
+| `STRIPE_SECRET_KEY` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Server |
+| `STRIPE_PRICE_PRO_MONTHLY` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Server |
+| `STRIPE_WEBHOOK_SECRET` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Server |
+| `TG_BOT_TOKEN` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Server |
+| `UPSTASH_REDIS_REST_URL` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Server |
+| `UPSTASH_REDIS_REST_TOKEN` | ⚠️ Optional | ⚠️ Optional | ⚠️ Optional | Server |
+
+### Client vs Server Variables
+
+#### Client-side (NEXT_PUBLIC_*)
+Переменные с префиксом `NEXT_PUBLIC_` доступны в браузере:
+
+- **`NEXT_PUBLIC_SUPABASE_URL`** - URL Supabase проекта
+- **`NEXT_PUBLIC_SUPABASE_ANON_KEY`** - публичный ключ для клиентского доступа
+- **`NEXT_PUBLIC_BASE_URL`** - базовый URL приложения
+- **`NEXT_PUBLIC_FEATURE_PAYMENTS`** - флаг включения платежей
+
+#### Server-side (без NEXT_PUBLIC_)
+Переменные без префикса доступны только на сервере:
+
+- **`SUPABASE_SERVICE_ROLE`** - сервисный ключ для RLS bypass
+- **`OPENAI_API_KEY`** - ключ для генерации отмазок
+- **`STRIPE_*`** - ключи для платежной системы
+- **`TG_BOT_TOKEN`** - токен Telegram бота
+- **`UPSTASH_REDIS_*`** - ключи для rate limiting
+
+### Environment Setup
+
+#### Local Development (.env.local)
+```bash
+# Скопируйте .env.example
+cp .env.example .env.local
+
+# Заполните обязательные переменные
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE=your-service-role
+OPENAI_API_KEY=your-openai-key
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+#### Vercel Preview
+- Автоматически наследует Production переменные
+- Можно переопределить для тестирования
+- Используется для Pull Request previews
+
+#### Vercel Production
+- Все переменные должны быть настроены
+- Рекомендуется использовать Vercel CLI для управления
+- Регулярно проверяйте через `/api/ready`
+
+### Environment Validation
+
+Проект использует строгую валидацию переменных через Zod (`lib/env.ts`):
+
+```typescript
+// Валидация при импорте
+import { serverEnv } from '@/lib/env';
+
+// Приложение упадет с понятной ошибкой при отсутствии ключей
+const openai = new OpenAI({
+  apiKey: serverEnv.OPENAI_API_KEY, // Типизированный доступ
+});
+```
+
+### Health & Readiness Checks
+
+#### `/api/health` - Basic Health Check
+```bash
+curl https://your-app.vercel.app/api/health
+# Returns: { ok: true, time: "2025-01-24T10:30:00.000Z" }
+```
+
+#### `/api/ready` - Environment Readiness
+```bash
+curl https://your-app.vercel.app/api/ready
+# Returns: { ok: true, missing: [], features: { payments: true, telegram: false } }
+```
+
+### Security Notes
+
+⚠️ **Важные моменты безопасности:**
+
+1. **Никогда не коммитьте `.env.local`** - он в `.gitignore`
+2. **`SUPABASE_SERVICE_ROLE`** - только на сервере, обходит RLS
+3. **`OPENAI_API_KEY`** - храните в секретах, не в коде
+4. **`STRIPE_SECRET_KEY`** - только на сервере, для webhooks
+5. **Vercel Environment Variables** - автоматически шифруются
+
+### Troubleshooting
+
+#### "Invalid environment variables" ошибка
+```bash
+# Проверьте все обязательные переменные
+npm run build
+
+# Используйте /api/ready для диагностики
+curl http://localhost:3000/api/ready
+```
+
+#### "Missing dependencies" в useEffect
+```bash
+# Запустите проверку hooks
+npm run lint:hooks
+```
+
 ## Readiness Checks
 
 ### Environment Readiness
