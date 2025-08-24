@@ -127,31 +127,31 @@ export default function AccountPage() {
     <AuthGuard>
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         <div className="space-y-6">
-          {/* Заголовок */}
+          {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Аккаунт</h1>
-            <p className="text-muted-foreground">Управление профилем и подпиской</p>
+            <h1 className="text-3xl font-bold">Account</h1>
+            <p className="text-muted-foreground">Manage your profile and subscription</p>
           </div>
 
-          {/* Профиль */}
+          {/* Profile */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <User className="h-5 w-5" />
-                Профиль
+                Profile
               </CardTitle>
               <CardDescription>
-                Обновите информацию о себе
+                Update your information
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="displayName">Имя</Label>
+                <Label htmlFor="displayName">Name</Label>
                 <Input
                   id="displayName"
                   value={displayName}
                   onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Ваше имя"
+                  placeholder="Your name"
                 />
               </div>
               <div className="space-y-2">
@@ -164,38 +164,38 @@ export default function AccountPage() {
               </div>
               <Button onClick={handleSaveProfile} disabled={saving}>
                 <Save className="mr-2 h-4 w-4" />
-                {saving ? 'Сохранение...' : 'Сохранить'}
+                {saving ? 'Saving...' : 'Save'}
               </Button>
             </CardContent>
           </Card>
 
-          {/* Подписка */}
+          {/* Subscription */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Crown className="h-5 w-5" />
-                Подписка
+                Subscription
               </CardTitle>
               <CardDescription>
-                Статус вашей подписки Pro
+                Your Pro subscription status
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Статус:</span>
+                <span className="text-sm font-medium">Status:</span>
                 <Badge variant={subscription ? 'default' : 'secondary'}>
-                  {subscription ? 'Pro' : 'Бесплатный план'}
+                  {subscription ? 'Pro' : 'Free Plan'}
                 </Badge>
               </div>
               
               {subscription && (
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span>Провайдер:</span>
+                    <span>Provider:</span>
                     <span className="capitalize">{subscription.provider}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span>Действует до:</span>
+                    <span>Valid until:</span>
                     <span>{new Date(subscription.current_period_end).toLocaleDateString()}</span>
                   </div>
                 </div>
@@ -208,19 +208,19 @@ export default function AccountPage() {
                   </p>
                   <Button onClick={handleUpgradeSubscription} className="w-full">
                     <Crown className="mr-2 h-4 w-4" />
-                    Перейти на Pro
+                    Upgrade to Pro
                   </Button>
                 </div>
               )}
             </CardContent>
           </Card>
 
-          {/* Выход */}
+          {/* Sign Out */}
           <Card>
             <CardContent className="pt-6">
               <Button variant="outline" onClick={handleSignOut} className="w-full">
                 <LogOut className="mr-2 h-4 w-4" />
-                Выйти
+                Sign Out
               </Button>
             </CardContent>
           </Card>

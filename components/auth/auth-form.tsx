@@ -63,7 +63,7 @@ export function AuthForm() {
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
-        <CardTitle>Войти в ExcuseME</CardTitle>
+        <CardTitle>Sign in to ExcuseME</CardTitle>
         <CardDescription>
           Sign in with email or GitHub to access the excuse generator
         </CardDescription>
@@ -83,7 +83,7 @@ export function AuthForm() {
           </div>
           <Button type="submit" className="w-full" disabled={loading}>
             <Mail className="mr-2 h-4 w-4" />
-            {loading ? 'Отправка...' : 'Отправить magic link'}
+            {loading ? 'Sending...' : 'Send magic link'}
           </Button>
         </form>
 
@@ -92,7 +92,7 @@ export function AuthForm() {
             <span className="w-full border-t" />
           </div>
           <div className="relative flex justify-center text-xs uppercase">
-            <span className="bg-background px-2 text-muted-foreground">Или</span>
+            <span className="bg-background px-2 text-muted-foreground">Or</span>
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export function AuthForm() {
           disabled={loading}
         >
           <Github className="mr-2 h-4 w-4" />
-          Войти через GitHub
+          Sign in with GitHub
         </Button>
 
         {message && (
