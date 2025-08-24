@@ -1,14 +1,22 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { createClient } from '@/lib/supabase';
 import { AuthGuard } from '@/lib/auth-guard';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Star, Copy, Share2, Volume2, Filter, History, Heart } from 'lucide-react';
+import { 
+  Pagination, 
+  PaginationContent, 
+  PaginationEllipsis, 
+  PaginationItem, 
+  PaginationLink, 
+  PaginationNext, 
+  PaginationPrevious 
+} from '@/components/ui/pagination';
+import { Star, Copy, Share2, Volume2, Filter, History, Heart, Calendar, MessageSquare, Phone, User } from 'lucide-react';
 
 interface Excuse {
   id: string;
@@ -26,37 +34,58 @@ interface Excuse {
   created_at: string;
 }
 
+interface PaginationInfo {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNext: boolean;
+  hasPrev: boolean;
+}
+
 export default function DashboardPage() {
   const [excuses, setExcuses] = useState<Excuse[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<'all' | 'favorites'>('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [favoritesOnly, setFavoritesOnly] = useState(false);
-  const supabase = createClient();
+  const [pagination, setPagination] = useState<PaginationInfo>({
+    page: 1,
+    limit: 10,
+    total: 0,
+    totalPages: 0,
+    hasNext: false,
+    hasPrev: false,
+  });
+  const [filters, setFilters] = useState({
+    search: '',
+    favoritesOnly: false,
+    sortBy: 'created_at' as 'created_at' | 'updated_at',
+    sortOrder: 'desc' as 'asc' | 'desc',
+  });
 
   useEffect(() => {
     loadExcuses();
-  }, [filter, favoritesOnly]);
+  }, [filters, pagination.page]);
 
   const loadExcuses = async () => {
+    setLoading(true);
     try {
-      let query = supabase
-        .from('excuses')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const params = new URLSearchParams({
+        page: pagination.page.toString(),
+        limit: pagination.limit.toString(),
+        favorites: filters.favoritesOnly.toString(),
+        search: filters.search,
+        sortBy: filters.sortBy,
+        sortOrder: filters.sortOrder,
+      });
 
-      if (favoritesOnly) {
-        query = query.eq('is_favorite', true);
+      const response = await fetch(`/api/excuses?${params}`);
+      const data = await response.json();
+
+      if (response.ok) {
+        setExcuses(data.excuses);
+        setPagination(data.pagination);
+      } else {
+        console.error('Error loading excuses:', data.error);
       }
-
-      const { data, error } = await query;
-
-      if (error) {
-        console.error('Error loading excuses:', error);
-        return;
-      }
-
-      setExcuses(data || []);
     } catch (error) {
       console.error('Error loading excuses:', error);
     } finally {
@@ -66,12 +95,13 @@ export default function DashboardPage() {
 
   const toggleFavorite = async (excuseId: string, currentFavorite: boolean) => {
     try {
-      const { error } = await supabase
-        .from('excuses')
-        .update({ is_favorite: !currentFavorite })
-        .eq('id', excuseId);
+      const response = await fetch(`/api/excuses/${excuseId}/favorite`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ is_favorite: !currentFavorite }),
+      });
 
-      if (!error) {
+      if (response.ok) {
         setExcuses(excuses.map(excuse => 
           excuse.id === excuseId 
             ? { ...excuse, is_favorite: !currentFavorite }
@@ -103,16 +133,28 @@ export default function DashboardPage() {
     }
   };
 
-  const filteredExcuses = excuses.filter(excuse => {
-    const matchesSearch = searchTerm === '' || 
-      excuse.result_text.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      excuse.input.scenario.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesFilter = filter === 'all' || 
-      (filter === 'favorites' && excuse.is_favorite);
-    
-    return matchesSearch && matchesFilter;
-  });
+  const getChannelIcon = (channel: string) => {
+    switch (channel) {
+      case 'email': return <MessageSquare className="h-4 w-4" />;
+      case 'call': return <Phone className="h-4 w-4" />;
+      case 'in_person': return <User className="h-4 w-4" />;
+      default: return <MessageSquare className="h-4 w-4" />;
+    }
+  };
+
+  const handlePageChange = (page: number) => {
+    setPagination(prev => ({ ...prev, page }));
+  };
+
+  const handleSearchChange = (search: string) => {
+    setFilters(prev => ({ ...prev, search }));
+    setPagination(prev => ({ ...prev, page: 1 })); // Сброс на первую страницу
+  };
+
+  const handleFilterChange = (favoritesOnly: boolean) => {
+    setFilters(prev => ({ ...prev, favoritesOnly }));
+    setPagination(prev => ({ ...prev, page: 1 }));
+  };
 
   if (loading) {
     return (
@@ -130,6 +172,9 @@ export default function DashboardPage() {
           <div className="text-center">
             <h1 className="text-3xl font-bold">Панель управления</h1>
             <p className="text-muted-foreground">История и избранные отмазки</p>
+            <div className="mt-4 text-sm text-muted-foreground">
+              Всего отмазок: {pagination.total} • Страница {pagination.page} из {pagination.totalPages}
+            </div>
           </div>
 
           {/* Фильтры */}
@@ -137,35 +182,57 @@ export default function DashboardPage() {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Filter className="h-5 w-5" />
-                Фильтры
+                Фильтры и поиск
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="md:col-span-2">
                   <Input
                     placeholder="Поиск по тексту или сценарию..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
+                    value={filters.search}
+                    onChange={(e) => handleSearchChange(e.target.value)}
                   />
                 </div>
-                <Select value={filter} onValueChange={(value: 'all' | 'favorites') => setFilter(value)}>
-                  <SelectTrigger className="w-48">
+                
+                <Select 
+                  value={filters.favoritesOnly ? 'favorites' : 'all'} 
+                  onValueChange={(value) => handleFilterChange(value === 'favorites')}
+                >
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">
                       <div className="flex items-center gap-2">
                         <History className="h-4 w-4" />
-                        Все
+                        Все отмазки
                       </div>
                     </SelectItem>
                     <SelectItem value="favorites">
                       <div className="flex items-center gap-2">
                         <Heart className="h-4 w-4" />
-                        Избранное
+                        Только избранные
                       </div>
                     </SelectItem>
+                  </SelectContent>
+                </Select>
+
+                <Select 
+                  value={`${filters.sortBy}-${filters.sortOrder}`}
+                  onValueChange={(value) => {
+                    const [sortBy, sortOrder] = value.split('-') as ['created_at' | 'updated_at', 'asc' | 'desc'];
+                    setFilters(prev => ({ ...prev, sortBy, sortOrder }));
+                    setPagination(prev => ({ ...prev, page: 1 }));
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="created_at-desc">Новые сначала</SelectItem>
+                    <SelectItem value="created_at-asc">Старые сначала</SelectItem>
+                    <SelectItem value="updated_at-desc">Недавно обновленные</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -174,11 +241,11 @@ export default function DashboardPage() {
 
           {/* Список отмазок */}
           <div className="space-y-4">
-            {filteredExcuses.length === 0 ? (
+            {excuses.length === 0 ? (
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-muted-foreground">
-                    {searchTerm || filter === 'favorites' 
+                    {filters.search || filters.favoritesOnly
                       ? 'Ничего не найдено' 
                       : 'У вас пока нет отмазок. Создайте первую!'}
                   </p>
@@ -188,14 +255,27 @@ export default function DashboardPage() {
                 </CardContent>
               </Card>
             ) : (
-              filteredExcuses.map((excuse) => (
-                <Card key={excuse.id}>
+              excuses.map((excuse) => (
+                <Card key={excuse.id} className="hover:shadow-md transition-shadow">
                   <CardHeader>
                     <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <CardTitle className="text-lg">{excuse.input.scenario}</CardTitle>
-                        <CardDescription>
-                          {new Date(excuse.created_at).toLocaleDateString()} • {excuse.input.tone} • {excuse.input.channel}
+                      <div className="space-y-2 flex-1">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-lg">{excuse.input.scenario}</CardTitle>
+                          {excuse.is_favorite && (
+                            <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                          )}
+                        </div>
+                        <CardDescription className="flex items-center gap-4">
+                          <span className="flex items-center gap-1">
+                            <Calendar className="h-3 w-3" />
+                            {new Date(excuse.created_at).toLocaleDateString()}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            {getChannelIcon(excuse.input.channel)}
+                            {excuse.input.channel}
+                          </span>
+                          <span className="capitalize">{excuse.input.tone}</span>
                         </CardDescription>
                       </div>
                       <div className="flex items-center gap-2">
@@ -212,10 +292,10 @@ export default function DashboardPage() {
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="bg-muted p-4 rounded-lg">
-                      <p className="text-sm leading-relaxed">{excuse.result_text}</p>
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{excuse.result_text}</p>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                       <Button
                         variant="outline"
                         size="sm"
@@ -253,6 +333,65 @@ export default function DashboardPage() {
               ))
             )}
           </div>
+
+          {/* Пагинация */}
+          {pagination.totalPages > 1 && (
+            <Card>
+              <CardContent className="pt-6">
+                <Pagination>
+                  <PaginationContent>
+                    {pagination.hasPrev && (
+                      <PaginationItem>
+                        <PaginationPrevious 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(pagination.page - 1);
+                          }}
+                        />
+                      </PaginationItem>
+                    )}
+                    
+                    {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
+                      const page = i + 1;
+                      return (
+                        <PaginationItem key={page}>
+                          <PaginationLink
+                            href="#"
+                            isActive={page === pagination.page}
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handlePageChange(page);
+                            }}
+                          >
+                            {page}
+                          </PaginationLink>
+                        </PaginationItem>
+                      );
+                    })}
+                    
+                    {pagination.totalPages > 5 && (
+                      <PaginationItem>
+                        <PaginationEllipsis />
+                      </PaginationItem>
+                    )}
+                    
+                    {pagination.hasNext && (
+                      <PaginationItem>
+                        <PaginationNext 
+                          href="#" 
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handlePageChange(pagination.page + 1);
+                          }}
+                        />
+                      </PaginationItem>
+                    )}
+                  </PaginationContent>
+                </Pagination>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </div>
     </AuthGuard>
