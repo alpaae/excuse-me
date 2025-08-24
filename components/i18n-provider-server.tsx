@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { getLanguageFromRequest } from '@/lib/i18n-server';
+import { resolveLocaleServer } from '@/lib/i18n-detect';
 import { I18nProvider } from './i18n-provider';
 
 interface I18nProviderServerProps {
@@ -7,16 +7,46 @@ interface I18nProviderServerProps {
 }
 
 export async function I18nProviderServer({ children }: I18nProviderServerProps) {
-  // Получаем язык из request на сервере
+  // Получаем заголовки
   const headersList = await headers();
-  const request = new Request('http://localhost', {
-    headers: Object.fromEntries(headersList.entries()),
-  });
   
-  const initialLanguage = await getLanguageFromRequest(request);
+  // Создаем объект, имитирующий NextRequest
+  const mockRequest = {
+    nextUrl: {
+      searchParams: {
+        get: (name: string) => {
+          // В server component мы не можем получить query параметры из URL
+          // Они будут обработаны middleware
+          return null;
+        }
+      }
+    },
+    cookies: {
+      get: (name: string) => {
+        const cookieHeader = headersList.get('cookie');
+        if (!cookieHeader) return null;
+        
+        const cookies = cookieHeader.split(';').reduce((acc, cookie) => {
+          const [name, value] = cookie.trim().split('=');
+          if (name && value) {
+            acc[name] = value;
+          }
+          return acc;
+        }, {} as Record<string, string>);
+        
+        return cookies[name] ? { value: cookies[name] } : null;
+      }
+    },
+    headers: {
+      get: (name: string) => headersList.get(name)
+    }
+  } as any;
+  
+  // Определяем локаль на сервере
+  const initialLocale = resolveLocaleServer(mockRequest);
 
   return (
-    <I18nProvider initialLanguage={initialLanguage}>
+    <I18nProvider initialLocale={initialLocale}>
       {children}
     </I18nProvider>
   );

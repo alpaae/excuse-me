@@ -1,17 +1,29 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, createContext, useContext } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18next from '@/lib/i18n';
-import { detectLanguage, getLanguageCookie, normalizeLocale, syncLanguage, getLanguageFromUrl } from '@/lib/i18n-detect';
+import { normalizeLocale, syncLanguage } from '@/lib/i18n-detect';
+
+// Контекст для текущей локали
+interface LocaleContextType {
+  currentLocale: string;
+  setCurrentLocale: (locale: string) => void;
+}
+
+const LocaleContext = createContext<LocaleContextType | null>(null);
 
 interface I18nProviderProps {
   children: React.ReactNode;
-  initialLanguage?: string; // Для SSR гидратации
+  initialLocale?: string; // Серверно-определенная локаль
 }
 
-export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
+export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
+  const [currentLocale, setCurrentLocale] = useState<string>(() => {
+    // Инициализируем состояние с серверной локалью или fallback
+    return initialLocale ? normalizeLocale(initialLocale) : 'ru';
+  });
 
   useEffect(() => {
     // Инициализируем i18n на клиенте
@@ -19,38 +31,48 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
       i18next.init();
     }
 
-    let finalLanguage: string;
-
-    // Синхронизируем язык с SSR
-    if (initialLanguage) {
-      finalLanguage = normalizeLocale(initialLanguage);
-      i18next.changeLanguage(finalLanguage);
-    } else {
-      // Детектируем язык на клиенте
-      const queryLang = getLanguageFromUrl(window.location.href);
-      const cookieLang = getLanguageCookie();
-      
-      finalLanguage = detectLanguage({
-        query: queryLang || undefined,
-        cookie: cookieLang || undefined,
-        acceptLanguage: navigator.language,
-      });
-
-      i18next.changeLanguage(finalLanguage);
+    // Устанавливаем локаль из сервера или текущего состояния
+    const localeToUse = initialLocale ? normalizeLocale(initialLocale) : currentLocale;
+    
+    // Обновляем i18next
+    i18next.changeLanguage(localeToUse);
+    
+    // Обновляем состояние если локаль изменилась
+    if (localeToUse !== currentLocale) {
+      setCurrentLocale(localeToUse);
     }
 
-    // Сохраняем выбранную локаль в cookie для будущих посещений
-    // Только если нет query параметра (чтобы не перезаписывать явный выбор)
+    // Синхронизируем с cookie и URL только если нет query параметра
+    // (чтобы не перезаписывать явный выбор пользователя)
     if (!window.location.search.includes('lang=') && !window.location.search.includes('lng=')) {
-      syncLanguage(finalLanguage);
+      syncLanguage(localeToUse);
     }
 
     setIsInitialized(true);
-  }, [initialLanguage]);
+  }, [initialLocale, currentLocale]);
+
+  // Функция для изменения локали
+  const handleSetCurrentLocale = (newLocale: string) => {
+    const normalizedLocale = normalizeLocale(newLocale);
+    setCurrentLocale(normalizedLocale);
+    i18next.changeLanguage(normalizedLocale);
+    syncLanguage(normalizedLocale);
+  };
 
   return (
-    <I18nextProvider i18n={i18next}>
-      {children}
-    </I18nextProvider>
+    <LocaleContext.Provider value={{ currentLocale, setCurrentLocale: handleSetCurrentLocale }}>
+      <I18nextProvider i18n={i18next}>
+        {children}
+      </I18nextProvider>
+    </LocaleContext.Provider>
   );
+}
+
+// Хук для получения текущей локали
+export function useCurrentLocale() {
+  const context = useContext(LocaleContext);
+  if (!context) {
+    throw new Error('useCurrentLocale must be used within I18nProvider');
+  }
+  return context;
 }
