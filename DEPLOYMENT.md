@@ -1,82 +1,78 @@
-# 🚀 Деплой ExcuseME MVP
+# Deployment Guide
 
-## Быстрая настройка
+## Quick Deploy
 
-### 1. Подготовка к деплою
-
+### Option 1: Vercel CLI (Limited to 100 deploys/day)
 ```bash
-# Убедитесь что все изменения закоммичены
-git add .
-git commit -m "feat: ready for deployment"
-git push origin main
+vercel --prod
 ```
 
-### 2. Настройка Supabase
+### Option 2: GitHub Actions (Recommended)
 
-1. Создайте проект на [supabase.com](https://supabase.com)
-2. Получите URL и ключи из Settings → API
-3. Добавьте в переменные окружения:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE`
+1. **Setup GitHub Secrets** (Required for auto-deploy):
+   - Go to your GitHub repository → Settings → Secrets and variables → Actions
+   - Add the following secrets:
 
-### 3. Настройка OpenAI
+   ```
+   VERCEL_TOKEN=your_vercel_token
+   VERCEL_ORG_ID=pavlo-berlizov-s-projects
+   VERCEL_PROJECT_ID=prj_bHStkCoufxI8vbyXLfQ7ZGoYyq55
+   ```
 
-1. Получите API ключ на [platform.openai.com](https://platform.openai.com)
-2. Добавьте `OPENAI_API_KEY` в переменные окружения
+2. **Get Vercel Token**:
+   ```bash
+   vercel login
+   vercel whoami
+   # Then go to https://vercel.com/account/tokens
+   # Create a new token with "Full Account" scope
+   ```
 
-### 4. Деплой на Vercel
+3. **Auto-deploy on push to main**:
+   - Push to `main` branch
+   - GitHub Actions will automatically deploy to Vercel
 
-1. Подключите репозиторий на [vercel.com](https://vercel.com)
-2. Добавьте все переменные окружения из `env.example`
-3. Установите `NEXT_PUBLIC_BASE_URL` = ваш домен
-4. Деплой произойдет автоматически
+### Option 3: Manual Deploy via GitHub Actions
 
-### 5. Проверка
+1. Go to your GitHub repository
+2. Navigate to Actions → "Deploy to Vercel"
+3. Click "Run workflow" → "Run workflow"
 
-После деплоя проверьте:
-- ✅ Приложение доступно по URL
-- ✅ i18n работает (переключение языков)
-- ✅ Генерация отмазок работает
-- ✅ Аутентификация работает
+## Environment Variables
 
-## Переменные окружения
+Make sure these are set in Vercel:
 
-### Обязательные
-```
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-SUPABASE_SERVICE_ROLE=your-service-role-key
-OPENAI_API_KEY=sk-your-openai-api-key
-```
+### Required
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE`
+- `OPENAI_API_KEY`
 
-### Опциональные
-```
-NEXT_PUBLIC_BASE_URL=https://your-app.vercel.app  # Только для Stripe redirect URLs
-NEXT_PUBLIC_FEATURE_PAYMENTS=true
-TG_BOT_TOKEN=your-telegram-bot-token
-STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key
-STRIPE_PRICE_PRO_MONTHLY=price_your-monthly-price-id
-STRIPE_WEBHOOK_SECRET=whsec_your-webhook-secret
-UPSTASH_REDIS_REST_URL=https://your-redis-url.upstash.io
-UPSTASH_REDIS_REST_TOKEN=your-redis-token
-```
+### Optional
+- `NEXT_PUBLIC_BASE_URL` (auto-detected)
+- `NEXT_PUBLIC_FEATURE_PAYMENTS`
+- `STRIPE_SECRET_KEY`
+- `STRIPE_PRICE_PRO_MONTHLY`
+- `STRIPE_WEBHOOK_SECRET`
+- `TG_BOT_TOKEN`
 
-## Структура проекта
+## Current Status
 
-```
-excuseme-mvp/
-├── app/                    # Next.js App Router
-├── components/             # React компоненты
-├── lib/                    # Утилиты и конфигурация
-├── middleware.ts           # i18n middleware
-├── vercel.json            # Конфигурация Vercel
-├── env.example            # Пример переменных
-└── scripts/setup.sh       # Скрипт настройки
-```
+- **Project**: excuse-me
+- **URL**: https://excuse-me-pavlo-berlizov-s-projects.vercel.app
+- **Project ID**: prj_bHStkCoufxI8vbyXLfQ7ZGoYyq55
+- **Org ID**: pavlo-berlizov-s-projects
 
-## Мониторинг
+## Troubleshooting
 
-- **Vercel Analytics:** автоматически включены
-- **Supabase Logs:** доступны в Dashboard
-- **OpenAI Usage:** отслеживается в OpenAI Dashboard
+### CLI Deploy Limit Reached
+If you see "Resource is limited - try again in 6 hours", use GitHub Actions instead.
+
+### Build Errors
+1. Check environment variables are set correctly
+2. Ensure all dependencies are installed
+3. Verify TypeScript compilation passes locally
+
+### Runtime Errors
+1. Check Vercel function logs
+2. Verify API endpoints are working
+3. Check Supabase connection
