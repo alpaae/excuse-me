@@ -51,8 +51,8 @@ export async function POST(request: NextRequest) {
 
       if (count && count >= 3) {
         return NextResponse.json(
-          { error: 'Daily limit reached', limit: true },
-          { status: 429 }
+          { error: 'FREE_LIMIT_REACHED', limit: true },
+          { status: 402 }
         );
       }
     }
