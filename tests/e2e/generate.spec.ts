@@ -27,7 +27,7 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем, что показывается результат
     await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByText('OK: generated')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toContainText('OK: generated');
   });
 
   test('should display rate limit error', async ({ page, mockGenerate, mockTts }) => {
@@ -52,7 +52,7 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем баннер rate limit
     await expect(page.getByTestId(SELECTORS.BANNER_RATE_LIMIT)).toBeVisible();
-    await expect(page.getByText('Too many requests')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.BANNER_RATE_LIMIT)).toContainText('Too many requests');
   });
 
   test('should display free limit banner', async ({ page, mockGenerate, mockTts }) => {
@@ -77,7 +77,7 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем баннер лимита
     await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toBeVisible();
-    await expect(page.getByText('Daily free limit reached')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toContainText('Daily free limit reached');
   });
 
   test('should handle form validation', async ({ page }) => {
@@ -147,7 +147,7 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем результат
     await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByText('OK: generated')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toContainText('OK: generated');
   });
 
   test('should handle empty TTS response', async ({ page, mockGenerate, mockTts }) => {
@@ -172,6 +172,6 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем результат (TTS ошибка не должна влиять на отображение текста)
     await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByText('OK: generated')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toContainText('OK: generated');
   });
 });

@@ -32,10 +32,10 @@ test.describe('Homepage', () => {
     await expect(page.getByPlaceholder('Например: отмена встречи')).toBeVisible();
     await expect(page.getByPlaceholder('Дополнительные детали')).toBeVisible();
     
-    // Проверяем селекты
-    await expect(page.getByText('Профессиональный')).toBeVisible(); // Тон по умолчанию
-    await expect(page.getByText('Email')).toBeVisible(); // Канал по умолчанию
-    await expect(page.getByText('Русский')).toBeVisible(); // Язык по умолчанию
+    // Проверяем селекты через testid
+    await expect(page.getByTestId(SELECTORS.GEN_TONE)).toContainText('Профессиональный'); // Тон по умолчанию
+    await expect(page.getByTestId(SELECTORS.GEN_CHANNEL)).toContainText('Email'); // Канал по умолчанию
+    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Русский'); // Язык по умолчанию
     
     // Проверяем кнопку генерации
     await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toHaveText(EXPECTED_TEXT.GENERATION.BUTTON);

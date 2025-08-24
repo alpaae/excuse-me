@@ -194,32 +194,7 @@ export default function HomePage() {
           )}
 
           {/* Баннер rate limit */}
-          {showRateLimitBanner && (
-            <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950" data-testid="banner-rate-limit">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-                    <div>
-                      <h3 className="font-semibold text-red-900 dark:text-red-100">
-                        Слишком много запросов
-                      </h3>
-                      <p className="text-sm text-red-700 dark:text-red-300">
-                        Попробуйте через минуту или обновите страницу
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    onClick={() => setShowRateLimitBanner(false)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Закрыть
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+
 
           {/* Форма генерации */}
           <Card>
@@ -247,7 +222,7 @@ export default function HomePage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="space-y-2">
+                  <div className="space-y-2" key="tone-select">
                     <Label>Тон</Label>
                     <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
                       <SelectTrigger data-testid="gen-tone">
@@ -262,7 +237,7 @@ export default function HomePage() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2" key="channel-select">
                     <Label>Канал</Label>
                     <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
                       <SelectTrigger data-testid="gen-channel">
@@ -277,7 +252,7 @@ export default function HomePage() {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2" key="lang-select">
                     <Label>Язык</Label>
                     <Select 
                       value={formData.lang} 
@@ -318,7 +293,7 @@ export default function HomePage() {
 
           {/* Rate Limit Banner */}
           {showRateLimitBanner && (
-            <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+            <Card key="rate-limit-banner" className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3" data-testid="banner-rate-limit">
                   <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
@@ -337,7 +312,7 @@ export default function HomePage() {
 
           {/* Free Limit Banner */}
           {showLimitBanner && (
-            <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+            <Card key="free-limit-banner" className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3" data-testid="banner-free-limit">
                   <Crown className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
@@ -362,7 +337,7 @@ export default function HomePage() {
 
           {/* Результат */}
           {result && (
-            <Card>
+            <Card key="generation-result">
               <CardHeader>
                 <CardTitle>Результат</CardTitle>
               </CardHeader>
@@ -393,7 +368,7 @@ export default function HomePage() {
 
           {/* CTA для неавторизованных пользователей */}
           {!user && (
-            <Card>
+            <Card key="login-cta">
               <CardContent className="pt-6 text-center">
                 <p className="text-muted-foreground mb-4">
                   Войдите, чтобы сохранять историю отмазок и получить больше возможностей
@@ -407,7 +382,7 @@ export default function HomePage() {
 
           {/* Модальное окно аутентификации */}
           {showAuth && (
-            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+            <div key="auth-modal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
               <div data-testid="auth-dialog">
                 <AuthForm />
               </div>
