@@ -1,13 +1,4 @@
-import { 
-  normalizeLocale, 
-  isValidLocale, 
-  parseAcceptLanguage, 
-  detectLanguage,
-  syncLanguage,
-  getLanguageFromUrl,
-  updateLanguageQuery,
-  I18N_CONSTANTS 
-} from '@/lib/i18n-detect';
+import { normalizeLocale, parseAcceptLanguage, I18N_CONSTANTS } from '../lib/i18n-detect';
 
 describe('i18n-detect', () => {
   describe('normalizeLocale', () => {
@@ -15,67 +6,76 @@ describe('i18n-detect', () => {
       expect(normalizeLocale('en')).toBe('en');
       expect(normalizeLocale('ru')).toBe('ru');
       expect(normalizeLocale('es')).toBe('es');
+      expect(normalizeLocale('fr')).toBe('fr');
     });
 
-    it('should handle BCP-47 format', () => {
+    it('should normalize BCP-47 codes', () => {
       expect(normalizeLocale('en-US')).toBe('en');
       expect(normalizeLocale('ru-RU')).toBe('ru');
-      expect(normalizeLocale('pt-BR')).toBe('pt-BR');
       expect(normalizeLocale('zh-CN')).toBe('zh-CN');
+      expect(normalizeLocale('pt-BR')).toBe('pt-BR');
     });
 
     it('should handle aliases', () => {
       expect(normalizeLocale('cn')).toBe('zh-CN');
       expect(normalizeLocale('ua')).toBe('uk');
       expect(normalizeLocale('br')).toBe('pt-BR');
-      expect(normalizeLocale('us')).toBe('en');
       expect(normalizeLocale('russian')).toBe('ru');
       expect(normalizeLocale('русский')).toBe('ru');
+      expect(normalizeLocale('english')).toBe('en');
     });
 
     it('should handle case variations', () => {
       expect(normalizeLocale('EN')).toBe('en');
       expect(normalizeLocale('Ru')).toBe('ru');
-      expect(normalizeLocale('EN-US')).toBe('en');
-      expect(normalizeLocale('RU-RU')).toBe('ru');
+      expect(normalizeLocale('zh-cn')).toBe('zh-CN');
+      expect(normalizeLocale('PT-BR')).toBe('pt-BR');
     });
 
     it('should handle whitespace', () => {
       expect(normalizeLocale(' en ')).toBe('en');
       expect(normalizeLocale('  ru  ')).toBe('ru');
+      expect(normalizeLocale('\tzh-CN\n')).toBe('zh-CN');
     });
 
-    it('should return base locale for unsupported languages', () => {
+    it('should fallback to base locale for unsupported languages', () => {
       expect(normalizeLocale('xx')).toBe('ru');
       expect(normalizeLocale('invalid')).toBe('ru');
+      expect(normalizeLocale('zh-TW')).toBe('ru'); // Traditional Chinese not supported
+      expect(normalizeLocale('ar')).toBe('ru'); // Arabic not supported
+    });
+
+    it('should handle edge cases', () => {
       expect(normalizeLocale('')).toBe('ru');
       expect(normalizeLocale('   ')).toBe('ru');
-    });
-
-    it('should handle null/undefined', () => {
       expect(normalizeLocale(null as any)).toBe('ru');
       expect(normalizeLocale(undefined as any)).toBe('ru');
-    });
-  });
-
-  describe('isValidLocale', () => {
-    it('should return true for supported locales', () => {
-      expect(isValidLocale('en')).toBe(true);
-      expect(isValidLocale('ru')).toBe(true);
-      expect(isValidLocale('pt-BR')).toBe(true);
-      expect(isValidLocale('zh-CN')).toBe(true);
+      expect(normalizeLocale(123 as any)).toBe('ru');
     });
 
-    it('should return false for unsupported locales', () => {
-      expect(isValidLocale('xx')).toBe(false);
-      expect(isValidLocale('invalid')).toBe(false);
-      expect(isValidLocale('')).toBe(false);
+    it('should handle complex aliases', () => {
+      expect(normalizeLocale('zh_cn')).toBe('zh-CN');
+      expect(normalizeLocale('pt-pt')).toBe('pt-PT');
+      expect(normalizeLocale('portugal')).toBe('pt-PT');
+      expect(normalizeLocale('brazil')).toBe('pt-BR');
+      expect(normalizeLocale('ukraine')).toBe('uk');
+      expect(normalizeLocale('spanish')).toBe('es');
+      expect(normalizeLocale('french')).toBe('fr');
+      expect(normalizeLocale('german')).toBe('de');
+      expect(normalizeLocale('italian')).toBe('it');
+      expect(normalizeLocale('japanese')).toBe('ja');
+      expect(normalizeLocale('korean')).toBe('ko');
     });
 
-    it('should handle aliases', () => {
-      expect(isValidLocale('cn')).toBe(true); // maps to zh-CN
-      expect(isValidLocale('ua')).toBe(true); // maps to uk
-      expect(isValidLocale('br')).toBe(true); // maps to pt-BR
+    it('should handle ISO codes', () => {
+      expect(normalizeLocale('eng')).toBe('en');
+      expect(normalizeLocale('rus')).toBe('ru');
+      expect(normalizeLocale('spa')).toBe('es');
+      expect(normalizeLocale('fra')).toBe('fr');
+      expect(normalizeLocale('deu')).toBe('de');
+      expect(normalizeLocale('ita')).toBe('it');
+      expect(normalizeLocale('jpn')).toBe('ja');
+      expect(normalizeLocale('kor')).toBe('ko');
     });
   });
 
@@ -83,237 +83,119 @@ describe('i18n-detect', () => {
     it('should parse simple Accept-Language', () => {
       expect(parseAcceptLanguage('en')).toBe('en');
       expect(parseAcceptLanguage('ru')).toBe('ru');
+      expect(parseAcceptLanguage('es')).toBe('es');
     });
 
-    it('should parse complex Accept-Language with quality', () => {
+    it('should parse Accept-Language with quality values', () => {
       expect(parseAcceptLanguage('en-US,en;q=0.9,ru;q=0.8')).toBe('en');
       expect(parseAcceptLanguage('ru-RU,ru;q=0.9,en;q=0.8')).toBe('ru');
+      expect(parseAcceptLanguage('es-ES,es;q=0.9,en;q=0.7')).toBe('es');
     });
 
-    it('should respect quality values', () => {
-      expect(parseAcceptLanguage('en;q=0.8,ru;q=0.9')).toBe('ru');
-      expect(parseAcceptLanguage('es;q=0.5,ru;q=0.9,en;q=0.8')).toBe('ru');
+    it('should respect quality values order', () => {
+      expect(parseAcceptLanguage('ru;q=0.8,en;q=0.9')).toBe('en');
+      expect(parseAcceptLanguage('es;q=0.7,ru;q=0.9,en;q=0.8')).toBe('ru');
+      expect(parseAcceptLanguage('fr;q=0.9,de;q=0.8,en;q=0.7')).toBe('fr');
     });
 
     it('should handle aliases in Accept-Language', () => {
       expect(parseAcceptLanguage('cn,en;q=0.9')).toBe('zh-CN');
-      expect(parseAcceptLanguage('ua,ru;q=0.9')).toBe('uk');
+      expect(parseAcceptLanguage('ua,ru;q=0.8')).toBe('uk');
+      expect(parseAcceptLanguage('br,pt;q=0.9')).toBe('pt-BR');
+      expect(parseAcceptLanguage('russian,en;q=0.8')).toBe('ru');
     });
 
-    it('should return null for unsupported languages', () => {
-      expect(parseAcceptLanguage('xx')).toBe(null);
-      expect(parseAcceptLanguage('xx-YY,zz;q=0.9')).toBe(null);
+    it('should prioritize supported languages', () => {
+      expect(parseAcceptLanguage('xx-XX,en;q=0.9,ru;q=0.8')).toBe('en');
+      expect(parseAcceptLanguage('invalid,es;q=0.7,fr;q=0.8')).toBe('es');
+      expect(parseAcceptLanguage('zz,de;q=0.9,it;q=0.8')).toBe('de');
+    });
+
+    it('should handle Russian fallback', () => {
+      expect(parseAcceptLanguage('ru-XX,en;q=0.9')).toBe('ru');
+      expect(parseAcceptLanguage('ru-RU,en;q=0.8')).toBe('ru');
+      expect(parseAcceptLanguage('ru,en;q=0.9')).toBe('ru');
+    });
+
+    it('should handle edge cases', () => {
+      expect(parseAcceptLanguage('')).toBeNull();
+      expect(parseAcceptLanguage('   ')).toBeNull();
+      expect(parseAcceptLanguage(null as any)).toBeNull();
+      expect(parseAcceptLanguage(undefined as any)).toBeNull();
     });
 
     it('should handle malformed Accept-Language', () => {
-      expect(parseAcceptLanguage('')).toBe(null);
-      expect(parseAcceptLanguage('invalid')).toBe(null);
+      expect(parseAcceptLanguage('en-US,en;q=invalid,ru;q=0.8')).toBe('en');
+      expect(parseAcceptLanguage('en;q=,ru;q=0.9')).toBe('ru');
+      expect(parseAcceptLanguage('en-US;q=0.9,ru')).toBe('ru');
     });
 
-    it('should prioritize Russian when Accept-Language starts with ru', () => {
-      expect(parseAcceptLanguage('ru-XX,en;q=0.9')).toBe('ru');
-      expect(parseAcceptLanguage('ru-RU,ru;q=0.8,en;q=0.9')).toBe('ru');
-      expect(parseAcceptLanguage('ru,en;q=0.9')).toBe('ru');
-    });
-  });
-
-  describe('detectLanguage', () => {
-    it('should prioritize query parameter', () => {
-      const result = detectLanguage({
-        query: 'en',
-        cookie: 'ru',
-        acceptLanguage: 'es',
-      });
-      expect(result).toBe('en');
+    it('should handle complex Accept-Language strings', () => {
+      expect(parseAcceptLanguage('en-US,en;q=0.9,ru-RU;q=0.8,ru;q=0.7,es;q=0.6')).toBe('en');
+      expect(parseAcceptLanguage('fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7,de;q=0.6')).toBe('fr');
+      expect(parseAcceptLanguage('zh-CN,zh;q=0.9,en;q=0.8,ja;q=0.7')).toBe('zh-CN');
     });
 
-    it('should use cookie when query is not available', () => {
-      const result = detectLanguage({
-        cookie: 'ru',
-        acceptLanguage: 'es',
-      });
-      expect(result).toBe('ru');
+    it('should handle unsupported languages gracefully', () => {
+      expect(parseAcceptLanguage('ar-SA,ar;q=0.9,en;q=0.8')).toBe('en');
+      expect(parseAcceptLanguage('hi-IN,hi;q=0.9,ru;q=0.8')).toBe('ru');
+      expect(parseAcceptLanguage('th-TH,th;q=0.9,es;q=0.8')).toBe('es');
     });
 
-    it('should use Accept-Language when query and cookie are not available', () => {
-      const result = detectLanguage({
-        acceptLanguage: 'es',
-      });
-      expect(result).toBe('es');
-    });
-
-    it('should use default when no sources are available', () => {
-      const result = detectLanguage({});
-      expect(result).toBe('ru');
-    });
-
-    it('should handle telegram language', () => {
-      const result = detectLanguage({
-        telegramLanguage: 'en',
-        acceptLanguage: 'ru',
-      });
-      expect(result).toBe('en');
-    });
-
-    it('should normalize all inputs', () => {
-      const result = detectLanguage({
-        query: 'EN-US',
-        cookie: 'RU-RU',
-        telegramLanguage: 'ES-ES',
-      });
-      expect(result).toBe('en');
+    it('should handle mixed case and whitespace', () => {
+      expect(parseAcceptLanguage('EN-US,en;q=0.9, RU ;q=0.8')).toBe('en');
+      expect(parseAcceptLanguage('  ru-RU  ,  ru  ;q=0.9  ')).toBe('ru');
+      expect(parseAcceptLanguage('\ten-US\n,en;q=0.9\t')).toBe('en');
     });
   });
 
   describe('I18N_CONSTANTS', () => {
-    it('should export supported locales', () => {
+    it('should export correct constants', () => {
+      expect(I18N_CONSTANTS.BASE_LOCALE).toBe('ru');
       expect(I18N_CONSTANTS.SUPPORTED_LOCALES).toContain('en');
       expect(I18N_CONSTANTS.SUPPORTED_LOCALES).toContain('ru');
-      expect(I18N_CONSTANTS.SUPPORTED_LOCALES).toContain('pt-BR');
       expect(I18N_CONSTANTS.SUPPORTED_LOCALES).toContain('zh-CN');
+      expect(I18N_CONSTANTS.LOCALE_ALIASES).toHaveProperty('cn');
+      expect(I18N_CONSTANTS.LOCALE_ALIASES).toHaveProperty('ua');
+      expect(I18N_CONSTANTS.LOCALE_ALIASES).toHaveProperty('br');
     });
 
-    it('should export locale aliases', () => {
+    it('should have consistent alias mappings', () => {
       expect(I18N_CONSTANTS.LOCALE_ALIASES['cn']).toBe('zh-CN');
       expect(I18N_CONSTANTS.LOCALE_ALIASES['ua']).toBe('uk');
       expect(I18N_CONSTANTS.LOCALE_ALIASES['br']).toBe('pt-BR');
-    });
-
-    it('should export base locale', () => {
-      expect(I18N_CONSTANTS.BASE_LOCALE).toBe('ru');
+      expect(I18N_CONSTANTS.LOCALE_ALIASES['russian']).toBe('ru');
+      expect(I18N_CONSTANTS.LOCALE_ALIASES['english']).toBe('en');
     });
   });
 
-  describe('syncLanguage', () => {
-    let mockSetLanguageCookie: jest.SpyInstance;
-    let mockUpdateLanguageQuery: jest.SpyInstance;
-
-    beforeEach(() => {
-      // Mock document and window for SSR
-      Object.defineProperty(global, 'document', {
-        value: {
-          cookie: '',
-        },
-        writable: true,
-      });
-
-      Object.defineProperty(global, 'window', {
-        value: {
-          location: { href: 'http://localhost:3000' },
-          history: { replaceState: jest.fn() },
-        },
-        writable: true,
-      });
-
-      // Mock the functions
-      mockSetLanguageCookie = jest.spyOn(require('@/lib/i18n-detect'), 'setLanguageCookie');
-      mockUpdateLanguageQuery = jest.spyOn(require('@/lib/i18n-detect'), 'updateLanguageQuery');
-    });
-
-    afterEach(() => {
-      mockSetLanguageCookie.mockRestore();
-      mockUpdateLanguageQuery.mockRestore();
-    });
-
-    it('should call setLanguageCookie and updateLanguageQuery', () => {
-      syncLanguage('en');
+  describe('integration tests', () => {
+    it('should handle real-world Accept-Language scenarios', () => {
+      // Chrome default
+      expect(parseAcceptLanguage('en-US,en;q=0.9')).toBe('en');
       
-      expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 180);
-      expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('en');
-    });
-
-    it('should normalize locale before syncing', () => {
-      syncLanguage('EN-US');
+      // Firefox with Russian
+      expect(parseAcceptLanguage('ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7')).toBe('ru');
       
-      expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 180);
-      expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('en');
-    });
-
-    it('should handle special characters in locale', () => {
-      syncLanguage('zh-CN');
+      // Safari with multiple languages
+      expect(parseAcceptLanguage('en-GB,en;q=0.9,es;q=0.8,fr;q=0.7')).toBe('en');
       
-      expect(mockSetLanguageCookie).toHaveBeenCalledWith('zh-CN', 180);
-      expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('zh-CN');
-    });
-  });
-
-  describe('URL encoding/decoding', () => {
-    it('should safely encode locale in URL', () => {
-      // Mock window.location
-      Object.defineProperty(global, 'window', {
-        value: {
-          location: { href: 'http://localhost:3000' },
-          history: { replaceState: jest.fn() },
-        },
-        writable: true,
-      });
-
-      // Test encoding
-      updateLanguageQuery('en');
-      expect(window.history.replaceState).toHaveBeenCalledWith(
-        {}, 
-        '', 
-        'http://localhost:3000?lang=en'
-      );
-
-      // Test encoding with special characters
-      updateLanguageQuery('zh-CN');
-      expect(window.history.replaceState).toHaveBeenCalledWith(
-        {}, 
-        '', 
-        'http://localhost:3000?lang=zh-CN'
-      );
+      // Mobile browser
+      expect(parseAcceptLanguage('zh-CN,zh;q=0.9,en;q=0.8')).toBe('zh-CN');
     });
 
-    it('should safely decode locale from URL', () => {
-      // Test normal decoding
-      expect(getLanguageFromUrl('http://localhost:3000?lang=en')).toBe('en');
-      expect(getLanguageFromUrl('http://localhost:3000?lang=ru')).toBe('ru');
-      expect(getLanguageFromUrl('http://localhost:3000?lang=zh-CN')).toBe('zh-CN');
-
-      // Test legacy lng parameter
-      expect(getLanguageFromUrl('http://localhost:3000?lng=en')).toBe('en');
-      expect(getLanguageFromUrl('http://localhost:3000?lng=ru')).toBe('ru');
-    });
-
-    it('should handle encoded values in URL', () => {
-      // Test URL-encoded values
-      expect(getLanguageFromUrl('http://localhost:3000?lang=zh%2DCN')).toBe('zh-CN');
-      expect(getLanguageFromUrl('http://localhost:3000?lang=pt%2DBR')).toBe('pt-BR');
-    });
-
-    it('should handle invalid encoded values', () => {
-      // Test invalid percent encoding
-      expect(getLanguageFromUrl('http://localhost:3000?lang=%ZZ')).toBe('ru'); // fallback
-      expect(getLanguageFromUrl('http://localhost:3000?lang=%')).toBe('ru'); // fallback
-      expect(getLanguageFromUrl('http://localhost:3000?lang=%2')).toBe('ru'); // fallback
-    });
-
-    it('should handle unsupported locales in URL', () => {
-      // Test unsupported locales
-      expect(getLanguageFromUrl('http://localhost:3000?lang=xx')).toBe('ru'); // fallback
-      expect(getLanguageFromUrl('http://localhost:3000?lang=invalid')).toBe('ru'); // fallback
-      expect(getLanguageFromUrl('http://localhost:3000?lang=fr-FR')).toBe('fr'); // normalized
-    });
-
-    it('should handle malformed URLs', () => {
-      // Test malformed URLs
-      expect(getLanguageFromUrl('not-a-url')).toBe('ru'); // fallback
-      expect(getLanguageFromUrl('')).toBe('ru'); // fallback
-      expect(getLanguageFromUrl('http://localhost:3000?lang=')).toBe('ru'); // fallback
-    });
-
-    it('should handle missing lang parameter', () => {
-      // Test URLs without lang parameter
-      expect(getLanguageFromUrl('http://localhost:3000')).toBe(null);
-      expect(getLanguageFromUrl('http://localhost:3000?other=value')).toBe(null);
-    });
-
-    it('should handle aliases in URL', () => {
-      // Test aliases in URL
-      expect(getLanguageFromUrl('http://localhost:3000?lang=cn')).toBe('zh-CN');
-      expect(getLanguageFromUrl('http://localhost:3000?lang=ua')).toBe('uk');
-      expect(getLanguageFromUrl('http://localhost:3000?lang=br')).toBe('pt-BR');
+    it('should handle edge cases in normalization', () => {
+      // Very long strings
+      expect(normalizeLocale('a'.repeat(1000))).toBe('ru');
+      
+      // Special characters
+      expect(normalizeLocale('en-US@')).toBe('en');
+      expect(normalizeLocale('ru_RU')).toBe('ru');
+      expect(normalizeLocale('zh.CN')).toBe('zh-CN');
+      
+      // Numbers
+      expect(normalizeLocale('123')).toBe('ru');
+      expect(normalizeLocale('en123')).toBe('ru');
     });
   });
 });

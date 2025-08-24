@@ -1,3 +1,5 @@
+import { NextRequest } from 'next/server';
+
 // BCP-47 Language Tag Aliases
 // Маппинг алиасов к стандартным BCP-47 тегам
 const LOCALE_ALIASES: Record<string, string> = {
@@ -89,18 +91,11 @@ const SUPPORTED_LOCALES = [
 // Базовая локаль (fallback)
 const BASE_LOCALE = 'ru';
 
-export interface LanguageDetectOptions {
-  query?: string;
-  cookie?: string;
-  telegramLanguage?: string;
-  acceptLanguage?: string;
-  defaultLanguage?: string;
-}
-
 /**
  * Нормализует локаль к BCP-47 формату
+ * Приводит к BCP-47 (xx или xx-YY), маппит алиасы
  * @param input - входная строка локали
- * @returns нормализованная локаль
+ * @returns нормализованная локаль (всегда валидная)
  */
 export function normalizeLocale(input: string): string {
   if (!input || typeof input !== 'string') {
@@ -138,31 +133,24 @@ export function normalizeLocale(input: string): string {
     return bcp47;
   }
   
-  // Fallback к базовой локали
+  // Fallback к базовой локали (никогда не бросает исключений)
   return BASE_LOCALE;
 }
 
 /**
- * Проверяет, поддерживается ли локаль
- * @param locale - локаль для проверки
- * @returns true если локаль поддерживается
- */
-export function isValidLocale(locale: string): boolean {
-  const normalized = normalizeLocale(locale);
-  return SUPPORTED_LOCALES.includes(normalized);
-}
-
-/**
  * Парсит Accept-Language заголовок
- * @param acceptLanguage - строка Accept-Language
+ * Берёт первый валидный язык
+ * @param header - строка Accept-Language
  * @returns нормализованная локаль или null
  */
-export function parseAcceptLanguage(acceptLanguage: string): string | null {
-  if (!acceptLanguage) return null;
+export function parseAcceptLanguage(header: string): string | null {
+  if (!header || typeof header !== 'string') {
+    return null;
+  }
 
   try {
     // Парсим "en-US,en;q=0.9,ru;q=0.8"
-    const languages = acceptLanguage
+    const languages = header
       .split(',')
       .map(lang => {
         const [code, quality = '1'] = lang.trim().split(';q=');
@@ -188,71 +176,78 @@ export function parseAcceptLanguage(acceptLanguage: string): string | null {
       return 'ru'; // Принудительно используем русский
     }
   } catch (error) {
-    console.warn('Failed to parse Accept-Language:', acceptLanguage, error);
+    // Не бросаем исключения, просто возвращаем null
+    console.warn('Failed to parse Accept-Language:', header, error);
   }
 
   return null;
 }
 
 /**
- * Детектирует язык по приоритету источников
- * @param options - опции детекта
- * @returns нормализованная локаль
+ * Разрешает локаль на сервере по приоритету источников
+ * Порядок: ?lang → cookie excuseme_lang → telegram language_code → Accept-Language → baseLocale
+ * @param req - NextRequest объект
+ * @returns нормализованная локаль (всегда валидная)
  */
-export function detectLanguage(options: LanguageDetectOptions = {}): string {
-  const {
-    query,
-    cookie,
-    telegramLanguage,
-    acceptLanguage,
-    defaultLanguage = BASE_LOCALE
-  } = options;
-
-  // 1. Query parameter (highest priority)
-  if (query) {
-    try {
-      // Безопасно декодируем и нормализуем
-      const decodedValue = decodeURIComponent(query);
-      const normalized = normalizeLocale(decodedValue);
+export function resolveLocaleServer(req: NextRequest): string {
+  try {
+    // 1. Query parameter (?lang=xx)
+    const queryLang = req.nextUrl.searchParams.get('lang') || req.nextUrl.searchParams.get('lng');
+    if (queryLang) {
+      const normalized = normalizeLocale(queryLang);
       if (SUPPORTED_LOCALES.includes(normalized)) {
         return normalized;
       }
-    } catch (error) {
-      // При ошибке декодирования игнорируем query параметр
-      console.warn('Failed to decode query parameter:', query, error);
     }
-  }
 
-  // 2. Cookie (excuseme_lang)
-  if (cookie) {
-    const normalized = normalizeLocale(cookie);
-    if (SUPPORTED_LOCALES.includes(normalized)) {
-      return normalized;
+    // 2. Cookie (excuseme_lang)
+    const cookieLang = req.cookies.get('excuseme_lang')?.value || req.cookies.get('i18nextLng')?.value;
+    if (cookieLang) {
+      const normalized = normalizeLocale(cookieLang);
+      if (SUPPORTED_LOCALES.includes(normalized)) {
+        return normalized;
+      }
     }
-  }
 
-  // 3. Telegram language_code
-  if (telegramLanguage) {
-    const normalized = normalizeLocale(telegramLanguage);
-    if (SUPPORTED_LOCALES.includes(normalized)) {
-      return normalized;
+    // 3. Telegram language_code (если есть в заголовках или query)
+    const telegramLang = req.nextUrl.searchParams.get('tg_lang') || req.headers.get('x-telegram-language');
+    if (telegramLang) {
+      const normalized = normalizeLocale(telegramLang);
+      if (SUPPORTED_LOCALES.includes(normalized)) {
+        return normalized;
+      }
     }
-  }
 
-  // 4. Accept-Language header
-  if (acceptLanguage) {
-    const detected = parseAcceptLanguage(acceptLanguage);
-    if (detected) {
-      return detected;
+    // 4. Accept-Language header
+    const acceptLanguage = req.headers.get('accept-language');
+    if (acceptLanguage) {
+      const detected = parseAcceptLanguage(acceptLanguage);
+      if (detected) {
+        return detected;
+      }
     }
-  }
 
-  // 5. Default
-  return normalizeLocale(defaultLanguage);
+    // 5. Base locale (fallback)
+    return BASE_LOCALE;
+  } catch (error) {
+    // Не бросаем исключения, всегда возвращаем валидное значение
+    console.warn('Error in resolveLocaleServer:', error);
+    return BASE_LOCALE;
+  }
 }
 
 /**
- * Устанавливает cookie для локали
+ * Проверяет, поддерживается ли локаль
+ * @param locale - локаль для проверки
+ * @returns true если локаль поддерживается
+ */
+export function isValidLocale(locale: string): boolean {
+  const normalized = normalizeLocale(locale);
+  return SUPPORTED_LOCALES.includes(normalized);
+}
+
+/**
+ * Устанавливает cookie для локали (клиентская функция)
  * @param locale - локаль для сохранения
  * @param days - количество дней (по умолчанию 180)
  */
@@ -267,7 +262,7 @@ export function setLanguageCookie(locale: string, days: number = 180): void {
 }
 
 /**
- * Получает локаль из cookie
+ * Получает локаль из cookie (клиентская функция)
  * @returns локаль из cookie или null
  */
 export function getLanguageCookie(): string | null {
@@ -284,7 +279,7 @@ export function getLanguageCookie(): string | null {
 }
 
 /**
- * Обновляет URL с параметром lang
+ * Обновляет URL с параметром lang (клиентская функция)
  * @param locale - локаль для установки
  */
 export function updateLanguageQuery(locale: string): void {
@@ -308,7 +303,7 @@ export function updateLanguageQuery(locale: string): void {
 }
 
 /**
- * Безопасно читает параметр lang из URL
+ * Безопасно читает параметр lang из URL (клиентская функция)
  * @param url - URL для парсинга
  * @returns нормализованная локаль или null
  */
@@ -335,14 +330,14 @@ export function getLanguageFromUrl(url: string): string | null {
     // Если не поддерживается, возвращаем базовую локаль
     return BASE_LOCALE;
   } catch (error) {
-    // При любой ошибке (невалидный URL, невалидное кодирование) возвращаем базовую локаль
+    // При любой ошибке возвращаем базовую локаль
     console.warn('Failed to parse language from URL:', url, error);
     return BASE_LOCALE;
   }
 }
 
 /**
- * Синхронизирует локаль между cookie и query
+ * Синхронизирует локаль между cookie и query (клиентская функция)
  * @param locale - локаль для синхронизации
  */
 export function syncLanguage(locale: string): void {
