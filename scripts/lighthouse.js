@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-const lighthouse = require('lighthouse');
+const lighthouse = require('lighthouse/core/index.cjs');
 const chromeLauncher = require('chrome-launcher');
 const fs = require('fs');
 const path = require('path');
@@ -65,11 +65,11 @@ async function runLighthouse() {
     // Анализируем результаты
     const scores = runnerResult.lhr.categories;
     const results = {
-      performance: Math.round(scores.performance.score * 100),
-      accessibility: Math.round(scores.accessibility.score * 100),
-      'best-practices': Math.round(scores['best-practices'].score * 100),
-      seo: Math.round(scores.seo.score * 100),
-      pwa: Math.round(scores.pwa.score * 100)
+      performance: Math.round((scores.performance?.score || 0) * 100),
+      accessibility: Math.round((scores.accessibility?.score || 0) * 100),
+      'best-practices': Math.round((scores['best-practices']?.score || 0) * 100),
+      seo: Math.round((scores.seo?.score || 0) * 100),
+      pwa: Math.round((scores.pwa?.score || 0) * 100)
     };
     
     console.log('\n📈 Результаты аудита:');
@@ -84,7 +84,7 @@ async function runLighthouse() {
     console.log('='.repeat(50));
     let allPassed = true;
     Object.entries(results).forEach(([category, score]) => {
-      const target = config.budget[category];
+      const target = config.budget[category] || 0;
       const passed = score >= target;
       if (!passed) allPassed = false;
       console.log(`${passed ? '✅' : '❌'} ${category}: ${score} >= ${target}`);
