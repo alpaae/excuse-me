@@ -16,7 +16,8 @@
     "lighthouse:dev": "npm run dev & sleep 10 && node scripts/lighthouse.js",
     "lighthouse:report": "open lighthouse-reports/$(ls -t lighthouse-reports/*.html | head -1)",
     "lh:ci": "node scripts/lighthouse.js",
-    "setup": "./scripts/setup.sh"
+    "setup": "./scripts/setup.sh",
+    "load-translations": "node scripts/load-translations.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.0.4",
