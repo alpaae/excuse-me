@@ -152,105 +152,166 @@ export default function AccountPage() {
           </div>
         </header>
 
-        <div className="container mx-auto px-4 py-8 max-w-2xl">
-          <div className="space-y-6">
-            {/* Page Title */}
-            <div className="text-center">
-              <h1 className="text-3xl font-bold">Account</h1>
-              <p className="text-muted-foreground">Manage your profile and subscription</p>
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+          {/* Page Title */}
+          <div className="text-center mb-12">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
+              <User className="h-10 w-10 text-white" />
             </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-3">
+              Account Settings
+            </h1>
+            <p className="text-gray-600 text-lg">Manage your profile and subscription</p>
+          </div>
 
-          {/* Profile */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
-                Profile
-              </CardTitle>
-              <CardDescription>
-                Update your information
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="displayName">Name</Label>
-                <Input
-                  id="displayName"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Your name"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Email</Label>
-                <Input
-                  value={profile?.id || ''}
-                  disabled
-                  className="bg-muted"
-                />
-              </div>
-              <Button onClick={handleSaveProfile} disabled={saving}>
-                <Save className="mr-2 h-4 w-4" />
-                {saving ? 'Saving...' : 'Save'}
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Subscription */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Crown className="h-5 w-5" />
-                Subscription
-              </CardTitle>
-              <CardDescription>
-                Your Pro subscription status
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Status:</span>
-                <Badge variant={subscription ? 'default' : 'secondary'}>
-                  {subscription ? 'Pro' : 'Free Plan'}
-                </Badge>
-              </div>
+          <div className="grid lg:grid-cols-2 gap-8">
+            {/* Profile Section */}
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
+              <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50">
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                    <User className="h-5 w-5 text-white" />
+                  </div>
+                  <span>Profile</span>
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  Update your personal information
+                </CardDescription>
+              </CardHeader>
               
-              {subscription && (
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Provider:</span>
-                    <span className="capitalize">{subscription.provider}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Valid until:</span>
-                    <span>{new Date(subscription.current_period_end).toLocaleDateString()}</span>
-                  </div>
+              <CardContent className="p-8 space-y-6">
+                <div className="space-y-3">
+                  <Label htmlFor="displayName" className="text-base font-semibold text-gray-700">
+                    Display Name
+                  </Label>
+                  <Input
+                    id="displayName"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Enter your name"
+                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
+                  />
                 </div>
-              )}
+                
+                <div className="space-y-3">
+                  <Label className="text-base font-semibold text-gray-700">Email Address</Label>
+                  <Input
+                    value={profile?.id || ''}
+                    disabled
+                    className="bg-gray-50 border-gray-200 rounded-xl text-base"
+                  />
+                  <p className="text-sm text-gray-500">Email cannot be changed</p>
+                </div>
+                
+                <Button 
+                  onClick={handleSaveProfile} 
+                  disabled={saving}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                >
+                  <Save className="mr-2 h-4 w-4" />
+                  {saving ? 'Saving...' : 'Save Changes'}
+                </Button>
+              </CardContent>
+            </Card>
 
-              {!subscription && (
-                <div className="bg-muted p-4 rounded-lg">
-                  <p className="text-sm mb-3">
-                    Upgrade to Pro for unlimited excuse generations
+            {/* Subscription Section */}
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
+              <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
+                <CardTitle className="flex items-center space-x-3 text-2xl">
+                  <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                    <Crown className="h-5 w-5 text-white" />
+                  </div>
+                  <span>Subscription</span>
+                </CardTitle>
+                <CardDescription className="text-lg text-gray-600">
+                  Your Pro subscription status
+                </CardDescription>
+              </CardHeader>
+              
+              <CardContent className="p-8 space-y-6">
+                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
+                  <div>
+                    <p className="font-semibold text-gray-900">Current Plan</p>
+                    <p className="text-sm text-gray-600">Unlimited excuses & premium features</p>
+                  </div>
+                  <Badge 
+                    variant={subscription ? 'default' : 'secondary'}
+                    className={`px-3 py-1 text-sm font-semibold ${
+                      subscription 
+                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white' 
+                        : 'bg-gray-200 text-gray-700'
+                    }`}
+                  >
+                    {subscription ? 'Pro' : 'Free Plan'}
+                  </Badge>
+                </div>
+                
+                {subscription && (
+                  <div className="space-y-4 p-4 bg-green-50 rounded-xl border border-green-200">
+                    <h4 className="font-semibold text-green-900">Subscription Details</h4>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-green-700">Provider:</span>
+                        <span className="font-medium text-green-900 capitalize">{subscription.provider}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-green-700">Valid until:</span>
+                        <span className="font-medium text-green-900">
+                          {new Date(subscription.current_period_end).toLocaleDateString()}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {!subscription && (
+                  <div className="p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
+                    <div className="text-center">
+                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                        <Crown className="h-6 w-6 text-white" />
+                      </div>
+                      <h4 className="font-semibold text-orange-900 mb-2">Upgrade to Pro</h4>
+                      <p className="text-orange-700 text-sm mb-4">
+                        Get unlimited excuse generations and unlock premium features
+                      </p>
+                      <Button 
+                        onClick={handleUpgradeSubscription} 
+                        className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
+                      >
+                        <Crown className="mr-2 h-4 w-4" />
+                        Upgrade to Pro
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sign Out Section */}
+          <div className="mt-8">
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden">
+              <CardContent className="p-8">
+                <div className="text-center">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center mx-auto mb-4">
+                    <LogOut className="h-6 w-6 text-white" />
+                  </div>
+                  <h3 className="font-semibold text-gray-900 mb-2">Sign Out</h3>
+                  <p className="text-gray-600 text-sm mb-6">
+                    Sign out of your account
                   </p>
-                  <Button onClick={handleUpgradeSubscription} className="w-full">
-                    <Crown className="mr-2 h-4 w-4" />
-                    Upgrade to Pro
+                  <Button 
+                    variant="outline" 
+                    onClick={handleSignOut} 
+                    className="border-gray-300 hover:bg-gray-50 text-gray-700"
+                  >
+                    <LogOut className="mr-2 h-4 w-4" />
+                    Sign Out
                   </Button>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Sign Out */}
-          <Card>
-            <CardContent className="pt-6">
-              <Button variant="outline" onClick={handleSignOut} className="w-full">
-                <LogOut className="mr-2 h-4 w-4" />
-                Sign Out
-              </Button>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
           </div>
         </div>
       </div>
