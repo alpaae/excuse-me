@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { createServiceClient } from '@/lib/supabase-server';
+import { rateLimit } from '@/lib/rate-limit';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -25,6 +26,22 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Unauthorized' },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting
+    const rateLimitResult = await rateLimit(request, user.id);
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        { error: 'RATE_LIMIT' },
+        { 
+          status: 429,
+          headers: {
+            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
+            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
+            'X-RateLimit-Reset': rateLimitResult.reset.toString(),
+          }
+        }
       );
     }
 
