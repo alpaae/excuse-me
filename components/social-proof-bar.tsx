@@ -71,15 +71,14 @@ export function SocialProofBar() {
 
   return (
     <div 
-      className="bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-6 py-3 shadow-lg"
+      className="bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-4 py-2 shadow-lg"
       data-testid="social-proof"
     >
-      <div className="flex items-center justify-center space-x-2">
-        <Users className="h-4 w-4 text-blue-600" />
-        <span className="text-sm font-medium text-blue-700">
-          Today,{' '}
+      <div className="flex items-center space-x-2">
+        <Users className="h-3 w-3 text-blue-600" />
+        <span className="text-xs font-medium text-blue-700">
           <AnimatedCounter value={count} duration={600} />
-          {' '}people found their excuse.
+          {' '}people today
         </span>
       </div>
     </div>

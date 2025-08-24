@@ -152,7 +152,7 @@ export default function AccountPage() {
           </div>
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-8 pb-32">
+        <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
           {/* Page Title */}
           <div className="text-center mb-12">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">

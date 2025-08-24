@@ -20,48 +20,27 @@ export function FreeLimitBanner() {
   const remaining = limits.remaining;
 
   return (
-    <Card 
-      className={`border-0 shadow-lg rounded-xl ${
-        remaining > 0 
-          ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200' 
-          : 'bg-gradient-to-r from-orange-50 to-red-50 border-orange-200'
+    <div 
+      className={`bg-white/80 backdrop-blur-sm border border-gray-200/50 rounded-full px-4 py-2 shadow-lg ${
+        remaining > 0 ? 'border-blue-200' : 'border-orange-200'
       }`}
       data-testid="free-limit-banner"
     >
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            {remaining > 0 ? (
-              <Clock className="h-5 w-5 text-blue-600" />
-            ) : (
-              <Crown className="h-5 w-5 text-orange-600" />
-            )}
-            <div>
-              <p className={`text-sm font-medium ${
-                remaining > 0 ? 'text-blue-700' : 'text-orange-700'
-              }`}>
-                {remaining > 0 
-                  ? `${remaining} of ${limits.daily} free excuses left today`
-                  : 'Out of free excuses for today'
-                }
-              </p>
-              <p className={`text-xs ${
-                remaining > 0 ? 'text-blue-600' : 'text-orange-600'
-              }`}>
-                Resets in {countdown}
-              </p>
-            </div>
-          </div>
-          
-          {remaining === 0 && (
-            <div className="text-right">
-              <p className="text-xs text-orange-600 font-medium">
-                Upgrade to Pro for unlimited excuses
-              </p>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
+      <div className="flex items-center space-x-2">
+        {remaining > 0 ? (
+          <Clock className="h-3 w-3 text-blue-600" />
+        ) : (
+          <Crown className="h-3 w-3 text-orange-600" />
+        )}
+        <span className={`text-xs font-medium ${
+          remaining > 0 ? 'text-blue-700' : 'text-orange-700'
+        }`}>
+          {remaining > 0 
+            ? `${remaining}/${limits.daily} • ${countdown}`
+            : `Upgrade • ${countdown}`
+          }
+        </span>
+      </div>
+    </div>
   );
 }

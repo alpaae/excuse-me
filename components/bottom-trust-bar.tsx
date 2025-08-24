@@ -6,18 +6,19 @@ import { FreeLimitBanner } from './free-limit-banner';
 export function BottomTrustBar() {
   return (
     <div 
-      className="fixed bottom-0 left-0 right-0 z-40 bg-white/90 backdrop-blur-xl border-t border-gray-200/50 pb-safe"
+      className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-xl border-t border-gray-200/60"
       data-testid="bottom-trust-bar"
     >
-      <div className="container mx-auto px-4 py-3">
-        <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0 sm:space-x-4">
-          {/* Social Proof - Left side */}
-          <div className="flex-1 w-full sm:w-auto">
+      <div className="max-w-4xl mx-auto px-4 py-3">
+        <div className="flex items-center justify-between">
+          {/* Social Proof - Compact */}
+          <div className="flex items-center space-x-3">
+            <div className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
             <SocialProofBar />
           </div>
           
-          {/* Free Limit Banner - Right side (only for non-Pro) */}
-          <div className="flex-1 w-full sm:w-auto">
+          {/* Free Limit Banner - Compact */}
+          <div className="flex items-center">
             <FreeLimitBanner />
           </div>
         </div>
