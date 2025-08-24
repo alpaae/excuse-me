@@ -19,10 +19,7 @@ export async function POST(request: NextRequest) {
     const normalizedLang = normalizeLocale(lang);
 
     // Создаем ответ с установкой cookie
-    const response = NextResponse.json(
-      { success: true, lang: normalizedLang },
-      { status: 204 }
-    );
+    const response = new NextResponse(null, { status: 204 });
 
     // Устанавливаем cookie на 180 дней (15552000 секунд)
     // Path=/; Max-Age=15552000; SameSite=Lax
