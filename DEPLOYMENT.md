@@ -48,11 +48,11 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE=your-service-role-key
 OPENAI_API_KEY=sk-your-openai-api-key
-NEXT_PUBLIC_BASE_URL=https://your-app.vercel.app
 ```
 
 ### Опциональные
 ```
+NEXT_PUBLIC_BASE_URL=https://your-app.vercel.app  # Только для Stripe redirect URLs
 NEXT_PUBLIC_FEATURE_PAYMENTS=true
 TG_BOT_TOKEN=your-telegram-bot-token
 STRIPE_SECRET_KEY=sk_test_your-stripe-secret-key

@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: 'subscription',
-      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL}/account?success=true`,
-      cancel_url: cancel_url || `${process.env.NEXT_PUBLIC_BASE_URL}/account?canceled=true`,
+      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?success=true`,
+      cancel_url: cancel_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?canceled=true`,
       customer_email: user.email,
       metadata: {
         user_id: user.id,
