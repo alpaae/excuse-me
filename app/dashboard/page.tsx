@@ -158,7 +158,7 @@ export default function DashboardPage() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-muted-foreground">
-                    You don't have any excuses yet. Create your first one!
+                    You don&apos;t have any excuses yet. Create your first one!
                   </p>
                   <Button className="mt-4" onClick={() => window.location.href = '/'}>
                     Create Excuse

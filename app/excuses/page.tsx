@@ -189,7 +189,7 @@ export default function ExcusesPage() {
                   <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
                     <CardContent className="py-12 text-center">
                       <p className="text-gray-600 mb-4">
-                        You don't have any excuses yet. Create your first one!
+                        You don&apos;t have any excuses yet. Create your first one!
                       </p>
                       <Button 
                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"

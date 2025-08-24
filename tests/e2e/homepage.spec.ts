@@ -56,7 +56,9 @@ test.describe('Homepage', () => {
     await expect(page.getByTestId('gen-form')).toBeVisible();
   });
 
-  test('should show loading state when generating excuse', async ({ page }) => {
+
+
+  test('should show auth modal when unauthenticated user tries to generate', async ({ page }) => {
     await page.goto('/');
     
     // Wait for page to load
@@ -66,23 +68,15 @@ test.describe('Homepage', () => {
     await page.getByLabel('Scenario').fill('Test scenario');
     await page.getByLabel('Context').fill('Test context');
     
-    // Mock the API response to be slow
-    await page.route('/api/generate', async route => {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      await route.fulfill({
-        status: 200,
-        contentType: 'application/json',
-        body: JSON.stringify({
-          success: true,
-          text: 'Test excuse response'
-        })
-      });
-    });
-    
-    // Click generate button
+    // Click generate button (should show auth modal for unauthenticated user)
     await page.getByRole('button', { name: 'Generate Excuse' }).click();
     
-    // Check that loading state is shown
-    await expect(page.getByText('Generating...')).toBeVisible();
+    // Check that auth modal is shown instead of generating
+    await expect(page.getByTestId('auth-dialog')).toBeVisible();
+    await expect(page.getByLabel('Email')).toBeVisible();
+    
+    // Verify that the form data is still there
+    await expect(page.getByLabel('Scenario')).toHaveValue('Test scenario');
+    await expect(page.getByLabel('Context')).toHaveValue('Test context');
   });
 });
