@@ -58,6 +58,14 @@ cp env.example .env.local
    - Скопируйте содержимое `db/schema.sql`
    - Выполните SQL скрипт
    - Убедитесь, что все таблицы созданы и RLS политики применены
+5. **Настройте Storage:**
+   - Откройте Storage в Supabase Dashboard
+   - Создайте новый bucket с именем `tts`
+   - Установите bucket как **private** (не public)
+   - Настройте RLS политики для bucket:
+     - Откройте SQL Editor в Supabase Dashboard
+     - Скопируйте содержимое `db/storage-policies.sql`
+     - Выполните SQL скрипт
 
 ### 4. Настройка OpenAI
 

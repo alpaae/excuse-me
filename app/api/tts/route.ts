@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
-import { createClient } from '@/lib/supabase-server';
-import fs from 'fs';
-import path from 'path';
+import { createServiceClient } from '@/lib/supabase-server';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
@@ -20,7 +18,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Получаем пользователя
-    const supabase = createClient();
+    const supabase = createServiceClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
@@ -45,18 +43,37 @@ export async function POST(request: NextRequest) {
     // Создаем уникальное имя файла
     const timestamp = Date.now();
     const filename = `tts_${user.id}_${timestamp}.mp3`;
-    const filepath = path.join(process.cwd(), 'public', 'tts', filename);
     
-    // Создаем папку если не существует
-    const ttsDir = path.join(process.cwd(), 'public', 'tts');
-    if (!fs.existsSync(ttsDir)) {
-      fs.mkdirSync(ttsDir, { recursive: true });
+    // Загружаем файл в Supabase Storage
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('tts')
+      .upload(filename, buffer, {
+        contentType: 'audio/mpeg',
+        upsert: false,
+      });
+
+    if (uploadError) {
+      console.error('Storage upload error:', uploadError);
+      return NextResponse.json(
+        { error: 'Failed to upload audio file' },
+        { status: 500 }
+      );
     }
-    
-    // Сохраняем файл
-    fs.writeFileSync(filepath, buffer);
-    
-    const ttsUrl = `/tts/${filename}`;
+
+    // Генерируем signed URL на 1 час
+    const { data: signedUrlData, error: signedUrlError } = await supabase.storage
+      .from('tts')
+      .createSignedUrl(filename, 3600); // 1 час
+
+    if (signedUrlError) {
+      console.error('Signed URL error:', signedUrlError);
+      return NextResponse.json(
+        { error: 'Failed to generate signed URL' },
+        { status: 500 }
+      );
+    }
+
+    const ttsUrl = signedUrlData.signedUrl;
 
     // Обновляем запись в БД если есть excuse_id
     if (excuse_id) {
