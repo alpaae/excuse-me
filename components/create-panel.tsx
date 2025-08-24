@@ -81,10 +81,10 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col min-h-0 max-h-0">
-              <form onSubmit={handleGenerate} className="flex-1 flex flex-col min-h-0" data-testid="gen-form">
+            <CardContent className="p-6 flex-1 flex flex-col">
+              <form onSubmit={handleGenerate} className="flex-1 flex flex-col" data-testid="gen-form">
                 {/* Scrollable Form Content */}
-                <div className="flex-1 overflow-y-auto space-y-6 pr-2 min-h-0">
+                <div className="flex-1 overflow-y-auto space-y-6 pr-2">
                   <div className="space-y-3">
                     <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
                       What&apos;s the situation?
@@ -197,8 +197,8 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col min-h-0 max-h-0">
-              <div className="flex-1 overflow-y-auto min-h-0">
+            <CardContent className="p-6 flex-1 flex flex-col">
+              <div className="flex-1 overflow-y-auto">
                 {resultRarity ? (
                   <ExcuseCard 
                     text={result} 
