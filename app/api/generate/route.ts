@@ -28,6 +28,11 @@ function detectLanguage(text: string): string {
 }
 
 export async function POST(request: NextRequest) {
+  if (process.env.ENV_MODE === 'ci') {
+    // никакой сети в CI
+    throw new Error('Network calls are disabled in CI');
+  }
+  
   const requestId = getRequestId(request);
   logger.info('Generate API started', requestId);
   

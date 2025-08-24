@@ -14,6 +14,11 @@ const stripe = new Stripe(serverEnv.STRIPE_SECRET_KEY || '', {
 const webhookSecret = serverEnv.STRIPE_WEBHOOK_SECRET || '';
 
 export async function POST(request: NextRequest) {
+  if (process.env.ENV_MODE === 'ci') {
+    // никакой сети в CI
+    throw new Error('Network calls are disabled in CI');
+  }
+  
   const requestId = getRequestId(request);
   logger.info('Stripe webhook started', requestId);
   

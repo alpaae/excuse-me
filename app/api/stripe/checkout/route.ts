@@ -8,6 +8,11 @@ const stripe = new Stripe(serverEnv.STRIPE_SECRET_KEY || '', {
 });
 
 export async function POST(request: NextRequest) {
+  if (process.env.ENV_MODE === 'ci') {
+    // никакой сети в CI
+    throw new Error('Network calls are disabled in CI');
+  }
+  
   try {
     const { success_url, cancel_url } = await request.json();
     

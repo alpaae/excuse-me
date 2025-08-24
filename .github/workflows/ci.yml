@@ -36,6 +36,7 @@ jobs:
     - name: Build application
       run: npm run build
       env:
+        ENV_MODE: ci
         NEXT_TELEMETRY_DISABLED: '1'
         NODE_OPTIONS: --max-old-space-size=4096
         NEXT_PUBLIC_BASE_URL: http://localhost:3000

@@ -48,6 +48,16 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
 }
 
 export async function rateLimit(request: NextRequest, identifier?: string) {
+  if (process.env.ENV_MODE === 'ci') {
+    // никакой сети в CI
+    return {
+      success: true,
+      limit: 10,
+      reset: Date.now() + 60000,
+      remaining: 10,
+    };
+  }
+  
   // Если rate limiter не инициализирован, пропускаем проверку
   if (!rateLimiter) {
     return {

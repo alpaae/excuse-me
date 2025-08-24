@@ -5,6 +5,11 @@ import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/log
 import { serverEnv } from '@/lib/env';
 
 export async function POST(request: NextRequest) {
+  if (process.env.ENV_MODE === 'ci') {
+    // никакой сети в CI
+    throw new Error('Network calls are disabled in CI');
+  }
+  
   const requestId = getRequestId(request);
   logger.info('Telegram auth started', requestId);
   
