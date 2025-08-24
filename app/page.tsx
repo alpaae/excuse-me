@@ -42,6 +42,7 @@ import { FreeLimitBanner } from '@/components/free-limit-banner';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
 import { BottomTrustBar } from '@/components/bottom-trust-bar';
+import { WelcomeBanner } from '@/components/welcome-banner';
 
 interface User {
   id: string;
@@ -344,6 +345,9 @@ export default function HomePage() {
             </div>
 
 
+
+            {/* Welcome Banner */}
+            <WelcomeBanner />
 
             {/* Form Section */}
             <div className="grid lg:grid-cols-2 gap-12 mb-16">
