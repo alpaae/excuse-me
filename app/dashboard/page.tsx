@@ -11,6 +11,7 @@ import { Star, Copy, Share2, Volume2, Heart, Calendar, MessageSquare, Phone, Use
 import { SocialProofBar } from '@/components/social-proof-bar';
 import { FreeLimitBanner } from '@/components/free-limit-banner';
 import { ExcuseCard } from '@/components/excuse-card';
+import { BottomTrustBar } from '@/components/bottom-trust-bar';
 
 interface Excuse {
   id: string;
@@ -129,11 +130,8 @@ export default function DashboardPage() {
   return (
     <ErrorBoundary>
       <AuthGuard>
-        <div className="container mx-auto px-4 py-8">
+        <div className="container mx-auto px-4 py-8 pb-32">
         <div className="space-y-6">
-          {/* Free Limit Banner */}
-          <FreeLimitBanner />
-
           {/* Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold">Excuse History</h1>
@@ -228,13 +226,11 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Social Proof */}
-          <div className="text-center mt-12">
-            <SocialProofBar />
-          </div>
-
         </div>
       </div>
+
+      {/* Bottom Trust Bar */}
+      <BottomTrustBar />
       </AuthGuard>
     </ErrorBoundary>
   );

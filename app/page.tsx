@@ -41,6 +41,7 @@ import { SocialProofBar } from '@/components/social-proof-bar';
 import { FreeLimitBanner } from '@/components/free-limit-banner';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
+import { BottomTrustBar } from '@/components/bottom-trust-bar';
 
 interface User {
   id: string;
@@ -288,7 +289,7 @@ export default function HomePage() {
         </header>
 
         {/* Main Content */}
-        <main className="relative z-10 container mx-auto px-6 py-16">
+        <main className="relative z-10 container mx-auto px-6 py-16 pb-32">
           <div className="max-w-6xl mx-auto">
             {/* Hero Section */}
             <div className="text-center mb-20">
@@ -342,12 +343,7 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Free Limit Banner */}
-            {user && (
-              <div className="mb-8">
-                <FreeLimitBanner />
-              </div>
-            )}
+
 
             {/* Form Section */}
             <div className="grid lg:grid-cols-2 gap-12 mb-16">
@@ -581,12 +577,11 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Social Proof */}
-            <div className="text-center mb-20">
-              <SocialProofBar />
-            </div>
           </div>
         </main>
+
+        {/* Bottom Trust Bar */}
+        <BottomTrustBar />
       </div>
     </ErrorBoundary>
   );
