@@ -1,8 +1,11 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, API_SCENARIOS } from '../fixtures';
 import { SELECTORS, TEST_HELPERS, EXPECTED_TEXT } from '../selectors';
 
 test.describe('Homepage', () => {
-  test('should display main page with generation form', async ({ page }) => {
+  test('should display main page with generation form', async ({ page, mockApi }) => {
+    // Мокаем health check
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+    
     await page.goto('/');
 
     // Проверяем заголовок
@@ -32,7 +35,10 @@ test.describe('Homepage', () => {
     await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toHaveText(EXPECTED_TEXT.AUTH.LOGIN_BUTTON);
   });
 
-  test('should show auth form when login button clicked', async ({ page }) => {
+  test('should show auth form when login button clicked', async ({ page, mockApi }) => {
+    // Мокаем health check
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+    
     await page.goto('/');
     
     // Кликаем на кнопку входа
