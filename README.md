@@ -603,6 +603,51 @@ curl https://your-app.vercel.app/api/health
   scheme: https
 ```
 
+## Troubleshooting
+
+### Известные предупреждения
+
+#### TypeScript Version Warning
+```
+WARNING: You are currently running a version of TypeScript which is not officially supported by @typescript-eslint/typescript-estree.
+SUPPORTED TYPESCRIPT VERSIONS: >=4.3.5 <5.4.0
+YOUR TYPESCRIPT VERSION: 5.9.2
+```
+**Решение:** Это предупреждение не критично. TypeScript 5.9.2 работает корректно с Next.js 15, но @typescript-eslint еще не обновил поддержку. Можно игнорировать или понизить версию TypeScript до 5.3.x если критично.
+
+#### Next.js Build Warnings
+```
+⚠ Using edge runtime on a page currently disables static generation for that page
+⚠ metadataBase property in metadata export is not set for resolving social open graph or twitter images
+```
+**Решение:** 
+- Edge runtime предупреждение для API routes - нормально для dynamic API
+- metadataBase можно добавить в `app/layout.tsx` если нужны Open Graph изображения
+
+#### E2E Tests Issues
+- **Проблема:** 24 из 30 тестов падают из-за селекторов
+- **Причина:** shadcn/ui компоненты имеют сложную DOM структуру
+- **Решение:** Обновить селекторы в Playwright тестах для работы с Select компонентами
+
+### Успешные метрики (последний прогон)
+- ✅ **Lint:** 0 ошибок, 0 предупреждений
+- ✅ **TypeCheck:** 0 ошибок  
+- ✅ **Build:** Успешная сборка
+- ✅ **Security:** 0 уязвимостей
+- ✅ **Bundle Size:** 272 kB First Load JS
+
+### Производительность сборки
+```
+Route (app)                                Size  First Load JS    
+┌ ○ /                                   6.15 kB         272 kB
+├ ○ /_not-found                           183 B         266 kB
+├ ○ /account                            3.15 kB         269 kB
+├ ○ /admin/i18n                         4.08 kB         270 kB
+├ ○ /dashboard                          6.28 kB         272 kB
++ First Load JS shared by all            266 kB
+  └ chunks/vendors-1c69582e47df27e3.js   264 kB
+```
+
 ## Лицензия
 
 MIT
