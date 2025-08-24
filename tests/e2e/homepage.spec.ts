@@ -17,7 +17,7 @@ test.describe('Homepage', () => {
     
     // Проверяем форму генерации
     await expect(page.getByRole('heading', { name: 'Создать отмазку' })).toBeVisible();
-    await expect(page.getByLabel('Сценарий')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.GEN_SCENARIO)).toBeVisible();
     await expect(page.getByPlaceholder('Например: отмена встречи')).toBeVisible();
     
     // Проверяем селекты

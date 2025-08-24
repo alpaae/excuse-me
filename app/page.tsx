@@ -57,6 +57,10 @@ export default function HomePage() {
     }
 
     setGenerating(true);
+    setResult('');
+    setShowLimitBanner(false);
+    setShowRateLimitBanner(false);
+    
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -66,27 +70,26 @@ export default function HomePage() {
 
       const data = await response.json();
       
-      if (data.success) {
+      if (response.status === 200 && data.success) {
+        // Успешная генерация
         setResult(data.text);
-        setShowLimitBanner(false);
         showSuccess(toastMessages.generate.success);
-      } else if (data.error === 'FREE_LIMIT_REACHED') {
-        setShowLimitBanner(true);
-        setResult('');
-        showError(toastMessages.generate.freeLimit);
-      } else if (data.error === 'RATE_LIMIT') {
-        setResult('');
-        setShowLimitBanner(false);
+      } else if (response.status === 429 || data.error === 'RATE_LIMIT') {
+        // Rate limit ошибка
         setShowRateLimitBanner(true);
         showError(toastMessages.generate.rateLimit);
+      } else if (response.status === 402 || data.error === 'FREE_LIMIT_REACHED') {
+        // Free limit ошибка
+        setShowLimitBanner(true);
+        showError(toastMessages.generate.freeLimit);
       } else {
+        // Общая ошибка
         setResult('Ошибка при генерации. Попробуйте еще раз.');
-        setShowLimitBanner(false);
         showError(toastMessages.generate.error);
       }
     } catch (error) {
-      setResult('Произошла ошибка. Попробуйте еще раз.');
-      setShowLimitBanner(false);
+      // Ошибка сети
+      setResult('Произошла ошибка сети. Проверьте подключение и попробуйте еще раз.');
       showError(toastMessages.general.serverError);
     } finally {
       setGenerating(false);
@@ -228,11 +231,12 @@ export default function HomePage() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form onSubmit={handleGenerate} className="space-y-4">
+              <form onSubmit={handleGenerate} className="space-y-4" data-testid="gen-form">
                 <div className="space-y-2">
                   <Label htmlFor="scenario">Сценарий</Label>
                   <Input
                     id="scenario"
+                    data-testid="gen-scenario"
                     placeholder="Например: отмена встречи, опоздание на работу, пропуск вечеринки..."
                     value={formData.scenario}
                     onChange={(e) => setFormData({ ...formData, scenario: e.target.value })}
@@ -244,7 +248,7 @@ export default function HomePage() {
                   <div className="space-y-2">
                     <Label>Тон</Label>
                     <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger data-testid="gen-tone">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -259,7 +263,7 @@ export default function HomePage() {
                   <div className="space-y-2">
                     <Label>Канал</Label>
                     <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger data-testid="gen-channel">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>

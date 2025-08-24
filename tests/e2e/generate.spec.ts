@@ -9,8 +9,8 @@ test.describe('Excuse Generation', () => {
     await page.goto('/');
     
     // Заполняем форму
-    await page.getByLabel('Сценарий').fill('отмена встречи');
-    await page.getByLabel('Дополнительный контекст').fill('срочная работа');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('отмена встречи');
+    await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('срочная работа');
     
     // Отправляем форму (должно показать auth форму)
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
@@ -29,7 +29,7 @@ test.describe('Excuse Generation', () => {
     await page.goto('/');
     
     // Заполняем и отправляем форму
-    await page.getByLabel('Сценарий').fill('тест rate limit');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест rate limit');
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем баннер rate limit
@@ -47,7 +47,7 @@ test.describe('Excuse Generation', () => {
     await page.goto('/');
     
     // Заполняем и отправляем форму
-    await page.getByLabel('Сценарий').fill('тест free limit');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест free limit');
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем баннер лимита
@@ -67,7 +67,7 @@ test.describe('Excuse Generation', () => {
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем, что поле сценария обязательно (HTML5 validation)
-    const scenarioInput = page.getByLabel('Сценарий');
+    const scenarioInput = page.getByTestId(SELECTORS.GEN_SCENARIO);
     await expect(scenarioInput).toHaveAttribute('required');
   });
 
@@ -81,8 +81,8 @@ test.describe('Excuse Generation', () => {
     await page.goto('/');
     
     // Заполняем форму
-    await page.getByLabel('Сценарий').fill('отмена встречи');
-    await page.getByLabel('Дополнительный контекст').fill('срочная работа');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('отмена встречи');
+    await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('срочная работа');
     
     // Отправляем форму
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();

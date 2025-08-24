@@ -5,9 +5,13 @@
 
 export const SELECTORS = {
   // Generation form
+  GEN_FORM: 'gen-form',
   GEN_SUBMIT: 'gen-submit',
   GEN_RESULT: 'gen-result',
+  GEN_SCENARIO: 'gen-scenario',
   GEN_CONTEXT: 'gen-context',
+  GEN_TONE: 'gen-tone',
+  GEN_CHANNEL: 'gen-channel',
   
   // Language selector
   LANG_SELECT: 'lang-select',
