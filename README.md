@@ -1,5 +1,7 @@
 # ExcuseME MVP
 
+[![CI](https://github.com/alpaae/excuse-me/actions/workflows/ci.yml/badge.svg)](https://github.com/alpaae/excuse-me/actions/workflows/ci.yml)
+
 SaaS application for generating polite excuses with PWA, Telegram Mini App support, and **automatic server-side language detection**.
 
 ## 🎯 Key Features
