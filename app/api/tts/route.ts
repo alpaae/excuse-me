@@ -2,19 +2,25 @@ import { NextRequest, NextResponse } from 'next/server';
 import OpenAI from 'openai';
 import { createServiceClient } from '@/lib/supabase-server';
 import { rateLimit } from '@/lib/rate-limit';
+import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request: NextRequest) {
+  const requestId = getRequestId(request);
+  logger.info('TTS API started', requestId);
+  
   try {
     const { text, lang = 'en', excuse_id } = await request.json();
     
     if (!text) {
-      return NextResponse.json(
-        { error: 'Text is required' },
-        { status: 400 }
+      return createErrorResponse(
+        ErrorCodes.VALIDATION_ERROR,
+        'Text is required',
+        400,
+        requestId
       );
     }
 
@@ -23,25 +29,22 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+      return createErrorResponse(
+        ErrorCodes.UNAUTHORIZED,
+        'Authentication required',
+        401,
+        requestId
       );
     }
 
     // Rate limiting
     const rateLimitResult = await rateLimit(request, user.id);
     if (!rateLimitResult.success) {
-      return NextResponse.json(
-        { error: 'RATE_LIMIT' },
-        { 
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
-            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-            'X-RateLimit-Reset': rateLimitResult.reset.toString(),
-          }
-        }
+      return createErrorResponse(
+        ErrorCodes.RATE_LIMIT,
+        'Too many requests',
+        429,
+        requestId
       );
     }
 
@@ -70,10 +73,12 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      console.error('Storage upload error:', uploadError);
-      return NextResponse.json(
-        { error: 'Failed to upload audio file' },
-        { status: 500 }
+      logger.error('Storage upload error', uploadError, requestId);
+      return createErrorResponse(
+        ErrorCodes.SERVICE_UNAVAILABLE,
+        'Failed to upload audio file',
+        500,
+        requestId
       );
     }
 
@@ -83,10 +88,12 @@ export async function POST(request: NextRequest) {
       .createSignedUrl(filename, 3600); // 1 час
 
     if (signedUrlError) {
-      console.error('Signed URL error:', signedUrlError);
-      return NextResponse.json(
-        { error: 'Failed to generate signed URL' },
-        { status: 500 }
+      logger.error('Signed URL error', signedUrlError, requestId);
+      return createErrorResponse(
+        ErrorCodes.SERVICE_UNAVAILABLE,
+        'Failed to generate signed URL',
+        500,
+        requestId
       );
     }
 
@@ -101,16 +108,30 @@ export async function POST(request: NextRequest) {
         .eq('user_id', user.id);
     }
 
+    logger.info('TTS API completed successfully', requestId, { 
+      lang, 
+      excuseId: excuse_id,
+      filename 
+    });
+
     return NextResponse.json({
       success: true,
       url: ttsUrl,
+      requestId,
     });
 
   } catch (error) {
-    console.error('TTS error:', error);
-    return NextResponse.json(
-      { error: 'Failed to generate audio' },
-      { status: 500 }
+    logger.error(
+      'TTS API failed',
+      error instanceof Error ? error : new Error(String(error)),
+      requestId
+    );
+    
+    return createErrorResponse(
+      ErrorCodes.INTERNAL_ERROR,
+      'Failed to generate audio',
+      500,
+      requestId
     );
   }
 }

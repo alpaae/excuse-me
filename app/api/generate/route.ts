@@ -3,20 +3,26 @@ import OpenAI from 'openai';
 import { createClient } from '@/lib/supabase-server';
 import { SYSTEM_PROMPT, generateUserPrompt } from '@/lib/prompts';
 import { rateLimit } from '@/lib/rate-limit';
+import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
 export async function POST(request: NextRequest) {
+  const requestId = getRequestId(request);
+  logger.info('Generate API started', requestId);
+  
   try {
     const { scenario, tone, channel, lang, context, generateAudio } = await request.json();
     
     // Валидация входных данных
     if (!scenario || !tone || !channel || !lang) {
-      return NextResponse.json(
-        { error: 'Missing required fields' },
-        { status: 400 }
+      return createErrorResponse(
+        ErrorCodes.VALIDATION_ERROR,
+        'Missing required fields',
+        400,
+        requestId
       );
     }
 
@@ -25,25 +31,22 @@ export async function POST(request: NextRequest) {
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+      return createErrorResponse(
+        ErrorCodes.UNAUTHORIZED,
+        'Authentication required',
+        401,
+        requestId
       );
     }
 
     // Rate limiting
     const rateLimitResult = await rateLimit(request, user.id);
     if (!rateLimitResult.success) {
-      return NextResponse.json(
-        { error: 'RATE_LIMIT' },
-        { 
-          status: 429,
-          headers: {
-            'X-RateLimit-Limit': rateLimitResult.limit.toString(),
-            'X-RateLimit-Remaining': rateLimitResult.remaining.toString(),
-            'X-RateLimit-Reset': rateLimitResult.reset.toString(),
-          }
-        }
+      return createErrorResponse(
+        ErrorCodes.RATE_LIMIT,
+        'Too many requests',
+        429,
+        requestId
       );
     }
 
@@ -67,9 +70,11 @@ export async function POST(request: NextRequest) {
         .gte('created_at', today.toISOString());
 
       if (count && count >= 3) {
-        return NextResponse.json(
-          { error: 'FREE_LIMIT_REACHED', limit: true },
-          { status: 402 }
+        return createErrorResponse(
+          ErrorCodes.FREE_LIMIT_REACHED,
+          'Daily free limit reached',
+          402,
+          requestId
         );
       }
     }
@@ -90,9 +95,11 @@ export async function POST(request: NextRequest) {
     const resultText = completion.choices[0]?.message?.content?.trim();
     
     if (!resultText) {
-      return NextResponse.json(
-        { error: 'Failed to generate excuse' },
-        { status: 500 }
+      return createErrorResponse(
+        ErrorCodes.SERVICE_UNAVAILABLE,
+        'Failed to generate excuse',
+        500,
+        requestId
       );
     }
 
@@ -109,20 +116,36 @@ export async function POST(request: NextRequest) {
       .single();
 
     if (dbError) {
-      console.error('Database error:', dbError);
+      logger.warn('Database error during excuse save', requestId, { error: dbError.message });
     }
+
+    logger.info('Generate API completed successfully', requestId, { 
+      scenario, 
+      tone, 
+      channel, 
+      lang,
+      excuseId: excuse?.id 
+    });
 
     return NextResponse.json({
       success: true,
       text: resultText,
       excuse_id: excuse?.id,
+      requestId,
     });
 
   } catch (error) {
-    console.error('Generation error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
+    logger.error(
+      'Generate API failed',
+      error instanceof Error ? error : new Error(String(error)),
+      requestId
+    );
+    
+    return createErrorResponse(
+      ErrorCodes.INTERNAL_ERROR,
+      'Internal server error',
+      500,
+      requestId
     );
   }
 }

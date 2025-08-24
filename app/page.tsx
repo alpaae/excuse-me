@@ -68,6 +68,9 @@ export default function HomePage() {
       } else if (data.error === 'FREE_LIMIT_REACHED') {
         setShowLimitBanner(true);
         setResult('');
+      } else if (data.error === 'RATE_LIMIT') {
+        setResult('Слишком много запросов. Попробуйте через минуту.');
+        setShowLimitBanner(false);
       } else {
         setResult('Ошибка при генерации. Попробуйте еще раз.');
         setShowLimitBanner(false);
