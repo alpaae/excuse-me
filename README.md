@@ -90,10 +90,7 @@ cp env.example .env.local
    - Откройте Storage в Supabase Dashboard
    - Создайте новый bucket с именем `tts`
    - Установите bucket как **private** (не public)
-   - Настройте RLS политики для bucket:
-     - Откройте SQL Editor в Supabase Dashboard
-     - Скопируйте содержимое `db/storage-policies.sql`
-     - Выполните SQL скрипт
+   - **Модель доступа:** сервер загружает файлы через SERVICE_ROLE, клиент получает signed URL
 
 ### 4. Настройка OpenAI
 
@@ -410,7 +407,7 @@ NEXT_PUBLIC_FEATURE_PAYMENTS=true
    - Перейдите в Storage → Create bucket
    - Имя: `tts`
    - Тип: Private
-   - Примените RLS политики из `db/storage-policies.sql`
+   - **Модель доступа:** сервер загружает через SERVICE_ROLE, клиент получает signed URL
 
 #### 3. Stripe Webhook Setup
 
