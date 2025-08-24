@@ -2,6 +2,8 @@ import { Ratelimit } from '@upstash/ratelimit';
 import { Redis } from '@upstash/redis';
 import { NextRequest, NextResponse } from 'next/server';
 
+import { ipAddress } from "@vercel/functions";
+
 // In-memory store для development
 class MemoryStore {
   private store = new Map<string, { count: number; resetTime: number }>();
@@ -39,16 +41,16 @@ if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) 
     analytics: true,
   });
 } else {
-  // Development: используем in-memory store
+  // Development: используем in-memory fallback
   rateLimiter = new Ratelimit({
-    store: new MemoryStore(),
+    redis: new Map() as any, // Используем Map как fallback для development
     limiter: Ratelimit.slidingWindow(10, '1 m'),
-    analytics: true,
+    analytics: false,
   });
 }
 
 export async function rateLimit(request: NextRequest, identifier?: string) {
-  const ip = request.ip ?? '127.0.0.1';
+  const ip = ipAddress(request) ?? '127.0.0.1';
   const key = identifier ? `${identifier}:${ip}` : ip;
   
   const { success, limit, reset, remaining } = await rateLimiter.limit(key);

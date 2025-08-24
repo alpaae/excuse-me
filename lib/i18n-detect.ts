@@ -85,7 +85,7 @@ export async function getLanguageFromRequest(request: Request): Promise<string> 
   const url = new URL(request.url);
   const queryLang = url.searchParams.get('lng');
   
-  const cookieStore = cookies();
+  const cookieStore = await cookies();
   const cookieLang = cookieStore.get('i18nextLng')?.value;
   
   const acceptLanguage = request.headers.get('accept-language');

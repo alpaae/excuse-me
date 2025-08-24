@@ -9,17 +9,12 @@ export const metadata: Metadata = {
   title: 'ExcuseME - Вежливые отмазки',
   description: 'Генератор вежливых отмазок с поддержкой PWA и Telegram Mini App',
   manifest: '/manifest.webmanifest',
+
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'ExcuseME',
-  },
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-  },
-  themeColor: '#6f5cff',
+  }
 };
 
 export default function RootLayout({
@@ -55,3 +50,10 @@ export default function RootLayout({
     </html>
   );
 }
+
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  themeColor: '#6f5cff'
+};

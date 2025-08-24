@@ -3,8 +3,9 @@ import { getTranslation, bulkTranslate } from '@/lib/i18n-fallback';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { locale: string; namespace: string } }
+  props: { params: Promise<{ locale: string; namespace: string }> }
 ) {
+  const params = await props.params;
   try {
     const { locale, namespace } = params;
     const { searchParams } = new URL(request.url);
@@ -32,8 +33,9 @@ export async function GET(
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { locale: string; namespace: string } }
+  props: { params: Promise<{ locale: string; namespace: string }> }
 ) {
+  const params = await props.params;
   try {
     const { locale, namespace } = params;
     const { key, value } = await request.json();

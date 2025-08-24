@@ -3,7 +3,7 @@ import crypto from 'crypto';
 export function verifyInitData(initData: string, botToken: string) {
   const p = new URLSearchParams(initData);
   const data: Record<string, string> = {};
-  for (const [k, v] of p.entries()) data[k] = v;
+  p.forEach((v, k) => data[k] = v);
   const hash = data.hash;
   delete data.hash;
   const sorted = Object.keys(data).sort().map(k => `${k}=${data[k]}`).join('\n');

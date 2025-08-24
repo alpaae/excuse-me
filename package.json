@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
+    "lint": "eslint .",
     "type-check": "tsc --noEmit",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
@@ -29,6 +29,7 @@
     "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.38.5",
     "@upstash/ratelimit": "^1.0.0",
+    "@vercel/functions": "^2.2.12",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "i18next": "^23.7.6",
@@ -46,8 +47,7 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
-    // TODO: @lhci/cli has 4 low severity vulnerabilities (tmp, inquirer, external-editor)
-    // Consider updating when breaking changes are acceptable
+    "@eslint/eslintrc": "^3.3.1",
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.55.0",
     "@types/node": "^20",
