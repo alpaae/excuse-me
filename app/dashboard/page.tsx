@@ -49,54 +49,32 @@ export default function DashboardPage() {
   const [excuses, setExcuses] = useState<Excuse[]>([]);
   const { showError, showSuccess } = useToast();
   const [loading, setLoading] = useState(true);
-  const [pagination, setPagination] = useState<PaginationInfo>({
-    page: 1,
-    limit: 10,
-    total: 0,
-    totalPages: 0,
-    hasNext: false,
-    hasPrev: false,
-  });
-  const [filters, setFilters] = useState({
-    search: '',
-    favoritesOnly: false,
-    sortBy: 'created_at' as 'created_at' | 'updated_at',
-    sortOrder: 'desc' as 'asc' | 'desc',
-  });
+  const [error, setError] = useState<string | null>(null);
 
   const loadExcuses = useCallback(async () => {
     setLoading(true);
+    setError(null);
     try {
-      const params = new URLSearchParams({
-        page: pagination.page.toString(),
-        limit: pagination.limit.toString(),
-        favorites: filters.favoritesOnly.toString(),
-        search: filters.search,
-        sortBy: filters.sortBy,
-        sortOrder: filters.sortOrder,
-      });
-
-      const response = await fetch(`/api/excuses?${params}`);
+      const response = await fetch('/api/excuses');
       const data = await response.json();
 
       if (response.ok) {
-        setExcuses(data.excuses);
-        setPagination(data.pagination);
+        setExcuses(data.excuses || []);
       } else {
         console.error('Error loading excuses:', data.error);
-        showError('Не удалось загрузить историю отмазок');
+        setError(data.error || 'Не удалось загрузить историю отмазок');
       }
     } catch (error) {
       console.error('Error loading excuses:', error);
-      showError('Ошибка сети при загрузке истории');
+      setError('Ошибка сети при загрузке истории');
     } finally {
       setLoading(false);
     }
-  }, [pagination.page, pagination.limit, filters, showError]);
+  }, []);
 
   useEffect(() => {
     loadExcuses();
-  }, [filters, pagination.page, loadExcuses]);
+  }, [loadExcuses]);
 
   const toggleFavorite = async (excuseId: string, currentFavorite: boolean) => {
     try {
@@ -152,19 +130,7 @@ export default function DashboardPage() {
     }
   };
 
-  const handlePageChange = (page: number) => {
-    setPagination(prev => ({ ...prev, page }));
-  };
 
-  const handleSearchChange = (search: string) => {
-    setFilters(prev => ({ ...prev, search }));
-    setPagination(prev => ({ ...prev, page: 1 })); // Сброс на первую страницу
-  };
-
-  const handleFilterChange = (favoritesOnly: boolean) => {
-    setFilters(prev => ({ ...prev, favoritesOnly }));
-    setPagination(prev => ({ ...prev, page: 1 }));
-  };
 
   if (loading) {
     return (
@@ -181,74 +147,28 @@ export default function DashboardPage() {
         <div className="space-y-6">
           {/* Заголовок */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold">Панель управления</h1>
-            <p className="text-muted-foreground">История и избранные отмазки</p>
+            <h1 className="text-3xl font-bold">История отмазок</h1>
+            <p className="text-muted-foreground">Ваши созданные отмазки</p>
             <div className="mt-4 text-sm text-muted-foreground">
-              Всего отмазок: {pagination.total} • Страница {pagination.page} из {pagination.totalPages}
+              Всего отмазок: {excuses.length}
             </div>
           </div>
 
-          {/* Фильтры */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Filter className="h-5 w-5" />
-                Фильтры и поиск
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="md:col-span-2">
-                  <Input
-                    placeholder="Поиск по тексту или сценарию..."
-                    value={filters.search}
-                    onChange={(e) => handleSearchChange(e.target.value)}
-                  />
-                </div>
-                
-                <Select 
-                  value={filters.favoritesOnly ? 'favorites' : 'all'} 
-                  onValueChange={(value) => handleFilterChange(value === 'favorites')}
+          {/* Ошибка */}
+          {error && (
+            <Card className="border-red-200 bg-red-50">
+              <CardContent className="pt-6">
+                <p className="text-red-700">{error}</p>
+                <Button 
+                  variant="outline" 
+                  className="mt-2"
+                  onClick={loadExcuses}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      <div className="flex items-center gap-2">
-                        <History className="h-4 w-4" />
-                        Все отмазки
-                      </div>
-                    </SelectItem>
-                    <SelectItem value="favorites">
-                      <div className="flex items-center gap-2">
-                        <Heart className="h-4 w-4" />
-                        Только избранные
-                      </div>
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select 
-                  value={`${filters.sortBy}-${filters.sortOrder}`}
-                  onValueChange={(value) => {
-                    const [sortBy, sortOrder] = value.split('-') as ['created_at' | 'updated_at', 'asc' | 'desc'];
-                    setFilters(prev => ({ ...prev, sortBy, sortOrder }));
-                    setPagination(prev => ({ ...prev, page: 1 }));
-                  }}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="created_at-desc">Новые сначала</SelectItem>
-                    <SelectItem value="created_at-asc">Старые сначала</SelectItem>
-                    <SelectItem value="updated_at-desc">Недавно обновленные</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
+                  Попробовать снова
+                </Button>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Список отмазок */}
           <div className="space-y-4">
@@ -256,9 +176,7 @@ export default function DashboardPage() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-muted-foreground">
-                    {filters.search || filters.favoritesOnly
-                      ? 'Ничего не найдено' 
-                      : 'У вас пока нет отмазок. Создайте первую!'}
+                    У вас пока нет отмазок. Создайте первую!
                   </p>
                   <Button className="mt-4" onClick={() => window.location.href = '/'}>
                     Создать отмазку
