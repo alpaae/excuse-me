@@ -8,6 +8,7 @@ import { useToast } from '@/lib/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Star, Copy, Share2, Volume2, Heart, Calendar, MessageSquare, Phone, User } from 'lucide-react';
+import { SocialProofBar } from '@/components/social-proof-bar';
 
 interface Excuse {
   id: string;
@@ -245,6 +246,10 @@ export default function DashboardPage() {
             )}
           </div>
 
+          {/* Social Proof */}
+          <div className="text-center mt-12">
+            <SocialProofBar />
+          </div>
 
         </div>
       </div>

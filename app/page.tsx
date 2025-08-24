@@ -37,6 +37,7 @@ import {
   Users,
   TrendingUp
 } from 'lucide-react';
+import { SocialProofBar } from '@/components/social-proof-bar';
 
 interface User {
   id: string;
@@ -560,6 +561,11 @@ export default function HomePage() {
                   <p className="text-gray-600">Copy, share, or listen to your excuse</p>
                 </div>
               </div>
+            </div>
+
+            {/* Social Proof */}
+            <div className="text-center mb-20">
+              <SocialProofBar />
             </div>
           </div>
         </main>
