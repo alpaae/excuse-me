@@ -13,6 +13,21 @@ const openai = new OpenAI({
   apiKey: serverEnv.OPENAI_API_KEY,
 });
 
+// Voice mapping based on language
+const VOICE_MAP: Record<string, string> = {
+  en: 'alloy',
+  ru: 'ru-RU-standard',
+  es: 'es-ES-standard',
+  pl: 'pl-PL-standard',
+  de: 'de-DE-standard',
+  fr: 'fr-FR-standard'
+};
+
+// Function to get voice by language with fallback to English
+function getVoiceByLanguage(lang: string): string {
+  return VOICE_MAP[lang] || VOICE_MAP.en;
+}
+
 export async function POST(request: NextRequest) {
   const requestId = getRequestId(request);
   logger.info('TTS API started', requestId);
@@ -53,8 +68,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Определяем голос на основе языка
-    const voice = lang === 'ru' ? 'alloy' : 'alloy';
+    // Определяем голос на основе языка с fallback
+    const voice = getVoiceByLanguage(lang);
+    
+    logger.info('Voice selected for TTS', requestId, { 
+      lang, 
+      voice,
+      availableVoices: Object.keys(VOICE_MAP)
+    });
     
     // Генерируем TTS
     const mp3 = await openai.audio.speech.create({
@@ -115,6 +136,7 @@ export async function POST(request: NextRequest) {
 
     logger.info('TTS API completed successfully', requestId, { 
       lang, 
+      voice,
       excuseId: excuse_id,
       filename 
     });

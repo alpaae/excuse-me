@@ -230,6 +230,62 @@ const detectLanguage = (text: string): string => {
 };
 ```
 
+## Text-to-Speech (TTS)
+
+### Voice Selection by Language
+
+The application automatically selects appropriate voices for TTS based on the detected language:
+
+#### **Supported Languages and Voices:**
+```typescript
+const VOICE_MAP: Record<string, string> = {
+  en: 'alloy',           // English - OpenAI's alloy voice
+  ru: 'ru-RU-standard',  // Russian - Standard Russian voice
+  es: 'es-ES-standard',  // Spanish - Standard Spanish voice
+  pl: 'pl-PL-standard',  // Polish - Standard Polish voice
+  de: 'de-DE-standard',  // German - Standard German voice
+  fr: 'fr-FR-standard'   // French - Standard French voice
+};
+```
+
+#### **Voice Selection Logic:**
+- **Automatic Detection**: Uses the same language detection as text generation
+- **Safe Fallback**: If language is not in the map, defaults to English (`alloy`)
+- **Logging**: Voice selection is logged for debugging
+
+#### **Extending Voice Support:**
+
+To add support for new languages:
+
+1. **Add to Voice Map:**
+   ```typescript
+   const VOICE_MAP: Record<string, string> = {
+     // ... existing voices
+     it: 'it-IT-standard',  // Italian
+     pt: 'pt-BR-standard',  // Portuguese
+     ja: 'ja-JP-standard',  // Japanese
+     // Add more as needed
+   };
+   ```
+
+2. **Update Language Detection:**
+   - Add regex pattern in `app/api/generate/route.ts`
+   - Update the `detectLanguage()` function
+
+3. **Test TTS Generation:**
+   - Verify voice selection works for new language
+   - Check audio quality and pronunciation
+
+#### **API Usage:**
+```bash
+POST /api/tts
+{
+  "text": "Your excuse text here",
+  "lang": "ru",  // Will use ru-RU-standard voice
+  "excuse_id": "optional-excuse-id"
+}
+```
+
 ### 7. Development
 
 ```bash
