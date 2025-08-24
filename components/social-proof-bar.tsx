@@ -60,27 +60,17 @@ export function SocialProofBar() {
 
   if (isLoading) {
     return (
-      <div className="bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-6 py-3 shadow-lg">
-        <div className="flex items-center justify-center space-x-2">
-          <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin"></div>
-          <span className="text-sm font-medium text-blue-700">Loading...</span>
-        </div>
-      </div>
+      <span className="text-sm font-medium text-blue-700">
+        <div className="w-4 h-4 border-2 border-blue-300 border-t-blue-600 rounded-full animate-spin inline-block mr-2"></div>
+        Loading...
+      </span>
     );
   }
 
   return (
-    <div 
-      className="bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-4 py-2 shadow-lg"
-      data-testid="social-proof"
-    >
-      <div className="flex items-center space-x-2">
-        <Users className="h-3 w-3 text-blue-600" />
-        <span className="text-xs font-medium text-blue-700">
-          <AnimatedCounter value={count} duration={600} />
-          {' '}people today
-        </span>
-      </div>
-    </div>
+    <span className="text-sm font-medium text-blue-700" data-testid="social-proof">
+      <AnimatedCounter value={count} duration={600} />
+      {' '}people today
+    </span>
   );
 }

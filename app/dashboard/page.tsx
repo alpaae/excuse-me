@@ -253,8 +253,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-      {/* Bottom Trust Bar */}
-      <BottomTrustBar />
+
       </AuthGuard>
     </ErrorBoundary>
   );

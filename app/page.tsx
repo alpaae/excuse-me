@@ -291,16 +291,16 @@ export default function HomePage() {
         </header>
 
         {/* Main Content */}
-        <main className="relative z-10 container mx-auto px-6 py-12 pb-24">
-          <div className="max-w-4xl mx-auto">
+        <main className="relative z-10 container mx-auto px-6 py-8">
+          <div className="max-w-3xl mx-auto">
             {/* Hero Section */}
-            <div className="text-center mb-12">
+            <div className="text-center mb-8">
               <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-4 py-2 mb-4 shadow-lg">
                 <Zap className="h-4 w-4 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-700">AI-powered excuses</span>
               </div>
               
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 leading-tight">
+              <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4 leading-tight">
                 Create Perfect
                 <br />
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -308,32 +308,38 @@ export default function HomePage() {
                 </span>
               </h1>
               
-              <p className="text-lg text-gray-600 mb-6 max-w-xl mx-auto leading-relaxed">
+              <p className="text-lg text-gray-600 mb-4 max-w-xl mx-auto leading-relaxed">
                 Transform awkward situations into graceful exits with AI-powered, 
                 context-aware excuses that feel natural and professional
               </p>
+              
+              {/* Social Proof Counter */}
+              <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-4 py-2 shadow-lg">
+                <Users className="h-4 w-4 text-blue-600" />
+                <SocialProofBar />
+              </div>
             </div>
 
 
 
             {/* Form Section */}
-            <div className="mb-12">
+            <div className="mb-8">
               {/* Input Form */}
               <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
-                <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50">
-                  <CardTitle className="flex items-center space-x-3 text-2xl">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                      <Wand2 className="h-5 w-5 text-white" />
+                <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-purple-50">
+                  <CardTitle className="flex items-center space-x-3 text-xl">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                      <Wand2 className="h-4 w-4 text-white" />
                     </div>
                     <span>Create Excuse</span>
                   </CardTitle>
-                  <CardDescription className="text-base text-gray-600">
+                  <CardDescription className="text-sm text-gray-600">
                     Describe the situation and get a polished excuse
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent className="p-6">
-                  <form onSubmit={handleGenerate} className="space-y-6" data-testid="gen-form">
+                <CardContent className="p-4">
+                  <form onSubmit={handleGenerate} className="space-y-4" data-testid="gen-form">
                     <div className="space-y-3">
                       <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
                         What&apos;s the situation?
@@ -345,7 +351,7 @@ export default function HomePage() {
                         value={formData.scenario}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
                         required
-                        className="min-h-[120px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
+                        className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
                       />
                     </div>
 
@@ -401,7 +407,7 @@ export default function HomePage() {
                     <Button 
                       type="submit" 
                       disabled={generating || !formData.scenario.trim()}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                       data-testid="gen-submit"
                     >
                       {generating ? (
@@ -487,8 +493,7 @@ export default function HomePage() {
           </div>
         </main>
 
-        {/* Bottom Trust Bar */}
-        <BottomTrustBar />
+
         
         {/* Onboarding Modal */}
         <OnboardingModal />
