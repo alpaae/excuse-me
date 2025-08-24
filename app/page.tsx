@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { useToast, toastMessages } from '@/lib/use-toast';
 import { useI18n } from '@/lib/use-i18n';
+import { LanguageSwitch } from '@/components/language-switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -28,7 +29,7 @@ export default function HomePage() {
   const [showLimitBanner, setShowLimitBanner] = useState(false);
   const [showRateLimitBanner, setShowRateLimitBanner] = useState(false);
   const { showSuccess, showError } = useToast();
-  const { currentLanguage, changeLanguage } = useI18n();
+  const { currentLanguage } = useI18n();
   
   const [formData, setFormData] = useState({
     scenario: '',
@@ -254,21 +255,11 @@ export default function HomePage() {
 
                   <div className="space-y-2" key="lang-select">
                     <Label>Язык</Label>
-                    <Select 
-                      value={formData.lang} 
-                      onValueChange={(value) => {
-                        setFormData({ ...formData, lang: value });
-                        changeLanguage(value);
+                    <LanguageSwitch 
+                      onLanguageChange={(lang) => {
+                        setFormData(prev => ({ ...prev, lang }));
                       }}
-                    >
-                      <SelectTrigger data-testid="lang-select">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="ru">Русский</SelectItem>
-                        <SelectItem value="en">English</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    />
                   </div>
                 </div>
 
