@@ -247,9 +247,7 @@ export default function DashboardPage() {
               ))
             )}
           </div>
-
         </div>
-      </div>
 
       {/* Bottom Trust Bar */}
       <BottomTrustBar />
