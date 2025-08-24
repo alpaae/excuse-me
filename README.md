@@ -181,6 +181,33 @@ npm run test:e2e:ui
 - Переключение языков через `?lang=` параметр
 - Авторизация и неавторизованные состояния
 
+### E2E Status
+
+**Cross-browser test results (with retries=2):**
+
+| Browser | Tests | Passed | Failed | Success Rate |
+|---------|-------|--------|--------|--------------|
+| Chromium | 13 | 5 | 8 | 38% |
+| Firefox | 13 | 5 | 8 | 38% |
+| WebKit | 13 | 5 | 8 | 38% |
+
+**Known Issues:**
+- **i18n**: Default language shows "English" instead of "Русский" 
+- **API Mocking**: Rate limit and free limit banners not displaying due to API response issues
+- **Strict Mode**: Duplicate elements in form selectors causing strict mode violations
+
+**Test Coverage:**
+- ✅ Homepage form rendering and auth dialog
+- ✅ i18n language switching (partial)
+- ✅ Form validation
+- ❌ API response handling (rate limit, free limit)
+- ❌ Cross-browser i18n consistency
+
+**Next Steps:**
+1. Fix i18n default language detection
+2. Improve API mocking in test fixtures
+3. Resolve strict mode violations in selectors
+
 **Lighthouse (производительность и PWA):**
 ```bash
 # Полный анализ (запуск сервера + сбор + проверка)
