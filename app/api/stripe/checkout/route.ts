@@ -1,8 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
 import { createClient } from '@/lib/supabase-server';
+import { serverEnv } from '@/lib/env';
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(serverEnv.STRIPE_SECRET_KEY || '', {
   apiVersion: '2023-10-16',
 });
 
@@ -42,7 +43,7 @@ export async function POST(request: NextRequest) {
       payment_method_types: ['card'],
       line_items: [
         {
-          price: process.env.STRIPE_PRICE_PRO_MONTHLY,
+          price: serverEnv.STRIPE_PRICE_PRO_MONTHLY || '',
           quantity: 1,
         },
       ],

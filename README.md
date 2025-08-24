@@ -629,12 +629,46 @@ YOUR TYPESCRIPT VERSION: 5.9.2
 - **Причина:** shadcn/ui компоненты имеют сложную DOM структуру
 - **Решение:** Обновить селекторы в Playwright тестах для работы с Select компонентами
 
+### Environment Variables Validation
+
+Проект использует строгую валидацию переменных окружения с помощью Zod схемы (`lib/env.ts`).
+
+#### Типичные ошибки и решения:
+
+**1. Отсутствующие обязательные переменные:**
+```
+❌ Invalid server environment variables:
+OPENAI_API_KEY: String must contain at least 1 character(s)
+SUPABASE_SERVICE_ROLE: String must contain at least 1 character(s)
+```
+**Решение:** Добавьте отсутствующие переменные в `.env.local` или Vercel.
+
+**2. Неверный формат URL:**
+```
+❌ Invalid client environment variables:
+NEXT_PUBLIC_SUPABASE_URL: NEXT_PUBLIC_SUPABASE_URL must be a valid URL
+```
+**Решение:** Убедитесь, что URL включает протокол (`https://`).
+
+**3. API роуты падают при старте:**
+```
+Error: ❌ Invalid server environment variables:
+OPENAI_API_KEY: String must contain at least 1 character(s)
+```
+**Решение:** Все API роуты валидируют переменные при импорте. Убедитесь, что все обязательные переменные заполнены.
+
+#### Валидация переменных:
+- **Client vars:** Валидируются при сборке
+- **Server vars:** Валидируются при импорте в API routes
+- **Опциональные:** Stripe, Telegram, Redis - не обязательны для базовой работы
+
 ### Успешные метрики (последний прогон)
 - ✅ **Lint:** 0 ошибок, 0 предупреждений
 - ✅ **TypeCheck:** 0 ошибок  
 - ✅ **Build:** Успешная сборка
 - ✅ **Security:** 0 уязвимостей
 - ✅ **Bundle Size:** 272 kB First Load JS
+- ✅ **Env Validation:** Строгая типизация переменных окружения
 
 ### Производительность сборки
 ```

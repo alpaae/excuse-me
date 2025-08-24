@@ -4,12 +4,13 @@ import { createClient } from '@/lib/supabase-server';
 import { SYSTEM_PROMPT, generateUserPrompt } from '@/lib/prompts';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
+import { serverEnv } from '@/lib/env';
 
 // Node.js runtime для работы с OpenAI и Supabase
 export const runtime = 'nodejs';
 
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: serverEnv.OPENAI_API_KEY,
 });
 
 export async function POST(request: NextRequest) {
