@@ -6,7 +6,8 @@ import {
   detectLanguage, 
   syncLanguage, 
   getLanguageCookie, 
-  normalizeLocale 
+  normalizeLocale,
+  getLanguageFromUrl
 } from './i18n-detect';
 
 export function useI18n() {
@@ -22,8 +23,7 @@ export function useI18n() {
 
   useEffect(() => {
     // Детектируем язык при загрузке с новым порядком приоритетов
-    const searchParams = new URLSearchParams(window.location.search);
-    const queryLang = searchParams.get('lang') || searchParams.get('lng');
+    const queryLang = getLanguageFromUrl(window.location.href);
     const cookieLang = getLanguageCookie();
     
     const detectedLang = detectLanguage({

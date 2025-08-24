@@ -4,6 +4,8 @@ import {
   parseAcceptLanguage, 
   detectLanguage,
   syncLanguage,
+  getLanguageFromUrl,
+  updateLanguageQuery,
   I18N_CONSTANTS 
 } from '@/lib/i18n-detect';
 
@@ -225,6 +227,93 @@ describe('i18n-detect', () => {
       
       expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 180);
       expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('en');
+    });
+
+    it('should handle special characters in locale', () => {
+      syncLanguage('zh-CN');
+      
+      expect(mockSetLanguageCookie).toHaveBeenCalledWith('zh-CN', 180);
+      expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('zh-CN');
+    });
+  });
+
+  describe('URL encoding/decoding', () => {
+    it('should safely encode locale in URL', () => {
+      // Mock window.location
+      Object.defineProperty(global, 'window', {
+        value: {
+          location: { href: 'http://localhost:3000' },
+          history: { replaceState: jest.fn() },
+        },
+        writable: true,
+      });
+
+      // Test encoding
+      updateLanguageQuery('en');
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {}, 
+        '', 
+        'http://localhost:3000?lang=en'
+      );
+
+      // Test encoding with special characters
+      updateLanguageQuery('zh-CN');
+      expect(window.history.replaceState).toHaveBeenCalledWith(
+        {}, 
+        '', 
+        'http://localhost:3000?lang=zh-CN'
+      );
+    });
+
+    it('should safely decode locale from URL', () => {
+      // Test normal decoding
+      expect(getLanguageFromUrl('http://localhost:3000?lang=en')).toBe('en');
+      expect(getLanguageFromUrl('http://localhost:3000?lang=ru')).toBe('ru');
+      expect(getLanguageFromUrl('http://localhost:3000?lang=zh-CN')).toBe('zh-CN');
+
+      // Test legacy lng parameter
+      expect(getLanguageFromUrl('http://localhost:3000?lng=en')).toBe('en');
+      expect(getLanguageFromUrl('http://localhost:3000?lng=ru')).toBe('ru');
+    });
+
+    it('should handle encoded values in URL', () => {
+      // Test URL-encoded values
+      expect(getLanguageFromUrl('http://localhost:3000?lang=zh%2DCN')).toBe('zh-CN');
+      expect(getLanguageFromUrl('http://localhost:3000?lang=pt%2DBR')).toBe('pt-BR');
+    });
+
+    it('should handle invalid encoded values', () => {
+      // Test invalid percent encoding
+      expect(getLanguageFromUrl('http://localhost:3000?lang=%ZZ')).toBe('ru'); // fallback
+      expect(getLanguageFromUrl('http://localhost:3000?lang=%')).toBe('ru'); // fallback
+      expect(getLanguageFromUrl('http://localhost:3000?lang=%2')).toBe('ru'); // fallback
+    });
+
+    it('should handle unsupported locales in URL', () => {
+      // Test unsupported locales
+      expect(getLanguageFromUrl('http://localhost:3000?lang=xx')).toBe('ru'); // fallback
+      expect(getLanguageFromUrl('http://localhost:3000?lang=invalid')).toBe('ru'); // fallback
+      expect(getLanguageFromUrl('http://localhost:3000?lang=fr-FR')).toBe('fr'); // normalized
+    });
+
+    it('should handle malformed URLs', () => {
+      // Test malformed URLs
+      expect(getLanguageFromUrl('not-a-url')).toBe('ru'); // fallback
+      expect(getLanguageFromUrl('')).toBe('ru'); // fallback
+      expect(getLanguageFromUrl('http://localhost:3000?lang=')).toBe('ru'); // fallback
+    });
+
+    it('should handle missing lang parameter', () => {
+      // Test URLs without lang parameter
+      expect(getLanguageFromUrl('http://localhost:3000')).toBe(null);
+      expect(getLanguageFromUrl('http://localhost:3000?other=value')).toBe(null);
+    });
+
+    it('should handle aliases in URL', () => {
+      // Test aliases in URL
+      expect(getLanguageFromUrl('http://localhost:3000?lang=cn')).toBe('zh-CN');
+      expect(getLanguageFromUrl('http://localhost:3000?lang=ua')).toBe('uk');
+      expect(getLanguageFromUrl('http://localhost:3000?lang=br')).toBe('pt-BR');
     });
   });
 });

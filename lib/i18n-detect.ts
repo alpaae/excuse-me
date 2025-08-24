@@ -210,9 +210,16 @@ export function detectLanguage(options: LanguageDetectOptions = {}): string {
 
   // 1. Query parameter (highest priority)
   if (query) {
-    const normalized = normalizeLocale(query);
-    if (SUPPORTED_LOCALES.includes(normalized)) {
-      return normalized;
+    try {
+      // Безопасно декодируем и нормализуем
+      const decodedValue = decodeURIComponent(query);
+      const normalized = normalizeLocale(decodedValue);
+      if (SUPPORTED_LOCALES.includes(normalized)) {
+        return normalized;
+      }
+    } catch (error) {
+      // При ошибке декодирования игнорируем query параметр
+      console.warn('Failed to decode query parameter:', query, error);
     }
   }
 
@@ -289,13 +296,49 @@ export function updateLanguageQuery(locale: string): void {
   if (normalized === BASE_LOCALE) {
     url.searchParams.delete('lang');
   } else {
-    url.searchParams.set('lang', normalized);
+    // Безопасно кодируем значение для URL
+    const encodedValue = encodeURIComponent(normalized);
+    url.searchParams.set('lang', encodedValue);
   }
   
   // Удаляем старые параметры
   url.searchParams.delete('lng');
   
   window.history.replaceState({}, '', url.toString());
+}
+
+/**
+ * Безопасно читает параметр lang из URL
+ * @param url - URL для парсинга
+ * @returns нормализованная локаль или null
+ */
+export function getLanguageFromUrl(url: string): string | null {
+  try {
+    const urlObj = new URL(url);
+    const langParam = urlObj.searchParams.get('lang') || urlObj.searchParams.get('lng');
+    
+    if (!langParam) {
+      return null;
+    }
+
+    // Декодируем параметр
+    const decodedValue = decodeURIComponent(langParam);
+    
+    // Нормализуем и проверяем
+    const normalized = normalizeLocale(decodedValue);
+    
+    // Проверяем, что нормализованная локаль поддерживается
+    if (SUPPORTED_LOCALES.includes(normalized)) {
+      return normalized;
+    }
+    
+    // Если не поддерживается, возвращаем базовую локаль
+    return BASE_LOCALE;
+  } catch (error) {
+    // При любой ошибке (невалидный URL, невалидное кодирование) возвращаем базовую локаль
+    console.warn('Failed to parse language from URL:', url, error);
+    return BASE_LOCALE;
+  }
 }
 
 /**

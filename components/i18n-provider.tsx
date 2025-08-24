@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18next from '@/lib/i18n';
-import { detectLanguage, getLanguageCookie, normalizeLocale, syncLanguage } from '@/lib/i18n-detect';
+import { detectLanguage, getLanguageCookie, normalizeLocale, syncLanguage, getLanguageFromUrl } from '@/lib/i18n-detect';
 
 interface I18nProviderProps {
   children: React.ReactNode;
@@ -27,8 +27,7 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
       i18next.changeLanguage(finalLanguage);
     } else {
       // Детектируем язык на клиенте
-      const searchParams = new URLSearchParams(window.location.search);
-      const queryLang = searchParams.get('lang') || searchParams.get('lng');
+      const queryLang = getLanguageFromUrl(window.location.href);
       const cookieLang = getLanguageCookie();
       
       finalLanguage = detectLanguage({
