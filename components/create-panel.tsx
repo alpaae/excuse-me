@@ -65,7 +65,7 @@ export function CreatePanel() {
 
   return (
     <div className="max-w-[640px] w-full mx-auto h-full flex flex-col" data-testid="panel-create">
-      <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden flex-1 flex flex-col">
+      <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden flex-1 flex flex-col max-h-full">
         {!result ? (
           // Form State
           <>
@@ -81,10 +81,10 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col min-h-0">
+            <CardContent className="p-6 flex-1 flex flex-col min-h-0 max-h-0">
               <form onSubmit={handleGenerate} className="flex-1 flex flex-col min-h-0" data-testid="gen-form">
                 {/* Scrollable Form Content */}
-                <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+                <div className="flex-1 overflow-y-auto space-y-6 pr-2 min-h-0">
                   <div className="space-y-3">
                     <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
                       What&apos;s the situation?
@@ -153,7 +153,7 @@ export function CreatePanel() {
                 </div>
 
                 {/* Fixed Generate Button */}
-                <div className="flex-shrink-0 pt-4 border-t border-gray-100 bg-white/70 backdrop-blur">
+                <div className="flex-shrink-0 pt-4 border-t border-gray-100 bg-white/70 backdrop-blur mt-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-gray-500">Press ⌘⏎ / Ctrl⏎</span>
                   </div>
@@ -197,8 +197,8 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col min-h-0">
-              <div className="flex-1 overflow-y-auto">
+            <CardContent className="p-6 flex-1 flex flex-col min-h-0 max-h-0">
+              <div className="flex-1 overflow-y-auto min-h-0">
                 {resultRarity ? (
                   <ExcuseCard 
                     text={result} 
@@ -216,7 +216,7 @@ export function CreatePanel() {
                 )}
               </div>
               
-              <div className="flex-shrink-0 pt-4 border-t border-gray-100">
+              <div className="flex-shrink-0 pt-4 border-t border-gray-100 mt-4">
                 <div className="flex flex-col sm:flex-row gap-4">
                   <Button 
                     onClick={() => {

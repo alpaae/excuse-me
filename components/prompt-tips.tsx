@@ -32,11 +32,11 @@ export function PromptTips() {
   ];
 
   return (
-    <div className="mb-4">
+    <div className="mb-3">
       <Button
         variant="ghost"
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-3 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-xl text-blue-700 font-medium text-sm"
+        className="w-full flex items-center justify-between p-2 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg text-blue-700 font-medium text-sm"
       >
         <div className="flex items-center space-x-2">
           <Lightbulb className="h-4 w-4" />
@@ -51,11 +51,11 @@ export function PromptTips() {
 
       {isExpanded && (
         <Card className="mt-2 border-blue-200 bg-blue-50/50">
-          <CardContent className="p-3">
-            <div className="grid gap-2">
+          <CardContent className="p-2">
+            <div className="grid gap-1">
               {tips.map((tip, index) => (
                 <div key={index} className="flex items-start space-x-2">
-                  <div className="w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <div className="w-4 h-4 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
                     <div className="text-blue-600">
                       {tip.icon}
                     </div>
@@ -68,7 +68,7 @@ export function PromptTips() {
               ))}
             </div>
             
-            <div className="mt-3 p-2 bg-white rounded-lg border border-blue-200">
+            <div className="mt-2 p-2 bg-white rounded border border-blue-200">
               <h4 className="font-semibold text-gray-900 text-xs mb-1">Example:</h4>
               <p className="text-gray-700 text-xs italic leading-relaxed">
                 &ldquo;I need to cancel my dentist appointment tomorrow at 3 PM because I have an urgent work meeting that just came up&rdquo;
