@@ -153,6 +153,26 @@ npm run test:e2e:ui
 - Переключение языков через `?lang=` параметр
 - Авторизация и неавторизованные состояния
 
+**Lighthouse CI (производительность и PWA):**
+```bash
+# Полный анализ (запуск сервера + сбор + проверка)
+npm run lighthouse
+
+# Только сбор метрик
+npm run lighthouse:collect
+
+# Только проверка бюджета
+npm run lighthouse:assert
+```
+
+**Бюджет производительности:**
+- Performance ≥ 85 (mobile)
+- PWA installable = true
+- Core Web Vitals: FCP < 2s, LCP < 2.5s, CLS < 0.1, TBT < 300ms
+- Accessibility ≥ 90
+- Best Practices ≥ 80
+- SEO ≥ 80
+
 ## Структура проекта
 
 ```
@@ -316,6 +336,48 @@ https://t.me/your_excuseme_bot?startapp=test
 - initData проверяется через HMAC-SHA256
 - Токен бота хранится в переменных окружения
 - Доступ только для авторизованных пользователей бота
+
+## Производительность и PWA
+
+### Lighthouse CI
+
+Lighthouse CI автоматически проверяет производительность, PWA функциональность и Core Web Vitals.
+
+**Запуск:**
+```bash
+npm run lighthouse
+```
+
+**Интерпретация отчета:**
+
+1. **Performance Score (≥85):**
+   - FCP (First Contentful Paint) < 2s
+   - LCP (Largest Contentful Paint) < 2.5s
+   - CLS (Cumulative Layout Shift) < 0.1
+   - TBT (Total Blocking Time) < 300ms
+
+2. **PWA Score (≥90):**
+   - ✅ Installable manifest
+   - ✅ Service Worker
+   - ✅ HTTPS
+   - ✅ Responsive design
+
+3. **Accessibility (≥90):**
+   - ARIA labels
+   - Color contrast
+   - Keyboard navigation
+
+4. **Best Practices (≥80):**
+   - HTTPS usage
+   - Console errors
+   - Image optimization
+
+5. **SEO (≥80):**
+   - Meta tags
+   - Structured data
+   - Mobile-friendly
+
+**Отчеты сохраняются в `/lighthouse-reports/`**
 
 ## Мониторинг
 
