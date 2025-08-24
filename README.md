@@ -180,30 +180,46 @@ npm run test:e2e:ui
 
 ### E2E Status
 
-**Cross-browser test results (with retries=2):**
+**Cross-browser test results (retries=2):**
 
-| Browser | Tests | Passed | Failed | Success Rate |
-|---------|-------|--------|--------|--------------|
-| Chromium | 13 | 5 | 8 | 38% |
-| Firefox | 13 | 5 | 8 | 38% |
-| WebKit | 13 | 5 | 8 | 38% |
-
-**Known Issues:**
-- **i18n**: Default language shows "English" instead of "Русский" 
-- **API Mocking**: Rate limit and free limit banners not displaying due to API response issues
-- **Strict Mode**: Duplicate elements in form selectors causing strict mode violations
+| Browser | Passed | Failed | Flaky | Total | Success Rate |
+|---------|--------|--------|-------|-------|--------------|
+| Chromium | 26 | 23 | 0 | 49 | 53% |
+| Firefox | 26 | 22 | 1 | 49 | 53% |
+| WebKit | 26 | 23 | 2 | 49 | 53% |
 
 **Test Coverage:**
-- ✅ Homepage form rendering and auth dialog
-- ✅ i18n language switching (partial)
-- ✅ Form validation
-- ❌ API response handling (rate limit, free limit)
-- ❌ Cross-browser i18n consistency
+- ✅ **Homepage** - форма генерации отображается корректно
+- ✅ **Generate API** - успешная генерация работает
+- ❌ **i18n Language Switching** - переключение языков не работает
+- ❌ **Accept-Language Detection** - детект из заголовков не работает
+- ❌ **Cross-browser i18n** - нестабильное поведение в разных браузерах
+
+**Known Issues:**
+1. **i18n Language Detection:**
+   - Селектор языка показывает неправильный язык (ожидается 'Русский', получается 'English')
+   - URL параметры не обновляются при переключении языка
+   - Опции селектора не находятся (`[data-value="en"]`, `[data-value="ru"]`)
+
+2. **Accept-Language Header:**
+   - Детект языка из заголовка `Accept-Language` не работает
+   - Cookie `excuseme_lang` не устанавливается корректно
+
+3. **Cross-browser Consistency:**
+   - WebKit показывает больше проблем чем Chromium/Firefox
+   - Нестабильное поведение при переключении языков
+
+**Root Cause Analysis:**
+- i18n система не полностью интегрирована с UI компонентами
+- Селектор языка не синхронизирован с состоянием приложения
+- URL синхронизация не работает из-за проблем с роутингом
 
 **Next Steps:**
-1. Fix i18n default language detection
-2. Improve API mocking in test fixtures
-3. Resolve strict mode violations in selectors
+1. 🔧 **Fix i18n integration** - синхронизировать селектор с состоянием
+2. 🔧 **Fix URL sync** - исправить обновление URL при смене языка
+3. 🔧 **Fix selector options** - добавить правильные data-testid для опций
+4. 🔧 **Fix Accept-Language** - исправить детект из заголовков
+5. 🔧 **Stabilize cross-browser** - обеспечить одинаковое поведение
 
 **Lighthouse (производительность и PWA):**
 ```bash

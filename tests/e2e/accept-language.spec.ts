@@ -1,5 +1,5 @@
-import { test, expect } from '@playwright/test';
-import { SELECTORS, TEST_HELPERS, API_SCENARIOS } from '../fixtures';
+import { test, expect, API_SCENARIOS } from '../fixtures';
+import { SELECTORS, TEST_HELPERS } from '../selectors';
 
 test.describe('Accept-Language Detection', () => {
   test('should detect Russian from Accept-Language when no query param', async ({ page, mockApi }) => {
