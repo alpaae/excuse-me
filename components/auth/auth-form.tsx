@@ -8,7 +8,11 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Github, Mail } from 'lucide-react';
 
-export function AuthForm() {
+interface AuthFormProps {
+  onSuccess?: () => void;
+}
+
+export function AuthForm({ onSuccess }: AuthFormProps) {
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
@@ -30,11 +34,12 @@ export function AuthForm() {
       if (error) {
         setMessage(error.message);
       } else {
-        setMessage('Проверьте email для magic link!');
+        setMessage('Check your email for magic link!');
         setEmail('');
+        onSuccess?.();
       }
     } catch (error) {
-      setMessage('Произошла ошибка при отправке magic link');
+      setMessage('An error occurred while sending magic link');
     } finally {
       setLoading(false);
     }
@@ -52,9 +57,11 @@ export function AuthForm() {
 
       if (error) {
         setMessage(error.message);
+      } else {
+        onSuccess?.();
       }
     } catch (error) {
-      setMessage('Произошла ошибка при входе через GitHub');
+      setMessage('An error occurred while signing in with GitHub');
     } finally {
       setLoading(false);
     }
@@ -108,7 +115,7 @@ export function AuthForm() {
 
         {message && (
           <div className={`text-sm p-3 rounded-md ${
-            message.includes('ошибка') 
+            message.includes('error') 
               ? 'bg-destructive/10 text-destructive' 
               : 'bg-green-50 text-green-700 dark:bg-green-900/20 dark:text-green-400'
           }`}>

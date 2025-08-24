@@ -29,7 +29,13 @@ import {
   CheckCircle,
   Star,
   Zap,
-  Globe
+  Globe,
+  Play,
+  SparklesIcon,
+  Shield,
+  Clock,
+  Users,
+  TrendingUp
 } from 'lucide-react';
 
 interface User {
@@ -66,8 +72,6 @@ export default function HomePage() {
     checkUser();
   }, [checkUser]);
 
-
-
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -99,51 +103,66 @@ export default function HomePage() {
       if (response.status === 200 && data.success) {
         // Successful generation - show result
         setResult(data.text);
-        showSuccess(toastMessages.generate.success);
-      } else if (response.status === 429 || data.error === 'RATE_LIMIT') {
-        // Rate limit error - show banner
+        showSuccess('Excuse generated successfully!');
+      } else if (response.status === 429) {
+        // Rate limit exceeded
         setShowRateLimitBanner(true);
-        showError(toastMessages.generate.rateLimit);
-      } else if (response.status === 402 || data.error === 'FREE_LIMIT_REACHED') {
-        // Free limit error - show banner with CTA
+        showError('Too many requests. Please wait a moment.');
+      } else if (response.status === 402) {
+        // Free limit exceeded
         setShowLimitBanner(true);
-        showError(toastMessages.generate.freeLimit);
+        showError('Free limit reached. Upgrade to Pro for unlimited generations.');
       } else {
         // Other errors
-        showError(data.error || toastMessages.generate.error);
+        showError(data.error || 'Failed to generate excuse');
       }
     } catch (error) {
-      console.error('Generation error:', error);
-      showError(toastMessages.generate.error);
+      console.error('Error generating excuse:', error);
+      showError('Network error. Please try again.');
     } finally {
       setGenerating(false);
     }
   };
 
-  const copyToClipboard = async () => {
+  const copyToClipboard = async (text: string) => {
     try {
-      await navigator.clipboard.writeText(result);
-      showSuccess('Copied to clipboard');
+      await navigator.clipboard.writeText(text);
+      showSuccess('Copied to clipboard!');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      showError('Failed to copy');
+      showError('Failed to copy text');
     }
   };
 
-  const shareExcuse = async () => {
+  const shareExcuse = (text: string) => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'ExcuseME - Excuse',
+        text: text,
+      });
+    } else {
+      copyToClipboard(text);
+    }
+  };
+
+  const playTTS = async (text: string) => {
     try {
-      if (navigator.share) {
-        await navigator.share({
-          title: 'Excuse',
-          text: result,
-        });
+      const response = await fetch('/api/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text }),
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const audio = new Audio(URL.createObjectURL(blob));
+        await audio.play();
       } else {
-        await navigator.clipboard.writeText(result);
-        showSuccess('Copied to clipboard');
+        showError('Failed to generate audio');
       }
     } catch (error) {
-      console.error('Error sharing:', error);
-      showError('Failed to share');
+      console.error('Error playing TTS:', error);
+      showError('Failed to play audio');
     }
   };
 
@@ -157,40 +176,60 @@ export default function HomePage() {
     }
   };
 
-  if (loading) {
+  if (showAuth) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+        <div className="w-full max-w-md">
+          <div className="text-center mb-8">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+              <Sparkles className="h-8 w-8 text-white" />
+            </div>
+            <h1 className="text-2xl font-bold text-gray-900">Welcome to ExcuseME</h1>
+            <p className="text-gray-600 mt-2">Sign in to start creating excuses</p>
+          </div>
+          <AuthForm onSuccess={() => setShowAuth(false)} />
+          <Button 
+            variant="ghost" 
+            onClick={() => setShowAuth(false)}
+            className="w-full mt-4"
+          >
+            Back to Home
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
+        {/* Animated Background Elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/10 to-purple-300/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
+
         {/* Header */}
-        <header className="border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
+        <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0">
+          <div className="container mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="h-5 w-5 text-white" />
+                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <Sparkles className="h-6 w-6 text-white" />
                 </div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
-                  ExcuseMe
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  ExcuseME
                 </h1>
               </div>
               
               <div className="flex items-center space-x-4">
                 {user ? (
                   <div className="flex items-center space-x-3">
-                    <Badge variant="secondary" className="bg-white/50 backdrop-blur-sm">
-                      {user.email}
-                    </Badge>
                     <Button 
                       variant="ghost" 
                       size="sm" 
-                      onClick={() => window.location.href = '/excuses'}
+                      onClick={() => window.location.href = '/dashboard'}
                       className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
                     >
                       <History className="mr-2 h-4 w-4" />
@@ -209,7 +248,7 @@ export default function HomePage() {
                 ) : (
                   <Button 
                     onClick={() => setShowAuth(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                     data-testid="btn-login"
                   >
                     Sign In
@@ -221,75 +260,98 @@ export default function HomePage() {
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto">
+        <main className="relative z-10 container mx-auto px-6 py-16">
+          <div className="max-w-6xl mx-auto">
             {/* Hero Section */}
-            <div className="text-center mb-16">
-              <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 mb-6">
-                <Zap className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-700">AI-powered excuses</span>
+            <div className="text-center mb-20">
+              <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-6 py-3 mb-8 shadow-lg">
+                <Zap className="h-5 w-5 text-blue-600" />
+                <span className="text-sm font-semibold text-blue-700">AI-powered excuses</span>
               </div>
               
-              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6">
-                Create Perfect Excuses
+              <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-8 leading-tight">
+                Create Perfect
+                <br />
+                <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Excuses
+                </span>
               </h1>
               
-              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                AI helps you create polite and convincing excuses for any situation
+              <p className="text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+                Transform awkward situations into graceful exits with AI-powered, 
+                context-aware excuses that feel natural and professional
               </p>
               
-              <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+              <div className="flex items-center justify-center space-x-12 text-sm text-gray-500 mb-12">
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>Instant generation</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>Multiple languages</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
                   <span>Professional tone</span>
+                </div>
+              </div>
+
+              {/* Stats */}
+              <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-2">10K+</div>
+                  <div className="text-sm text-gray-600">Excuses Generated</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-2">50+</div>
+                  <div className="text-sm text-gray-600">Languages</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-gray-900 mb-2">99%</div>
+                  <div className="text-sm text-gray-600">Success Rate</div>
                 </div>
               </div>
             </div>
 
             {/* Form Section */}
-            <div className="grid lg:grid-cols-2 gap-8 mb-12">
+            <div className="grid lg:grid-cols-2 gap-12 mb-16">
               {/* Input Form */}
-              <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
-                <CardHeader className="pb-6">
-                  <CardTitle className="flex items-center space-x-2 text-2xl">
-                    <Wand2 className="h-6 w-6 text-blue-600" />
+              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
+                <CardHeader className="pb-8 bg-gradient-to-r from-blue-50 to-purple-50">
+                  <CardTitle className="flex items-center space-x-3 text-3xl">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                      <Wand2 className="h-6 w-6 text-white" />
+                    </div>
                     <span>Create Excuse</span>
                   </CardTitle>
-                  <CardDescription className="text-gray-600">
-                    Describe the situation and get a polite excuse
+                  <CardDescription className="text-lg text-gray-600">
+                    Describe the situation and get a polished excuse
                   </CardDescription>
                 </CardHeader>
                 
-                <CardContent>
-                  <form onSubmit={handleGenerate} className="space-y-6" data-testid="gen-form">
-                    <div className="space-y-2">
-                      <Label htmlFor="scenario" className="text-sm font-medium text-gray-700">
-                        Scenario
+                <CardContent className="p-8">
+                  <form onSubmit={handleGenerate} className="space-y-8" data-testid="gen-form">
+                    <div className="space-y-3">
+                      <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
+                        What's the situation?
                       </Label>
                       <Textarea
                         id="scenario"
                         data-testid="gen-scenario"
-                        placeholder="e.g., canceling a meeting, being late to work, missing a party..."
+                        placeholder="e.g., I need to cancel a meeting, I'm running late to work, I can't make it to the party..."
                         value={formData.scenario}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
                         required
-                        className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        className="min-h-[120px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Tone</Label>
+                    <div className="grid grid-cols-2 gap-6">
+                      <div className="space-y-3">
+                        <Label className="text-base font-semibold text-gray-700">Tone</Label>
                         <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500" data-testid="gen-tone">
+                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-tone">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
@@ -301,52 +363,52 @@ export default function HomePage() {
                         </Select>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Channel</Label>
+                      <div className="space-y-3">
+                        <Label className="text-base font-semibold text-gray-700">Channel</Label>
                         <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
-                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500" data-testid="gen-channel">
+                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-channel">
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="email">Email</SelectItem>
                             <SelectItem value="message">Message</SelectItem>
-                            <SelectItem value="call">Call</SelectItem>
+                            <SelectItem value="call">Phone Call</SelectItem>
                             <SelectItem value="in_person">In Person</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                     </div>
 
-                    <div className="space-y-2">
-                      <Label htmlFor="context" className="text-sm font-medium text-gray-700">
-                        Additional Context (optional)
+                    <div className="space-y-3">
+                      <Label htmlFor="context" className="text-base font-semibold text-gray-700">
+                        Additional Context (Optional)
                       </Label>
                       <Input
                         id="context"
                         data-testid="gen-context"
-                        placeholder="Additional details for more accurate excuse..."
+                        placeholder="Any specific details or requirements..."
                         value={formData.context}
-                        onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, context: e.target.value })}
+                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                       />
                     </div>
 
                     <Button 
                       type="submit" 
+                      disabled={generating || !formData.scenario.trim()}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                       data-testid="gen-submit"
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg font-medium"
-                      disabled={generating}
                     >
                       {generating ? (
-                        <>
-                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Generating...
-                        </>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                          <span>Generating...</span>
+                        </div>
                       ) : (
-                        <>
-                          <Wand2 className="mr-2 h-5 w-5" />
-                          Generate Excuse
-                        </>
+                        <div className="flex items-center space-x-2">
+                          <Wand2 className="h-5 w-5" />
+                          <span>Generate Excuse</span>
+                        </div>
                       )}
                     </Button>
                   </form>
@@ -356,141 +418,151 @@ export default function HomePage() {
               {/* Result Section */}
               <div className="space-y-6">
                 {result && (
-                  <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
-                    <CardHeader className="pb-4">
-                      <CardTitle className="flex items-center space-x-2">
-                        <Star className="h-5 w-5 text-yellow-500" />
-                        <span>Result</span>
+                  <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
+                    <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
+                      <CardTitle className="flex items-center space-x-3 text-2xl">
+                        <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                          <CheckCircle className="h-5 w-5 text-white" />
+                        </div>
+                        <span>Your Excuse</span>
                       </CardTitle>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100" data-testid="gen-result">
-                        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result}</p>
+                    
+                    <CardContent className="p-6">
+                      <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                        <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
+                          {result}
+                        </p>
                       </div>
                       
                       <div className="flex items-center space-x-3">
-                        <Button
+                        <Button 
+                          onClick={() => copyToClipboard(result)}
                           variant="outline"
-                          size="sm"
-                          onClick={copyToClipboard}
-                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                          className="flex-1 bg-white hover:bg-gray-50 border-gray-200 rounded-xl"
                         >
                           <Copy className="mr-2 h-4 w-4" />
                           Copy
                         </Button>
-                        
-                        <Button
+                        <Button 
+                          onClick={() => shareExcuse(result)}
                           variant="outline"
-                          size="sm"
-                          onClick={shareExcuse}
-                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                          className="flex-1 bg-white hover:bg-gray-50 border-gray-200 rounded-xl"
                         >
                           <Share2 className="mr-2 h-4 w-4" />
                           Share
+                        </Button>
+                        <Button 
+                          onClick={() => playTTS(result)}
+                          variant="outline"
+                          className="bg-white hover:bg-gray-50 border-gray-200 rounded-xl"
+                        >
+                          <Volume2 className="h-4 w-4" />
                         </Button>
                       </div>
                     </CardContent>
                   </Card>
                 )}
 
-                {/* Features Preview */}
-                <Card className="bg-white/60 backdrop-blur-xl border-0 shadow-lg">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-4">Features</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <MessageSquare className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">Multiple channels</p>
-                          <p className="text-sm text-gray-600">Email, messages, calls, in-person meetings</p>
-                        </div>
+                {/* Features */}
+                <div className="grid grid-cols-1 gap-4">
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
+                        <Shield className="h-6 w-6 text-white" />
                       </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Globe className="h-4 w-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">Auto language detection</p>
-                          <p className="text-sm text-gray-600">Write in any language, get response in same language</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Sparkles className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">AI generation</p>
-                          <p className="text-sm text-gray-600">Smart and contextual excuses</p>
-                        </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Privacy First</h3>
+                        <p className="text-sm text-gray-600">Your excuses are private and secure</p>
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
+                  </Card>
+
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                        <Clock className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Instant Results</h3>
+                        <p className="text-sm text-gray-600">Get your excuse in seconds</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl p-6">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+                        <Globe className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-gray-900">Multi-language</h3>
+                        <p className="text-sm text-gray-600">Automatic language detection</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
               </div>
             </div>
 
-            {/* Rate Limit Banner */}
+            {/* Banners */}
             {showRateLimitBanner && (
-              <Card className="bg-yellow-50 border-yellow-200 mb-6" data-testid="banner-rate-limit">
+              <Card className="border-red-200 bg-red-50 mb-6" data-testid="banner-rate-limit">
                 <CardContent className="pt-6">
-                  <div className="flex items-start space-x-3">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-yellow-800">Too many requests</h3>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Please wait a moment before making another request.
-                      </p>
+                  <div className="flex items-center space-x-3">
+                    <AlertCircle className="h-5 w-5 text-red-600" />
+                    <div>
+                      <p className="text-red-700 font-medium">Rate limit exceeded</p>
+                      <p className="text-red-600 text-sm">Please wait a moment before trying again.</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
 
-            {/* Free Limit Banner */}
             {showLimitBanner && (
-              <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6" data-testid="banner-free-limit">
+              <Card className="border-orange-200 bg-orange-50 mb-6" data-testid="banner-free-limit">
                 <CardContent className="pt-6">
-                  <div className="flex items-start space-x-3">
-                    <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-purple-800">Free limit reached</h3>
-                      <p className="text-sm text-purple-700 mt-1">
-                        Upgrade your account for unlimited excuse generation.
-                      </p>
-                      <Button 
-                        className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                        onClick={() => window.location.href = '/account'}
-                      >
-                        Upgrade Account
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
+                  <div className="flex items-center space-x-3">
+                    <Crown className="h-5 w-5 text-orange-600" />
+                    <div>
+                      <p className="text-orange-700 font-medium">Free limit reached</p>
+                      <p className="text-orange-600 text-sm">Upgrade to Pro for unlimited excuse generations.</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             )}
-          </div>
-        </main>
 
-        {/* Auth Modal */}
-        {showAuth && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" data-testid="auth-dialog">
-              <AuthForm />
-              <Button 
-                variant="ghost" 
-                className="w-full mt-4" 
-                onClick={() => setShowAuth(false)}
-              >
-                Cancel
-              </Button>
+            {/* How it Works */}
+            <div className="text-center mb-20">
+              <h2 className="text-4xl font-bold text-gray-900 mb-12">How It Works</h2>
+              <div className="grid md:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <span className="text-2xl font-bold text-white">1</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Describe Your Situation</h3>
+                  <p className="text-gray-600">Tell us what you need an excuse for</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <span className="text-2xl font-bold text-white">2</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">AI Generates</h3>
+                  <p className="text-gray-600">Our AI creates a perfect excuse</p>
+                </div>
+                <div className="text-center">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                    <span className="text-2xl font-bold text-white">3</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Use & Share</h3>
+                  <p className="text-gray-600">Copy, share, or listen to your excuse</p>
+                </div>
+              </div>
             </div>
           </div>
-        )}
+        </main>
       </div>
     </ErrorBoundary>
   );
