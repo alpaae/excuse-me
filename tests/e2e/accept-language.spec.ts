@@ -97,7 +97,7 @@ test.describe('Accept-Language Detection', () => {
     expect(langCookie?.value).toBe('es');
   });
 
-  test('should fallback to Russian for unsupported Accept-Language', async ({ page, mockApi }) => {
+  test('should fallback to English for unsupported Accept-Language', async ({ page, mockApi }) => {
     // Мокаем API
     await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
     await mockApi('/api/generate', API_SCENARIOS.success.response, API_SCENARIOS.success.status);
@@ -111,14 +111,14 @@ test.describe('Accept-Language Detection', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
 
-    // Проверяем, что селект показывает русский язык (fallback)
-    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Русский');
+    // Проверяем, что селект показывает английский язык (fallback)
+    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('English');
     
     // Проверяем, что cookie установлен с fallback значением
     const cookies = await page.context().cookies();
     const langCookie = cookies.find(cookie => cookie.name === 'excuseme_lang');
     expect(langCookie).toBeTruthy();
-    expect(langCookie?.value).toBe('ru');
+    expect(langCookie?.value).toBe('en');
   });
 
   test('should persist language choice in cookie for 180 days', async ({ page, mockApi }) => {
@@ -162,7 +162,7 @@ test.describe('Accept-Language Detection', () => {
     await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
     await mockApi('/api/generate', API_SCENARIOS.success.response, API_SCENARIOS.success.status);
     
-    // Устанавливаем Accept-Language
+    // Устанавливаем Accept-Language с русским (чтобы тестировать корректную инициализацию)
     await page.setExtraHTTPHeaders({
       'Accept-Language': 'ru-RU,ru;q=0.9'
     });

@@ -9,14 +9,20 @@ test.describe('i18n: query parameter handling', () => {
     await page.goto('/?lang=en');
     await page.waitForLoadState('networkidle');
     
+    // Ждем инициализации клиентского кода
+    await page.waitForFunction(() => {
+      const select = document.querySelector('[data-testid="lang-select"]') as HTMLSelectElement;
+      return select && select.value !== '';
+    }, { timeout: 10000 });
+    
     // Проверяем, что селектор показывает английский
     await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'en');
     
     // Проверяем, что cookie установлен
     await TEST_HELPERS.expectCookieSet(page, 'en');
     
-    // Проверяем, что URL содержит параметр
-    await TEST_HELPERS.expectUrlContainsLang(page, 'en');
+    // Проверяем, что URL содержит параметр lang=en (не удаляется при прямом заходе)
+    await expect(page).toHaveURL(/[?&]lang=en(&|$)/);
   });
   
   test('should set Polish from ?lang=pl query parameter', async ({ page, mockApi }) => {
@@ -50,7 +56,7 @@ test.describe('i18n: query parameter handling', () => {
     
     await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'en');
     await TEST_HELPERS.expectCookieSet(page, 'en');
-    await TEST_HELPERS.expectUrlContainsLang(page, 'en');
+    await expect(page).toHaveURL(/[?&]lang=en(&|$)/);
     
     // Проверяем, что другие параметры сохранились
     await expect(page).toHaveURL(/utm_source=test/);
@@ -67,6 +73,6 @@ test.describe('i18n: query parameter handling', () => {
     // Должен использовать query параметр, а не Accept-Language
     await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'en');
     await TEST_HELPERS.expectCookieSet(page, 'en');
-    await TEST_HELPERS.expectUrlContainsLang(page, 'en');
+    await expect(page).toHaveURL(/[?&]lang=en(&|$)/);
   });
 });

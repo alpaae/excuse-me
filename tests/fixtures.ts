@@ -12,7 +12,7 @@ export const test = base.extend<{
   
   // Устанавливаем Accept-Language заголовок для детекта языка
   extraHTTPHeaders: {
-    'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8'
+    'Accept-Language': 'en-US,en;q=0.9,ru;q=0.8'
   },
   
   // Кастомная фикстура для мока API
@@ -113,8 +113,24 @@ export const test = base.extend<{
       // Используем selectOption для надежности с нативным select
       await page.getByTestId('lang-select').selectOption(code);
       
-      // Ждем обновления URL
-      await page.waitForURL(`**/?*lang=${code}*`, { timeout: 5000 });
+      // Ждем обновления URL или удаления параметра для базового языка
+      if (code === 'en') {
+        // Для базового языка ждем удаления параметра lang
+        await page.waitForURL((url) => !url.searchParams.has('lang'), { timeout: 5000 });
+      } else {
+        // Для других языков ждем появления параметра
+        await page.waitForURL(`**/?*lang=${code}*`, { timeout: 5000 });
+      }
+      
+      // Дополнительная проверка значения select
+      await page.waitForFunction(
+        (expectedCode) => {
+          const select = document.querySelector('[data-testid="lang-select"]') as HTMLSelectElement;
+          return select && select.value === expectedCode;
+        },
+        code,
+        { timeout: 5000 }
+      );
     };
     
     await use(selectLang);
@@ -352,7 +368,13 @@ export const TEST_HELPERS = {
    * Проверяет, что URL содержит параметр lang
    */
   expectUrlContainsLang: async (page: Page, langCode: string) => {
-    await expect(page).toHaveURL(new RegExp(`[?&]lang=${langCode}(&|$)`));
+    if (langCode === 'en') {
+      // Для базового языка проверяем отсутствие параметра
+      await expect(page).not.toHaveURL(/[?&]lang=/);
+    } else {
+      // Для других языков проверяем наличие параметра
+      await expect(page).toHaveURL(new RegExp(`[?&]lang=${langCode}(&|$)`));
+    }
   },
   
   /**

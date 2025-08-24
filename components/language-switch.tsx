@@ -32,9 +32,15 @@ export function LanguageSwitch({ onLanguageChange }: LanguageSwitchProps) {
         body: JSON.stringify({ lang }),
       });
 
-      // 2. Обновляем URL без навигации
+      // 2. Обновляем URL без навигации (правильное кодирование)
       const url = new URL(window.location.href);
-      url.searchParams.set('lang', lang);
+      if (lang === 'en') {
+        // Для базового языка удаляем параметр lang
+        url.searchParams.delete('lang');
+      } else {
+        // Для других языков устанавливаем параметр
+        url.searchParams.set('lang', lang);
+      }
       history.replaceState(null, '', url.toString());
 
       // 3. Обновляем состояние провайдера

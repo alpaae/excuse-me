@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
+import { headers } from 'next/headers';
 import './globals.css';
 import { ToastProvider } from '@/components/toast-provider';
-import { I18nProviderServer } from '@/components/i18n-provider-server';
+import I18nProviderServer from '@/components/i18n-provider-server';
 
 // === FONT КОНФИГУРАЦИЯ ===
 // Next.js 15: обновленная конфигурация шрифтов
@@ -143,13 +144,21 @@ export const viewport: Viewport = {
   colorScheme: 'light dark',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  // Получаем заголовки для определения локали
+  const headersList = await headers();
+  
+  // Читаем локаль из заголовка x-locale, установленного middleware
+  const locale = headersList.get('x-locale') || 'en';
+  
+  console.log('[Layout] Resolved locale from x-locale header:', locale);
+
   return (
-    <html lang="ru" className={inter.variable}>
+    <html lang={locale} className={inter.variable}>
       <head>
         {/* PWA мета-теги для лучшей совместимости */}
         <meta name="apple-mobile-web-app-capable" content="yes" />

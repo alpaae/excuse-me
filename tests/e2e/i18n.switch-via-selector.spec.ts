@@ -8,8 +8,8 @@ test.describe('i18n: switch via selector', () => {
     await page.goto('/');
     await page.waitForLoadState('networkidle');
     
-    // Проверяем начальное состояние (русский)
-    await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'ru');
+    // Проверяем начальное состояние (английский)
+    await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'en');
     
     // Переключаем на польский
     await selectLang(page, 'pl');
@@ -35,18 +35,18 @@ test.describe('i18n: switch via selector', () => {
     await TEST_HELPERS.expectCookieSet(page, 'en');
   });
   
-  test('should switch back to Russian (removes lang param)', async ({ page, selectLang, mockApi }) => {
+  test('should switch back to English (removes lang param)', async ({ page, selectLang, mockApi }) => {
     await mockApi('/api/health', { ok: true, time: new Date().toISOString() }, 200);
     
-    await page.goto('/?lang=en');
+    await page.goto('/?lang=ru');
     await page.waitForLoadState('networkidle');
     
-    // Переключаем обратно на русский
-    await selectLang(page, 'ru');
+    // Переключаем обратно на английский
+    await selectLang(page, 'en');
     
     // Проверяем результат
-    await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'ru');
-    await TEST_HELPERS.expectCookieSet(page, 'ru');
+    await TEST_HELPERS.expectSelectValue(page, '[data-testid="lang-select"]', 'en');
+    await TEST_HELPERS.expectCookieSet(page, 'en');
     
     // URL не должен содержать параметр lang для базового языка
     await expect(page).not.toHaveURL(/lang=/);

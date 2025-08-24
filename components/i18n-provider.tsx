@@ -6,7 +6,7 @@ import i18next from '@/lib/i18n';
 
 // Константы из middleware (синхронизированы с сервером)
 const SUPPORTED_LOCALES = ['ru', 'en', 'pl', 'de', 'fr', 'es', 'it', 'pt', 'uk', 'zh-CN', 'ja', 'ko'] as const;
-const BASE_LOCALE = 'ru';
+const BASE_LOCALE = 'en';
 
 const LOCALE_ALIASES: Record<string, string> = {
   'cn': 'zh-CN',
@@ -124,6 +124,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [currentLocale, setCurrentLocale] = useState<string>(() => {
     // Инициализируем состояние с серверной локалью
     const normalizedLocale = initialLocale ? normalizeLocale(initialLocale) : BASE_LOCALE;
+    console.log('[I18nProvider] Initializing with:', { initialLocale, normalizedLocale });
     return normalizedLocale;
   });
 
@@ -161,7 +162,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     }
 
     setIsInitialized(true);
-  }, [initialLocale, currentLocale]);
+  }, [initialLocale]); // Убираем currentLocale из зависимостей
 
   // Функция для изменения локали
   const handleSetCurrentLocale = async (newLocale: string) => {
