@@ -2,7 +2,7 @@ import useSWR from 'swr';
 import { useState, useEffect } from 'react';
 
 interface LimitsData {
-  remaining: number | Infinity;
+  remaining: number;
   daily: number;
   isPro: boolean;
   nextResetAt: string;

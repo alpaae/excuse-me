@@ -1,4 +1,4 @@
-import { zonedTimeToUtc, utcToZonedTime, format } from 'date-fns-tz';
+import { toZonedTime, format } from 'date-fns-tz';
 
 const TZ = 'Europe/Warsaw';
 
@@ -7,7 +7,7 @@ const TZ = 'Europe/Warsaw';
  */
 export function nextMidnightZonedISO(): string {
   const now = new Date();
-  const warsawNow = utcToZonedTime(now, TZ);
+  const warsawNow = toZonedTime(now, TZ);
   
   // Get tomorrow's midnight in Warsaw timezone
   const tomorrow = new Date(warsawNow);
@@ -15,8 +15,7 @@ export function nextMidnightZonedISO(): string {
   tomorrow.setHours(0, 0, 0, 0);
   
   // Convert back to UTC for ISO string
-  const utcMidnight = zonedTimeToUtc(tomorrow, TZ);
-  return utcMidnight.toISOString();
+  return tomorrow.toISOString();
 }
 
 /**
@@ -24,7 +23,7 @@ export function nextMidnightZonedISO(): string {
  */
 export function stepsSinceMidnight(stepHours: number = 2): number {
   const now = new Date();
-  const warsawNow = utcToZonedTime(now, TZ);
+  const warsawNow = toZonedTime(now, TZ);
   
   // Get today's midnight in Warsaw timezone
   const todayMidnight = new Date(warsawNow);
@@ -42,7 +41,7 @@ export function stepsSinceMidnight(stepHours: number = 2): number {
  */
 export function getWarsawDateString(): string {
   const now = new Date();
-  const warsawNow = utcToZonedTime(now, TZ);
+  const warsawNow = toZonedTime(now, TZ);
   return format(warsawNow, 'yyyy-MM-dd');
 }
 
@@ -51,5 +50,5 @@ export function getWarsawDateString(): string {
  */
 export function getWarsawTime(): Date {
   const now = new Date();
-  return utcToZonedTime(now, TZ);
+  return toZonedTime(now, TZ);
 }

@@ -68,7 +68,7 @@ export function useSocialProof() {
     const increment = Math.floor(Math.random() * 13) + 3; // 3-15
     const newCount = Math.min(currentCount + increment, data?.dailyCap || 50000);
     
-    if (newCount > currentCount) {
+    if (newCount > currentCount && data) {
       setLocalCount(warsawDate, newCount);
       mutate({ ...data, todayCount: newCount }, false);
     }
