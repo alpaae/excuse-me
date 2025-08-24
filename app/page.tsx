@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Wand2, Zap, Sparkles, ArrowRight, CheckCircle, X } from 'lucide-react';
+import { Wand2, Zap, Users, Sparkles, ArrowRight, CheckCircle, X } from 'lucide-react';
+import { SocialProofBar } from '@/components/social-proof-bar';
 import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
@@ -128,6 +129,12 @@ export default function HomePage() {
               Transform awkward situations into graceful exits with AI-powered, 
               context-aware excuses that feel natural and professional
             </p>
+            
+            {/* Social Proof Counter */}
+            <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-4 py-2 shadow-lg">
+              <Users className="h-4 w-4 text-blue-600" />
+              <SocialProofBar />
+            </div>
           </div>
 
           {/* Main Card - Form or Result */}
