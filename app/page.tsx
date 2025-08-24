@@ -54,7 +54,6 @@ export default function HomePage() {
     scenario: '',
     tone: 'professional',
     channel: 'email',
-    lang: 'ru',
     context: '',
   });
 
@@ -70,12 +69,25 @@ export default function HomePage() {
     checkUser();
   }, [checkUser]);
 
-  // Синхронизируем язык формы с текущим языком приложения
-  useEffect(() => {
-    if (currentLocale && currentLocale !== formData.lang) {
-      setFormData(prev => ({ ...prev, lang: currentLocale }));
-    }
-  }, [currentLocale, formData.lang]);
+  // Функция для определения языка текста
+  const detectLanguage = (text: string): string => {
+    // Простая эвристика для определения языка
+    const russianPattern = /[а-яё]/i;
+    const englishPattern = /[a-z]/i;
+    const polishPattern = /[ąćęłńóśźż]/i;
+    const germanPattern = /[äöüß]/i;
+    const frenchPattern = /[àâäéèêëïîôöùûüÿç]/i;
+    const spanishPattern = /[ñáéíóúü]/i;
+    
+    if (russianPattern.test(text)) return 'ru';
+    if (polishPattern.test(text)) return 'pl';
+    if (germanPattern.test(text)) return 'de';
+    if (frenchPattern.test(text)) return 'fr';
+    if (spanishPattern.test(text)) return 'es';
+    if (englishPattern.test(text)) return 'en';
+    
+    return 'en'; // По умолчанию английский
+  };
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -92,10 +104,13 @@ export default function HomePage() {
     setShowRateLimitBanner(false);
     
     try {
-      // Используем текущую локаль из провайдера для генерации
+      // Автоматически определяем язык на основе контекста
+      const combinedText = `${formData.scenario} ${formData.context}`.trim();
+      const detectedLang = detectLanguage(combinedText);
+      
       const requestData = {
         ...formData,
-        lang: currentLocale, // Всегда используем текущую локаль из провайдера
+        lang: detectedLang,
       };
 
       const response = await fetch('/api/generate', {
@@ -133,10 +148,10 @@ export default function HomePage() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(result);
-      showSuccess('Скопировано в буфер обмена');
+      showSuccess('Copied to clipboard');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      showError('Не удалось скопировать');
+      showError('Failed to copy');
     }
   };
 
@@ -149,11 +164,11 @@ export default function HomePage() {
         });
       } else {
         await navigator.clipboard.writeText(result);
-        showSuccess('Скопировано в буфер обмена');
+        showSuccess('Copied to clipboard');
       }
     } catch (error) {
       console.error('Error sharing:', error);
-      showError('Не удалось поделиться');
+      showError('Failed to share');
     }
   };
 
@@ -192,39 +207,37 @@ export default function HomePage() {
               </div>
               
               <div className="flex items-center space-x-4">
-                <LanguageSwitch />
-                
                 {user ? (
                   <div className="flex items-center space-x-3">
                     <Badge variant="secondary" className="bg-white/50 backdrop-blur-sm">
                       {user.email}
                     </Badge>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => window.location.href = '/excuses'}
-                      className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
-                    >
-                      <History className="mr-2 h-4 w-4" />
-                      История
-                    </Button>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => window.location.href = '/account'}
-                      className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
-                    >
-                      <Crown className="mr-2 h-4 w-4" />
-                      Аккаунт
-                    </Button>
+                                         <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       onClick={() => window.location.href = '/excuses'}
+                       className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                     >
+                       <History className="mr-2 h-4 w-4" />
+                       History
+                     </Button>
+                     <Button 
+                       variant="ghost" 
+                       size="sm" 
+                       onClick={() => window.location.href = '/account'}
+                       className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                     >
+                       <Crown className="mr-2 h-4 w-4" />
+                       Account
+                     </Button>
                   </div>
                 ) : (
-                  <Button 
-                    onClick={() => setShowAuth(true)}
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                  >
-                    Войти
-                  </Button>
+                                  <Button 
+                  onClick={() => setShowAuth(true)}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                >
+                  Sign In
+                </Button>
                 )}
               </div>
             </div>
@@ -242,27 +255,27 @@ export default function HomePage() {
               </div>
               
               <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6">
-                Создавайте идеальные отмазки
+                Create Perfect Excuses
               </h1>
               
               <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-                Искусственный интеллект поможет вам создать вежливые и убедительные отмазки для любой ситуации
+                AI helps you create polite and convincing excuses for any situation
               </p>
               
-              <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Мгновенная генерация</span>
+                              <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Instant generation</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Multiple languages</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Professional tone</span>
+                  </div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Множество языков</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Профессиональный тон</span>
-                </div>
-              </div>
             </div>
 
             {/* Form Section */}
@@ -272,73 +285,70 @@ export default function HomePage() {
                 <CardHeader className="pb-6">
                   <CardTitle className="flex items-center space-x-2 text-2xl">
                     <Wand2 className="h-6 w-6 text-blue-600" />
-                    <span>Создать отмазку</span>
+                    <span>Create Excuse</span>
                   </CardTitle>
                   <CardDescription className="text-gray-600">
-                    Опишите ситуацию и получите вежливую отмазку
+                    Describe the situation and get a polite excuse
                   </CardDescription>
                 </CardHeader>
                 
                 <CardContent>
                   <form onSubmit={handleGenerate} className="space-y-6">
-                    <div className="space-y-2">
+                                        <div className="space-y-2">
                       <Label htmlFor="scenario" className="text-sm font-medium text-gray-700">
-                        Сценарий
+                        Scenario
                       </Label>
-                                             <Textarea
-                         id="scenario"
-                         placeholder="Например: отмена встречи, опоздание на работу, пропуск вечеринки..."
-                         value={formData.scenario}
-                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
-                         required
-                         className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                       />
+                      <Textarea
+                        id="scenario"
+                        placeholder="e.g., canceling a meeting, being late to work, missing a party..."
+                        value={formData.scenario}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
+                        required
+                        className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Тон</Label>
-                        <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="professional">Профессиональный</SelectItem>
-                            <SelectItem value="friendly">Дружелюбный</SelectItem>
-                            <SelectItem value="formal">Формальный</SelectItem>
-                            <SelectItem value="casual">Неформальный</SelectItem>
-                          </SelectContent>
-                        </Select>
+                                          <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-gray-700">Tone</Label>
+                          <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
+                            <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="professional">Professional</SelectItem>
+                              <SelectItem value="friendly">Friendly</SelectItem>
+                              <SelectItem value="formal">Formal</SelectItem>
+                              <SelectItem value="casual">Casual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label className="text-sm font-medium text-gray-700">Channel</Label>
+                          <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
+                            <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="email">Email</SelectItem>
+                              <SelectItem value="message">Message</SelectItem>
+                              <SelectItem value="call">Call</SelectItem>
+                              <SelectItem value="in_person">In Person</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
                       </div>
 
-                      <div className="space-y-2">
-                        <Label className="text-sm font-medium text-gray-700">Канал</Label>
-                        <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
-                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="email">Email</SelectItem>
-                            <SelectItem value="message">Сообщение</SelectItem>
-                            <SelectItem value="call">Звонок</SelectItem>
-                            <SelectItem value="in_person">Лично</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-                    </div>
 
-                    <div className="space-y-2">
-                      <Label className="text-sm font-medium text-gray-700">Язык</Label>
-                      <LanguageSwitch />
-                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="context" className="text-sm font-medium text-gray-700">
-                        Дополнительный контекст (опционально)
+                        Additional Context (optional)
                       </Label>
                       <Input
                         id="context"
-                        placeholder="Дополнительные детали для более точной отмазки..."
+                        placeholder="Additional details for more accurate excuse..."
                         value={formData.context}
                         onChange={(e) => setFormData({ ...formData, context: e.target.value })}
                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
@@ -353,12 +363,12 @@ export default function HomePage() {
                       {generating ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
-                          Генерация...
+                          Generating...
                         </>
                       ) : (
                         <>
                           <Wand2 className="mr-2 h-5 w-5" />
-                          Сгенерировать отмазку
+                          Generate Excuse
                         </>
                       )}
                     </Button>
@@ -371,10 +381,10 @@ export default function HomePage() {
                 {result && (
                   <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
                     <CardHeader className="pb-4">
-                      <CardTitle className="flex items-center space-x-2">
-                        <Star className="h-5 w-5 text-yellow-500" />
-                        <span>Результат</span>
-                      </CardTitle>
+                                             <CardTitle className="flex items-center space-x-2">
+                         <Star className="h-5 w-5 text-yellow-500" />
+                         <span>Result</span>
+                       </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100">
@@ -382,25 +392,25 @@ export default function HomePage() {
                       </div>
                       
                       <div className="flex items-center space-x-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={copyToClipboard}
-                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
-                        >
-                          <Copy className="mr-2 h-4 w-4" />
-                          Копировать
-                        </Button>
-                        
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={shareExcuse}
-                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
-                        >
-                          <Share2 className="mr-2 h-4 w-4" />
-                          Поделиться
-                        </Button>
+                                                 <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={copyToClipboard}
+                           className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                         >
+                           <Copy className="mr-2 h-4 w-4" />
+                           Copy
+                         </Button>
+                         
+                         <Button
+                           variant="outline"
+                           size="sm"
+                           onClick={shareExcuse}
+                           className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                         >
+                           <Share2 className="mr-2 h-4 w-4" />
+                           Share
+                         </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -408,40 +418,40 @@ export default function HomePage() {
 
                 {/* Features Preview */}
                 <Card className="bg-white/60 backdrop-blur-xl border-0 shadow-lg">
-                  <CardContent className="p-6">
-                    <h3 className="font-semibold text-gray-900 mb-4">Возможности</h3>
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                          <MessageSquare className="h-4 w-4 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">Множество каналов</p>
-                          <p className="text-sm text-gray-600">Email, сообщения, звонки, личные встречи</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                          <Globe className="h-4 w-4 text-purple-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">Множество языков</p>
-                          <p className="text-sm text-gray-600">Русский, английский, испанский и другие</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                          <Sparkles className="h-4 w-4 text-green-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium text-gray-900">AI-генерация</p>
-                          <p className="text-sm text-gray-600">Умные и контекстные отмазки</p>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
+                                     <CardContent className="p-6">
+                     <h3 className="font-semibold text-gray-900 mb-4">Features</h3>
+                     <div className="space-y-3">
+                       <div className="flex items-center space-x-3">
+                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                           <MessageSquare className="h-4 w-4 text-blue-600" />
+                         </div>
+                         <div>
+                           <p className="font-medium text-gray-900">Multiple channels</p>
+                           <p className="text-sm text-gray-600">Email, messages, calls, in-person meetings</p>
+                         </div>
+                       </div>
+                       
+                       <div className="flex items-center space-x-3">
+                         <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                           <Globe className="h-4 w-4 text-purple-600" />
+                         </div>
+                         <div>
+                           <p className="font-medium text-gray-900">Auto language detection</p>
+                           <p className="text-sm text-gray-600">Write in any language, get response in same language</p>
+                         </div>
+                       </div>
+                       
+                       <div className="flex items-center space-x-3">
+                         <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                           <Sparkles className="h-4 w-4 text-green-600" />
+                         </div>
+                         <div>
+                           <p className="font-medium text-gray-900">AI generation</p>
+                           <p className="text-sm text-gray-600">Smart and contextual excuses</p>
+                         </div>
+                       </div>
+                     </div>
+                   </CardContent>
                 </Card>
               </div>
             </div>
@@ -452,12 +462,12 @@ export default function HomePage() {
                 <CardContent className="pt-6">
                   <div className="flex items-start space-x-3">
                     <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-yellow-800">Слишком много запросов</h3>
-                      <p className="text-sm text-yellow-700 mt-1">
-                        Пожалуйста, подождите немного перед следующим запросом.
-                      </p>
-                    </div>
+                                         <div className="flex-1">
+                       <h3 className="font-medium text-yellow-800">Too many requests</h3>
+                       <p className="text-sm text-yellow-700 mt-1">
+                         Please wait a moment before making another request.
+                       </p>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
@@ -469,19 +479,19 @@ export default function HomePage() {
                 <CardContent className="pt-6">
                   <div className="flex items-start space-x-3">
                     <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
-                    <div className="flex-1">
-                      <h3 className="font-medium text-purple-800">Достигнут лимит бесплатных запросов</h3>
-                      <p className="text-sm text-purple-700 mt-1">
-                        Обновите аккаунт для неограниченного доступа к генерации отмазок.
-                      </p>
-                      <Button 
-                        className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                        onClick={() => window.location.href = '/account'}
-                      >
-                        Обновить аккаунт
-                        <ArrowRight className="ml-2 h-4 w-4" />
-                      </Button>
-                    </div>
+                                         <div className="flex-1">
+                       <h3 className="font-medium text-purple-800">Free limit reached</h3>
+                       <p className="text-sm text-purple-700 mt-1">
+                         Upgrade your account for unlimited excuse generation.
+                       </p>
+                       <Button 
+                         className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                         onClick={() => window.location.href = '/account'}
+                       >
+                         Upgrade Account
+                         <ArrowRight className="ml-2 h-4 w-4" />
+                       </Button>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
@@ -494,13 +504,13 @@ export default function HomePage() {
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
                              <AuthForm />
-              <Button 
-                variant="ghost" 
-                className="w-full mt-4" 
-                onClick={() => setShowAuth(false)}
-              >
-                Отмена
-              </Button>
+                             <Button 
+                 variant="ghost" 
+                 className="w-full mt-4" 
+                 onClick={() => setShowAuth(false)}
+               >
+                 Cancel
+               </Button>
             </div>
           </div>
         )}
