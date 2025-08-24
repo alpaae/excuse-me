@@ -6,7 +6,7 @@ import { AuthForm } from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { useToast, toastMessages } from '@/lib/use-toast';
-import { useI18n } from '@/lib/use-i18n';
+import { useCurrentLocale } from '@/components/i18n-provider';
 import { LanguageSwitch } from '@/components/language-switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -29,7 +29,7 @@ export default function HomePage() {
   const [showLimitBanner, setShowLimitBanner] = useState(false);
   const [showRateLimitBanner, setShowRateLimitBanner] = useState(false);
   const { showSuccess, showError } = useToast();
-  const { currentLanguage } = useI18n();
+  const { currentLocale } = useCurrentLocale();
   
   const [formData, setFormData] = useState({
     scenario: '',
@@ -53,10 +53,10 @@ export default function HomePage() {
 
   // Синхронизируем язык формы с текущим языком приложения
   useEffect(() => {
-    if (currentLanguage && currentLanguage !== formData.lang) {
-      setFormData(prev => ({ ...prev, lang: currentLanguage }));
+    if (currentLocale && currentLocale !== formData.lang) {
+      setFormData(prev => ({ ...prev, lang: currentLocale }));
     }
-  }, [currentLanguage, formData.lang]);
+  }, [currentLocale, formData.lang]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,10 +73,16 @@ export default function HomePage() {
     setShowRateLimitBanner(false);
     
     try {
+      // Используем текущую локаль из провайдера для генерации
+      const requestData = {
+        ...formData,
+        lang: currentLocale || formData.lang, // Приоритет текущей локали
+      };
+
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(requestData),
       });
 
       const data = await response.json();
