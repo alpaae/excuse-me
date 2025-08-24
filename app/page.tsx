@@ -160,7 +160,7 @@ export default function HomePage() {
                 <Badge variant="outline">
                   {user.email}
                 </Badge>
-                <Button variant="outline" size="sm" onClick={() => window.location.href = '/dashboard'}>
+                <Button variant="outline" size="sm" onClick={() => window.location.href = '/excuses'}>
                   <History className="mr-2 h-4 w-4" />
                   История
                 </Button>
