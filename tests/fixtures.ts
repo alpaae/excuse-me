@@ -5,7 +5,6 @@ export const test = base.extend<{
   mockApi: (route: string, json: any, status?: number) => Promise<void>;
   mockGenerate: (mode: 'success' | 'rate' | 'free') => Promise<void>;
   mockTts: (mode?: 'success' | 'empty') => Promise<void>;
-  selectLang: (page: Page, code: string) => Promise<void>;
 }>({
   // Устанавливаем baseURL
   baseURL: 'http://localhost:3000',
@@ -107,34 +106,7 @@ export const test = base.extend<{
     await use(mockTts);
   },
   
-  // Кастомная фикстура для выбора языка
-  selectLang: async ({ page }, use) => {
-    const selectLang = async (page: Page, code: string) => {
-      // Используем selectOption для надежности с нативным select
-      await page.getByTestId('lang-select').selectOption(code);
-      
-      // Ждем обновления URL или удаления параметра для базового языка
-      if (code === 'en') {
-        // Для базового языка ждем удаления параметра lang
-        await page.waitForURL((url) => !url.searchParams.has('lang'), { timeout: 5000 });
-      } else {
-        // Для других языков ждем появления параметра
-        await page.waitForURL(`**/?*lang=${code}*`, { timeout: 5000 });
-      }
-      
-      // Дополнительная проверка значения select
-      await page.waitForFunction(
-        (expectedCode) => {
-          const select = document.querySelector('[data-testid="lang-select"]') as HTMLSelectElement;
-          return select && select.value === expectedCode;
-        },
-        code,
-        { timeout: 5000 }
-      );
-    };
-    
-    await use(selectLang);
-  },
+
 });
 
 // Экспортируем expect
@@ -147,7 +119,7 @@ export const API_SCENARIOS = {
     route: '/api/generate',
     response: {
       success: true,
-      text: 'Извините, но у меня возникли непредвиденные обстоятельства, которые не позволяют мне присутствовать на встрече.',
+      text: 'I apologize, but I have encountered unforeseen circumstances that prevent me from attending the meeting.',
       excuse_id: 'test-excuse-id-123',
       requestId: 'test-request-id'
     },
@@ -362,38 +334,6 @@ export const TEST_HELPERS = {
    */
   expectSelectValue: async (page: Page, selector: string, expectedValue: string) => {
     await expect(page.locator(selector)).toHaveValue(expectedValue);
-  },
-  
-  /**
-   * Проверяет, что URL содержит параметр lang
-   */
-  expectUrlContainsLang: async (page: Page, langCode: string) => {
-    if (langCode === 'en') {
-      // Для базового языка проверяем отсутствие параметра
-      await expect(page).not.toHaveURL(/[?&]lang=/);
-    } else {
-      // Для других языков проверяем наличие параметра
-      await expect(page).toHaveURL(new RegExp(`[?&]lang=${langCode}(&|$)`));
-    }
-  },
-  
-  /**
-   * Проверяет, что cookie excuseme_lang установлен
-   */
-  expectCookieSet: async (page: Page, expectedValue: string) => {
-    const cookies = await page.context().cookies();
-    const langCookie = cookies.find(cookie => cookie.name === 'excuseme_lang');
-    expect(langCookie).toBeDefined();
-    expect(langCookie?.value).toBe(expectedValue);
-  },
-  
-  /**
-   * Проверяет, что cookie excuseme_lang НЕ установлен
-   */
-  expectCookieNotSet: async (page: Page) => {
-    const cookies = await page.context().cookies();
-    const langCookie = cookies.find(cookie => cookie.name === 'excuseme_lang');
-    expect(langCookie).toBeUndefined();
   }
 } as const;
 

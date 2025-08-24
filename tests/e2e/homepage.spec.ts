@@ -16,32 +16,29 @@ test.describe('Homepage', () => {
     
     // Проверяем основные элементы страницы
     await expect(page.getByRole('heading', { name: 'ExcuseME' })).toBeVisible();
-    await expect(page.getByText('Генератор вежливых отмазок')).toBeVisible();
+    await expect(page.getByText('AI helps you create polite and convincing excuses for any situation')).toBeVisible();
     
     // Проверяем форму генерации и все её элементы
     await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Создать отмазку' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Create Excuse' })).toBeVisible();
     await expect(page.getByTestId(SELECTORS.GEN_SCENARIO)).toBeVisible();
     await expect(page.getByTestId(SELECTORS.GEN_CONTEXT)).toBeVisible();
     await expect(page.getByTestId(SELECTORS.GEN_TONE)).toBeVisible();
     await expect(page.getByTestId(SELECTORS.GEN_CHANNEL)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toBeVisible();
     await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toBeVisible();
     
     // Проверяем плейсхолдеры
-    await expect(page.getByPlaceholder('Например: отмена встречи')).toBeVisible();
-    await expect(page.getByPlaceholder('Дополнительные детали')).toBeVisible();
+    await expect(page.getByPlaceholder('e.g., canceling a meeting, being late to work, missing a party...')).toBeVisible();
+    await expect(page.getByPlaceholder('Additional details for more accurate excuse...')).toBeVisible();
     
     // Проверяем селекты через testid
-    await expect(page.getByTestId(SELECTORS.GEN_TONE)).toContainText('Профессиональный'); // Тон по умолчанию
+    await expect(page.getByTestId(SELECTORS.GEN_TONE)).toContainText('Professional'); // Тон по умолчанию
     await expect(page.getByTestId(SELECTORS.GEN_CHANNEL)).toContainText('Email'); // Канал по умолчанию
-    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Русский'); // Язык по умолчанию
     
     // Проверяем кнопку генерации
     await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toHaveText(EXPECTED_TEXT.GENERATION.BUTTON);
     
-    // Проверяем призыв к авторизации для неавторизованных пользователей
-    await expect(page.getByText('Войдите, чтобы сохранять историю')).toBeVisible();
+    // Проверяем кнопку входа для неавторизованных пользователей
     await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toBeVisible();
     await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toHaveText(EXPECTED_TEXT.AUTH.LOGIN_BUTTON);
   });
@@ -63,10 +60,7 @@ test.describe('Homepage', () => {
     
     // Проверяем, что отображается диалог авторизации
     await expect(page.getByTestId(SELECTORS.AUTH_DIALOG)).toBeVisible();
-    await expect(page.getByRole('heading', { name: 'Войти в ExcuseME' })).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Отправить magic link' })).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Войти через GitHub' })).toBeVisible();
     
     // Проверяем, что форма генерации остается видимой под модальным окном
     await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();

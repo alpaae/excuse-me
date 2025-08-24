@@ -19,8 +19,8 @@ test.describe('Excuse Generation', () => {
     await page.waitForLoadState('networkidle');
     
     // Заполняем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('отмена встречи');
-    await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('срочная работа');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('cancel meeting');
+    await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('urgent work');
     
     // Отправляем форму
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
@@ -47,7 +47,7 @@ test.describe('Excuse Generation', () => {
     await page.waitForLoadState('networkidle');
     
     // Заполняем и отправляем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест rate limit');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('test rate limit');
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем баннер rate limit
@@ -72,12 +72,12 @@ test.describe('Excuse Generation', () => {
     await page.waitForLoadState('networkidle');
     
     // Заполняем и отправляем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест free limit');
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('test free limit');
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем баннер лимита
     await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toContainText('Daily free limit reached');
+    await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toContainText('Free limit reached');
   });
 
   test('should handle form validation', async ({ page }) => {

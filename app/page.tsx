@@ -232,12 +232,13 @@ export default function HomePage() {
                      </Button>
                   </div>
                 ) : (
-                                  <Button 
-                  onClick={() => setShowAuth(true)}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                >
-                  Sign In
-                </Button>
+                                                    <Button 
+                    onClick={() => setShowAuth(true)}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                    data-testid="btn-login"
+                  >
+                    Sign In
+                  </Button>
                 )}
               </div>
             </div>
@@ -293,28 +294,29 @@ export default function HomePage() {
                 </CardHeader>
                 
                 <CardContent>
-                  <form onSubmit={handleGenerate} className="space-y-6">
+                  <form onSubmit={handleGenerate} className="space-y-6" data-testid="gen-form">
                                         <div className="space-y-2">
                       <Label htmlFor="scenario" className="text-sm font-medium text-gray-700">
                         Scenario
                       </Label>
-                      <Textarea
-                        id="scenario"
-                        placeholder="e.g., canceling a meeting, being late to work, missing a party..."
-                        value={formData.scenario}
-                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
-                        required
-                        className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                                             <Textarea
+                         id="scenario"
+                         data-testid="gen-scenario"
+                         placeholder="e.g., canceling a meeting, being late to work, missing a party..."
+                         value={formData.scenario}
+                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
+                         required
+                         className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                       />
                     </div>
 
                                           <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">Tone</Label>
-                          <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                            <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue />
-                            </SelectTrigger>
+                                                  <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
+                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500" data-testid="gen-tone">
+                            <SelectValue />
+                          </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="professional">Professional</SelectItem>
                               <SelectItem value="friendly">Friendly</SelectItem>
@@ -326,10 +328,10 @@ export default function HomePage() {
 
                         <div className="space-y-2">
                           <Label className="text-sm font-medium text-gray-700">Channel</Label>
-                          <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
-                            <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
-                              <SelectValue />
-                            </SelectTrigger>
+                                                  <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
+                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500" data-testid="gen-channel">
+                            <SelectValue />
+                          </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="email">Email</SelectItem>
                               <SelectItem value="message">Message</SelectItem>
@@ -346,20 +348,22 @@ export default function HomePage() {
                       <Label htmlFor="context" className="text-sm font-medium text-gray-700">
                         Additional Context (optional)
                       </Label>
-                      <Input
-                        id="context"
-                        placeholder="Additional details for more accurate excuse..."
-                        value={formData.context}
-                        onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                      />
+                                             <Input
+                         id="context"
+                         data-testid="gen-context"
+                         placeholder="Additional details for more accurate excuse..."
+                         value={formData.context}
+                         onChange={(e) => setFormData({ ...formData, context: e.target.value })}
+                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                       />
                     </div>
 
-                    <Button 
-                      type="submit" 
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg font-medium"
-                      disabled={generating}
-                    >
+                                         <Button 
+                       type="submit" 
+                       data-testid="gen-submit"
+                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg font-medium"
+                       disabled={generating}
+                     >
                       {generating ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
@@ -387,9 +391,9 @@ export default function HomePage() {
                        </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100">
-                        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result}</p>
-                      </div>
+                                             <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100" data-testid="gen-result">
+                         <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result}</p>
+                       </div>
                       
                       <div className="flex items-center space-x-3">
                                                  <Button
@@ -456,30 +460,30 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Rate Limit Banner */}
-            {showRateLimitBanner && (
-              <Card className="bg-yellow-50 border-yellow-200 mb-6">
-                <CardContent className="pt-6">
-                  <div className="flex items-start space-x-3">
-                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                                         <div className="flex-1">
+                         {/* Rate Limit Banner */}
+             {showRateLimitBanner && (
+               <Card className="bg-yellow-50 border-yellow-200 mb-6" data-testid="banner-rate-limit">
+                 <CardContent className="pt-6">
+                   <div className="flex items-start space-x-3">
+                     <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                     <div className="flex-1">
                        <h3 className="font-medium text-yellow-800">Too many requests</h3>
                        <p className="text-sm text-yellow-700 mt-1">
                          Please wait a moment before making another request.
                        </p>
                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                   </div>
+                 </CardContent>
+               </Card>
+             )}
 
-            {/* Free Limit Banner */}
-            {showLimitBanner && (
-              <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6">
-                <CardContent className="pt-6">
-                  <div className="flex items-start space-x-3">
-                    <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
-                                         <div className="flex-1">
+                         {/* Free Limit Banner */}
+             {showLimitBanner && (
+               <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6" data-testid="banner-free-limit">
+                 <CardContent className="pt-6">
+                   <div className="flex items-start space-x-3">
+                     <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
+                     <div className="flex-1">
                        <h3 className="font-medium text-purple-800">Free limit reached</h3>
                        <p className="text-sm text-purple-700 mt-1">
                          Upgrade your account for unlimited excuse generation.
@@ -492,17 +496,17 @@ export default function HomePage() {
                          <ArrowRight className="ml-2 h-4 w-4" />
                        </Button>
                      </div>
-                  </div>
-                </CardContent>
-              </Card>
-            )}
+                   </div>
+                 </CardContent>
+               </Card>
+             )}
           </div>
         </main>
 
         {/* Auth Modal */}
         {showAuth && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" data-testid="auth-dialog">
                              <AuthForm />
                              <Button 
                  variant="ghost" 

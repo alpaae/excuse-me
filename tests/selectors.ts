@@ -13,10 +13,10 @@ export const SELECTORS = {
   GEN_TONE: 'gen-tone',
   GEN_CHANNEL: 'gen-channel',
   
-  // Language selector
-  LANG_SELECT: 'lang-select',
-  LANG_OPTION_RU: '[data-value="ru"]',
-  LANG_OPTION_EN: '[data-value="en"]',
+  // Language detection (no longer needed as it's automatic)
+  // LANG_SELECT: 'lang-select',
+  // LANG_OPTION_RU: '[data-value="ru"]',
+  // LANG_OPTION_EN: '[data-value="en"]',
   
   // Authentication
   BTN_LOGIN: 'btn-login',
@@ -106,9 +106,9 @@ export const TEST_DATA = {
     IN_PERSON: 'in_person',
   },
   SCENARIOS: {
-    MEETING_CANCEL: 'отмена встречи',
-    LATE_WORK: 'опоздание на работу',
-    MISS_PARTY: 'пропуск вечеринки',
+    MEETING_CANCEL: 'cancel meeting',
+    LATE_WORK: 'late to work',
+    MISS_PARTY: 'miss party',
   },
 } as const;
 
@@ -117,24 +117,24 @@ export const TEST_DATA = {
  */
 export const EXPECTED_TEXT = {
   GENERATION: {
-    BUTTON: 'Сгенерировать отмазку',
-    GENERATING: 'Генерация...',
-    SUCCESS: 'Отмазка успешно сгенерирована',
+    BUTTON: 'Generate Excuse',
+    GENERATING: 'Generating...',
+    SUCCESS: 'Excuse generated successfully',
   },
   AUTH: {
-    LOGIN_BUTTON: 'Войти в аккаунт',
-    TITLE: 'Войти в ExcuseME',
+    LOGIN_BUTTON: 'Sign In',
+    TITLE: 'Sign in to ExcuseME',
     EMAIL_PLACEHOLDER: 'your@email.com',
   },
   BANNERS: {
-    RATE_LIMIT_TITLE: 'Слишком много запросов',
-    FREE_LIMIT_TITLE: 'Достигнут дневной лимит',
-    FREE_LIMIT_DESCRIPTION: 'Бесплатные пользователи могут генерировать до 3 отмазок в день',
+    RATE_LIMIT_TITLE: 'Too many requests',
+    FREE_LIMIT_TITLE: 'Free limit reached',
+    FREE_LIMIT_DESCRIPTION: 'Free users can generate up to 3 excuses per day',
   },
   ERRORS: {
-    RATE_LIMIT: 'Слишком много запросов. Попробуйте через минуту.',
-    FREE_LIMIT: 'Достигнут дневной лимит бесплатных генераций',
-    GENERATION_ERROR: 'Ошибка при генерации. Попробуйте еще раз.',
+    RATE_LIMIT: 'Too many requests. Please try again in a minute.',
+    FREE_LIMIT: 'Daily free limit reached',
+    GENERATION_ERROR: 'Generation error. Please try again.',
   },
 } as const;
 
