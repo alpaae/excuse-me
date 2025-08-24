@@ -43,6 +43,7 @@ import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
 import { BottomTrustBar } from '@/components/bottom-trust-bar';
 import { OnboardingModal } from '@/components/onboarding-modal';
+import { PromptTips } from '@/components/prompt-tips';
 
 interface User {
   id: string;
@@ -393,6 +394,9 @@ export default function HomePage() {
                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
                       />
                     </div>
+
+                    {/* Prompt Tips */}
+                    <PromptTips />
 
                     <Button 
                       type="submit" 
