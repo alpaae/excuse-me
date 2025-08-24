@@ -7,18 +7,7 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { useToast } from '@/lib/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { 
-  Pagination, 
-  PaginationContent, 
-  PaginationEllipsis, 
-  PaginationItem, 
-  PaginationLink, 
-  PaginationNext, 
-  PaginationPrevious 
-} from '@/components/ui/pagination';
-import { Star, Copy, Share2, Volume2, Filter, History, Heart, Calendar, MessageSquare, Phone, User } from 'lucide-react';
+import { Star, Copy, Share2, Volume2, Heart, Calendar, MessageSquare, Phone, User } from 'lucide-react';
 
 interface Excuse {
   id: string;
@@ -36,14 +25,7 @@ interface Excuse {
   created_at: string;
 }
 
-interface PaginationInfo {
-  page: number;
-  limit: number;
-  total: number;
-  totalPages: number;
-  hasNext: boolean;
-  hasPrev: boolean;
-}
+
 
 export default function DashboardPage() {
   const [excuses, setExcuses] = useState<Excuse[]>([]);
@@ -263,64 +245,7 @@ export default function DashboardPage() {
             )}
           </div>
 
-          {/* Пагинация */}
-          {pagination.totalPages > 1 && (
-            <Card>
-              <CardContent className="pt-6">
-                <Pagination>
-                  <PaginationContent>
-                    {pagination.hasPrev && (
-                      <PaginationItem>
-                        <PaginationPrevious 
-                          href="#" 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handlePageChange(pagination.page - 1);
-                          }}
-                        />
-                      </PaginationItem>
-                    )}
-                    
-                    {Array.from({ length: Math.min(5, pagination.totalPages) }, (_, i) => {
-                      const page = i + 1;
-                      return (
-                        <PaginationItem key={page}>
-                          <PaginationLink
-                            href="#"
-                            isActive={page === pagination.page}
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handlePageChange(page);
-                            }}
-                          >
-                            {page}
-                          </PaginationLink>
-                        </PaginationItem>
-                      );
-                    })}
-                    
-                    {pagination.totalPages > 5 && (
-                      <PaginationItem>
-                        <PaginationEllipsis />
-                      </PaginationItem>
-                    )}
-                    
-                    {pagination.hasNext && (
-                      <PaginationItem>
-                        <PaginationNext 
-                          href="#" 
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handlePageChange(pagination.page + 1);
-                          }}
-                        />
-                      </PaginationItem>
-                    )}
-                  </PaginationContent>
-                </Pagination>
-              </CardContent>
-            </Card>
-          )}
+
         </div>
       </div>
       </AuthGuard>
