@@ -18,6 +18,33 @@ interface I18nProviderProps {
   initialLocale?: string; // Серверно-определенная локаль
 }
 
+// Функция для установки cookie через API
+async function setLanguageCookie(lang: string): Promise<void> {
+  try {
+    const response = await fetch('/api/i18n/lang', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ lang }),
+    });
+
+    if (!response.ok) {
+      console.warn('Failed to set language cookie via API:', response.status);
+      // Fallback к клиентской установке cookie
+      const expires = new Date();
+      expires.setTime(expires.getTime() + (180 * 24 * 60 * 60 * 1000));
+      document.cookie = `excuseme_lang=${lang}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
+    }
+  } catch (error) {
+    console.warn('Error setting language cookie via API:', error);
+    // Fallback к клиентской установке cookie
+    const expires = new Date();
+    expires.setTime(expires.getTime() + (180 * 24 * 60 * 60 * 1000));
+    document.cookie = `excuseme_lang=${lang}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
+  }
+}
+
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentLocale, setCurrentLocale] = useState<string>(() => {
@@ -45,18 +72,40 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     // Синхронизируем с cookie и URL только если нет query параметра
     // (чтобы не перезаписывать явный выбор пользователя)
     if (!window.location.search.includes('lang=') && !window.location.search.includes('lng=')) {
-      syncLanguage(localeToUse);
+      // Используем API для установки cookie
+      setLanguageCookie(localeToUse);
+      // Обновляем URL
+      const url = new URL(window.location.href);
+      if (localeToUse === 'ru') {
+        url.searchParams.delete('lang');
+      } else {
+        url.searchParams.set('lang', localeToUse);
+      }
+      url.searchParams.delete('lng');
+      window.history.replaceState({}, '', url.toString());
     }
 
     setIsInitialized(true);
   }, [initialLocale, currentLocale]);
 
   // Функция для изменения локали
-  const handleSetCurrentLocale = (newLocale: string) => {
+  const handleSetCurrentLocale = async (newLocale: string) => {
     const normalizedLocale = normalizeLocale(newLocale);
     setCurrentLocale(normalizedLocale);
     i18next.changeLanguage(normalizedLocale);
-    syncLanguage(normalizedLocale);
+    
+    // Используем API для установки cookie
+    await setLanguageCookie(normalizedLocale);
+    
+    // Обновляем URL
+    const url = new URL(window.location.href);
+    if (normalizedLocale === 'ru') {
+      url.searchParams.delete('lang');
+    } else {
+      url.searchParams.set('lang', normalizedLocale);
+    }
+    url.searchParams.delete('lng');
+    window.history.replaceState({}, '', url.toString());
   };
 
   return (
