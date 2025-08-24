@@ -42,7 +42,7 @@ import { FreeLimitBanner } from '@/components/free-limit-banner';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
 import { BottomTrustBar } from '@/components/bottom-trust-bar';
-import { WelcomeBanner } from '@/components/welcome-banner';
+import { OnboardingModal } from '@/components/onboarding-modal';
 
 interface User {
   id: string;
@@ -293,13 +293,13 @@ export default function HomePage() {
         <main className="relative z-10 container mx-auto px-6 py-16 pb-32">
           <div className="max-w-6xl mx-auto">
             {/* Hero Section */}
-            <div className="text-center mb-20">
-              <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-6 py-3 mb-8 shadow-lg">
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-6 py-3 mb-6 shadow-lg">
                 <Zap className="h-5 w-5 text-blue-600" />
                 <span className="text-sm font-semibold text-blue-700">AI-powered excuses</span>
               </div>
               
-              <h1 className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-8 leading-tight">
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6 leading-tight">
                 Create Perfect
                 <br />
                 <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
@@ -307,50 +307,16 @@ export default function HomePage() {
                 </span>
               </h1>
               
-              <p className="text-2xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto leading-relaxed">
                 Transform awkward situations into graceful exits with AI-powered, 
                 context-aware excuses that feel natural and professional
               </p>
-              
-              <div className="flex items-center justify-center space-x-12 text-sm text-gray-500 mb-12">
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Instant generation</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Multiple languages</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Professional tone</span>
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div className="grid grid-cols-3 gap-8 max-w-2xl mx-auto">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-2">10K+</div>
-                  <div className="text-sm text-gray-600">Excuses Generated</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-2">50+</div>
-                  <div className="text-sm text-gray-600">Languages</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-gray-900 mb-2">99%</div>
-                  <div className="text-sm text-gray-600">Success Rate</div>
-                </div>
-              </div>
             </div>
 
 
 
-            {/* Welcome Banner */}
-            <WelcomeBanner />
-
             {/* Form Section */}
-            <div className="grid lg:grid-cols-2 gap-12 mb-16">
+            <div className="max-w-4xl mx-auto mb-16">
               {/* Input Form */}
               <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
                 <CardHeader className="pb-8 bg-gradient-to-r from-blue-50 to-purple-50">
@@ -451,77 +417,36 @@ export default function HomePage() {
               </Card>
 
               {/* Result Section */}
-              <div className="space-y-6">
-                {result && (
-                  <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
-                    <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
-                      <CardTitle className="flex items-center space-x-3 text-2xl">
-                        <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
-                          <CheckCircle className="h-5 w-5 text-white" />
-                        </div>
-                        <span>Your Excuse</span>
-                      </CardTitle>
-                    </CardHeader>
-                    
-                    <CardContent className="p-6">
-                      {resultRarity ? (
-                        <ExcuseCard 
-                          text={result} 
-                          rarity={resultRarity} 
-                          excuseId={resultExcuseId || undefined}
-                          showCTA={true}
-                          className="mb-6"
-                        />
-                      ) : (
-                        <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                          <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
-                            {result}
-                          </p>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-                )}
-
-                {/* Features */}
-                <div className="grid grid-cols-1 gap-4">
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center">
-                        <Shield className="h-6 w-6 text-white" />
+              {result && (
+                <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden mt-8">
+                  <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
+                    <CardTitle className="flex items-center space-x-3 text-2xl">
+                      <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                        <CheckCircle className="h-5 w-5 text-white" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Privacy First</h3>
-                        <p className="text-sm text-gray-600">Your excuses are private and secure</p>
+                      <span>Your Excuse</span>
+                    </CardTitle>
+                  </CardHeader>
+                  
+                  <CardContent className="p-6">
+                    {resultRarity ? (
+                      <ExcuseCard 
+                        text={result} 
+                        rarity={resultRarity} 
+                        excuseId={resultExcuseId || undefined}
+                        showCTA={true}
+                        className="mb-6"
+                      />
+                    ) : (
+                      <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                        <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
+                          {result}
+                        </p>
                       </div>
-                    </div>
-                  </Card>
-
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-                        <Clock className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Instant Results</h3>
-                        <p className="text-sm text-gray-600">Get your excuse in seconds</p>
-                      </div>
-                    </div>
-                  </Card>
-
-                  <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg rounded-xl p-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-                        <Globe className="h-6 w-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-gray-900">Multi-language</h3>
-                        <p className="text-sm text-gray-600">Automatic language detection</p>
-                      </div>
-                    </div>
-                  </Card>
-                </div>
-              </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
             </div>
 
             {/* Banners */}
@@ -553,39 +478,16 @@ export default function HomePage() {
               </Card>
             )}
 
-            {/* How it Works */}
-            <div className="text-center mb-20">
-              <h2 className="text-4xl font-bold text-gray-900 mb-12">How It Works</h2>
-              <div className="grid md:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <span className="text-2xl font-bold text-white">1</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Describe Your Situation</h3>
-                  <p className="text-gray-600">Tell us what you need an excuse for</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <span className="text-2xl font-bold text-white">2</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">AI Generates</h3>
-                  <p className="text-gray-600">Our AI creates a perfect excuse</p>
-                </div>
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
-                    <span className="text-2xl font-bold text-white">3</span>
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-3">Use & Share</h3>
-                  <p className="text-gray-600">Copy, share, or listen to your excuse</p>
-                </div>
-              </div>
-            </div>
+
 
           </div>
         </main>
 
         {/* Bottom Trust Bar */}
         <BottomTrustBar />
+        
+        {/* Onboarding Modal */}
+        <OnboardingModal />
       </div>
     </ErrorBoundary>
   );
