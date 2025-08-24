@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 import { AuthForm } from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';
@@ -37,15 +37,15 @@ export default function HomePage() {
 
   const supabase = createClient();
 
-  useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
+  const checkUser = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setUser(user);
     setLoading(false);
-  };
+  }, [supabase.auth]);
+
+  useEffect(() => {
+    checkUser();
+  }, [checkUser]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();

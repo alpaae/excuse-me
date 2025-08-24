@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 import { AuthGuard } from '@/lib/auth-guard';
 import { Button } from '@/components/ui/button';
@@ -31,11 +31,7 @@ export default function AdminI18nPage() {
   const [saving, setSaving] = useState(false);
   const supabase = createClient();
 
-  useEffect(() => {
-    loadTranslations();
-  }, [selectedLocale, selectedNamespace]);
-
-  const loadTranslations = async () => {
+  const loadTranslations = useCallback(async () => {
     try {
       let query = supabase
         .from('i18n_cache')
@@ -63,7 +59,11 @@ export default function AdminI18nPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase, selectedLocale, selectedNamespace]);
+
+  useEffect(() => {
+    loadTranslations();
+  }, [selectedLocale, selectedNamespace, loadTranslations]);
 
   const handleEdit = (translation: Translation) => {
     setEditingId(translation.id);

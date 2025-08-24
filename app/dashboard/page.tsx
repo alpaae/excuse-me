@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { AuthGuard } from '@/lib/auth-guard';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -64,11 +64,7 @@ export default function DashboardPage() {
     sortOrder: 'desc' as 'asc' | 'desc',
   });
 
-  useEffect(() => {
-    loadExcuses();
-  }, [filters, pagination.page]);
-
-  const loadExcuses = async () => {
+  const loadExcuses = useCallback(async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams({
@@ -96,7 +92,11 @@ export default function DashboardPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, filters, showError]);
+
+  useEffect(() => {
+    loadExcuses();
+  }, [filters, pagination.page, loadExcuses]);
 
   const toggleFavorite = async (excuseId: string, currentFavorite: boolean) => {
     try {

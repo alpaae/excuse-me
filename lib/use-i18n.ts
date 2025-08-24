@@ -1,12 +1,23 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import { detectLanguage, setLanguageCookie } from './i18n-detect';
 
 export function useI18n() {
   const { t, i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
+
+  const changeLanguage = useCallback((lang: string) => {
+    i18n.changeLanguage(lang);
+    setCurrentLanguage(lang);
+    setLanguageCookie(lang);
+    
+    // Обновляем URL без перезагрузки
+    const url = new URL(window.location.href);
+    url.searchParams.set('lng', lang);
+    window.history.replaceState({}, '', url.toString());
+  }, [i18n]);
 
   useEffect(() => {
     // Детектируем язык при загрузке
@@ -19,18 +30,7 @@ export function useI18n() {
     if (detectedLang !== currentLanguage) {
       changeLanguage(detectedLang);
     }
-  }, []);
-
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
-    setCurrentLanguage(lang);
-    setLanguageCookie(lang);
-    
-    // Обновляем URL без перезагрузки
-    const url = new URL(window.location.href);
-    url.searchParams.set('lng', lang);
-    window.history.replaceState({}, '', url.toString());
-  };
+  }, [changeLanguage, currentLanguage]);
 
   const getLanguageFromTelegram = (telegramLanguage?: string) => {
     if (telegramLanguage) {

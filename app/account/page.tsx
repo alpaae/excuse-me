@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase';
 import { AuthGuard } from '@/lib/auth-guard';
 import { Button } from '@/components/ui/button';
@@ -32,11 +32,7 @@ export default function AccountPage() {
   const [displayName, setDisplayName] = useState('');
   const supabase = createClient();
 
-  useEffect(() => {
-    loadUserData();
-  }, []);
-
-  const loadUserData = async () => {
+  const loadUserData = useCallback(async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       
@@ -68,7 +64,11 @@ export default function AccountPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [supabase]);
+
+  useEffect(() => {
+    loadUserData();
+  }, [loadUserData]);
 
   const handleSaveProfile = async () => {
     if (!profile) return;
