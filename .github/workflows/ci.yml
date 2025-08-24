@@ -35,17 +35,7 @@ jobs:
       
     - name: Build application
       run: npm run build
-      
-    - name: Run E2E tests (if available)
-      run: |
-        if npm run | grep -q "test:e2e"; then
-          echo "Running E2E tests..."
-          npm run test:e2e
-        else
-          echo "E2E tests not configured, skipping..."
-        fi
       env:
-        # Минимальные env для e2e тестов
         NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
         NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
         NEXT_PUBLIC_BASE_URL: http://localhost:3000
@@ -60,27 +50,13 @@ jobs:
         path: |
           .next/
           .next/trace
-          coverage/
-          test-results/
-          playwright-report/
         retention-days: 7
         
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results
-        path: |
-          test-results/
-          playwright-report/
-          coverage/
-        retention-days: 30
-        
-  # Отдельный job для E2E тестов с браузером
+  # Отдельный job для E2E тестов
   e2e:
     runs-on: ubuntu-latest
     needs: test
-    if: contains(github.event.head_commit.message, 'e2e') || contains(github.event.pull_request.title, 'e2e')
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     strategy:
       matrix:
@@ -104,7 +80,13 @@ jobs:
       
     - name: Build application
       run: npm run build
-      
+      env:
+        NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
+        NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
+        NEXT_PUBLIC_BASE_URL: http://localhost:3000
+        OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        SUPABASE_SERVICE_ROLE: ${{ secrets.SUPABASE_SERVICE_ROLE }}
+        
     - name: Start application
       run: npm start &
       env:
@@ -135,5 +117,4 @@ jobs:
         path: |
           test-results/
           playwright-report/
-          coverage/
         retention-days: 30
