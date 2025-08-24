@@ -40,8 +40,8 @@ export const SELECTORS = {
   NAV_ACCOUNT: 'nav-account',
   
   // Admin
-  I18N_TABLE: 'i18n-table',
-  I18N_SEARCH: 'i18n-search',
+  ADMIN_TABLE: 'admin-table',
+  ADMIN_SEARCH: 'admin-search',
   
   // Common
   LOADING_SPINNER: 'loading-spinner',
@@ -69,10 +69,7 @@ export const TEST_HELPERS = {
    */
   getExcuseById: (id: string): string => `[data-testid="excuse-item"][data-excuse-id="${id}"]`,
   
-  /**
-   * Get selector for language option
-   */
-  getLanguageOption: (lang: string): string => `[data-value="${lang}"]`,
+
   
   /**
    * Get selector for tone option
@@ -89,10 +86,7 @@ export const TEST_HELPERS = {
  * Test data constants
  */
 export const TEST_DATA = {
-  LANGUAGES: {
-    RUSSIAN: 'ru',
-    ENGLISH: 'en',
-  },
+
   TONES: {
     PROFESSIONAL: 'professional',
     FRIENDLY: 'friendly',

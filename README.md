@@ -1,6 +1,16 @@
 # ExcuseME MVP
 
-SaaS application for generating polite excuses with PWA, Telegram Mini App support, and automatic language detection.
+SaaS application for generating polite excuses with PWA, Telegram Mini App support, and **automatic server-side language detection**.
+
+## 🎯 Key Features
+
+- **English-only UI**: Clean, consistent interface in English
+- **Auto Language Detection**: Server automatically detects input language and responds accordingly
+- **Multi-language Support**: Generates excuses in Russian, Spanish, Polish, German, French, and English
+- **PWA Support**: Installable web app with offline capabilities
+- **Telegram Mini App**: Native integration with Telegram
+- **AI-powered**: OpenAI GPT for intelligent excuse generation
+- **Text-to-Speech**: Voice synthesis with language-appropriate voices
 
 ## Technologies
 
@@ -230,6 +240,92 @@ const detectLanguage = (text: string): string => {
 };
 ```
 
+## API Documentation
+
+### Automatic Language Generation
+
+The application automatically detects the language of user input and generates responses in the same language.
+
+#### **How It Works**
+
+1. **Input**: User types scenario and context in any supported language
+2. **Server Detection**: Server analyzes text using Unicode regex patterns
+3. **Language Identification**: Maps to ISO language codes (`ru`, `es`, `pl`, `de`, `fr`, `en`)
+4. **AI Generation**: OpenAI generates excuse in detected language
+5. **Response**: Returns excuse in the same language as input
+
+#### **Supported Languages**
+
+| Language | Code | Detection Pattern | Example Input |
+|----------|------|------------------|---------------|
+| Russian | `ru` | `[а-яё]` | "Отмена встречи" |
+| Spanish | `es` | `[ñáéíóúü¿¡]` | "Cancelar reunión" |
+| Polish | `pl` | `[ąćęłńóśźż]` | "Odwołanie spotkania" |
+| German | `de` | `[äöüß]` | "Treffen absagen" |
+| French | `fr` | `[àâçéèêëîïôûùüÿœ]` | "Annuler réunion" |
+| English | `en` | `[a-z]` (fallback) | "Cancel meeting" |
+
+#### **API Request Example**
+
+```bash
+POST /api/generate
+Content-Type: application/json
+
+{
+  "scenario": "Отмена встречи",
+  "context": "У меня важная встреча",
+  "tone": "professional",
+  "channel": "email"
+}
+```
+
+#### **API Response Examples**
+
+**Russian Input → Russian Response:**
+```json
+{
+  "success": true,
+  "text": "Извините, но у меня есть важная встреча, которую я не могу перенести.",
+  "excuse_id": "uuid-here"
+}
+```
+
+**Spanish Input → Spanish Response:**
+```json
+{
+  "success": true,
+  "text": "Lo siento, pero tengo una reunión importante que no puedo posponer.",
+  "excuse_id": "uuid-here"
+}
+```
+
+**English Input → English Response:**
+```json
+{
+  "success": true,
+  "text": "I apologize, but I have a prior commitment that I cannot reschedule.",
+  "excuse_id": "uuid-here"
+}
+```
+
+#### **Language Detection Logic**
+
+```typescript
+function detectLanguage(text: string): string {
+  const t = (text || '').trim();
+  if (!t) return 'en';
+  
+  // Unicode regex patterns for language detection
+  if (/[а-яё]/i.test(t)) return 'ru';
+  if (/[ñáéíóúü¿¡]/i.test(t)) return 'es';
+  if (/[ąćęłńóśźż]/i.test(t)) return 'pl';
+  if (/[äöüß]/i.test(t)) return 'de';
+  if (/[àâçéèêëîïôûùüÿœ]/i.test(t)) return 'fr';
+  
+  return 'en'; // Default fallback
+}
+```
+
 ## Text-to-Speech (TTS)
 
 ### Voice Selection by Language
@@ -314,11 +410,11 @@ npm run test:e2e:ui
 ```
 
 **What E2E tests cover:**
-- Main page and generation form display
-- Mocking `/api/generate` API and checking results
-- Error handling (rate limit, free limit)
-- Automatic language detection from user input
-- Authentication and unauthorized states
+- **Smoke Tests**: Homepage render, generate success, auto-language detection
+- **Generation Flow**: Success, rate limit, free limit scenarios
+- **Language Detection**: Spanish and Russian auto-detection tests
+- **UI Interactions**: Form filling, tone/channel selection, copy/share
+- **Error Handling**: Proper error banners and messages
 
 ### E2E Status
 
@@ -331,16 +427,17 @@ npm run test:e2e:ui
 | WebKit | 30 | 19 | 49 | 61% |
 
 **Test Coverage:**
-- ✅ **Homepage** - generation form displays correctly
-- ✅ **Generate API** - successful generation, rate limit, free limit work
-- ✅ **Language Detection** - automatic language detection from user input
-- ✅ **Cross-browser** - consistent behavior across browsers
+- ✅ **Smoke Tests** - Essential functionality validation
+- ✅ **Homepage** - Generation form displays correctly
+- ✅ **Generate API** - Success, rate limit, free limit scenarios
+- ✅ **Language Detection** - Spanish and Russian auto-detection
+- ✅ **Cross-browser** - Consistent behavior across browsers
 
-**Features:**
-- ✅ **English-only UI** - consistent interface language
-- ✅ **Automatic language detection** - detects input language and responds accordingly
-- ✅ **Multi-language support** - generates excuses in detected language
-- ✅ **Simplified architecture** - removed complex i18n infrastructure
+**Test Files:**
+- `tests/e2e/smoke.spec.ts` - Essential smoke tests
+- `tests/e2e/homepage.spec.ts` - UI and form validation
+- `tests/e2e/generate.spec.ts` - Generation flow and error handling
+- `tests/e2e/language-detection.spec.ts` - Auto-language detection
 
 **Lighthouse (производительность и PWA):**
 ```bash
@@ -375,34 +472,19 @@ npm run lighthouse:assert
 /components       # UI компоненты
 /lib              # Утилиты и конфигурации
 /db               # Схема базы данных
-/locales          # Файлы локализации
 /public           # Статические файлы
 /tests/e2e        # Playwright E2E тесты
 ```
 
-## Middleware
+## Architecture
 
-### I18n Синхронизация
+### Simplified Middleware
 
-Middleware автоматически синхронизирует параметр `?lang` и cookie `excuseme_lang`:
+The application uses a simplified middleware that only handles static asset routing:
 
-#### **Логика работы:**
-
-1. **Если есть `?lang` параметр:**
-   - Нормализует локаль через `normalizeLocale()`
-   - Устанавливает cookie `excuseme_lang=<val>; Path=/; Max-Age=15552000; SameSite=Lax`
-   - **НЕ делает редирект** (избегаем флэки в тестах)
-
-2. **Если нет `?lang`, но есть cookie:**
-   - Ничего не делает (сохраняет существующий выбор пользователя)
-
-3. **Если нет ни `?lang`, ни cookie:**
-   - Определяет язык по `Accept-Language` заголовку
-   - Устанавливает cookie с определенным языком
-   - **НЕ делает редирект**
-
-#### **Обрабатываемые пути:**
-- `/` (корень)
+- **No i18n logic**: Removed complex language detection and cookie management
+- **Static assets**: Handles routing for API, Next.js, fonts, images, and PWA files
+- **Pass-through**: Simple pass-through for all application routes
 - `/(web)/*` (веб-приложение)
 - `/dashboard` (личный кабинет)
 - `/account` (настройки аккаунта)

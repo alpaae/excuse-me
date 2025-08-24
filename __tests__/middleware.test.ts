@@ -296,7 +296,7 @@ describe('Middleware Functions', () => {
       expect(shouldIgnorePath('/')).toBe(false);
       expect(shouldIgnorePath('/dashboard')).toBe(false);
       expect(shouldIgnorePath('/account')).toBe(false);
-      expect(shouldIgnorePath('/admin/i18n')).toBe(false);
+      expect(shouldIgnorePath('/admin')).toBe(false);
     });
 
     it('should handle edge cases', () => {
