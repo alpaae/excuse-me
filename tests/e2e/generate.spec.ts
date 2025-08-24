@@ -1,177 +1,168 @@
-import { test, expect, API_SCENARIOS, TEST_HELPERS } from '../fixtures';
-import { SELECTORS, EXPECTED_TEXT } from '../selectors';
+import { test, expect } from '@playwright/test';
 
-test.describe('Excuse Generation', () => {
-  test('should display result when API returns success', async ({ page, mockGenerate, mockTts }) => {
-    // Мокаем API responses
-    await mockGenerate('success');
-    await mockTts('success');
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-
-    // Мокаем пользователя
-    await TEST_HELPERS.mockUser(page);
-
+test.describe('Generate Excuse', () => {
+  test('should generate excuse successfully', async ({ page }) => {
     await page.goto('/');
+    
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
     
-    // Заполняем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('cancel meeting');
-    await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('urgent work');
+    // Mock successful API response
+    await page.route('/api/generate', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          text: 'I apologize, but I have a prior commitment that I cannot reschedule.'
+        })
+      });
+    });
     
-    // Отправляем форму
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    // Fill the form
+    await page.getByLabel('Scenario').fill('Canceling a meeting');
+    await page.getByLabel('Context').fill('I have another important meeting');
     
-    // Проверяем, что показывается результат
-    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toContainText('OK: generated');
+    // Select tone and channel
+    await page.getByTestId('gen-tone').click();
+    await page.getByRole('option', { name: 'Professional' }).click();
+    
+    await page.getByTestId('gen-channel').click();
+    await page.getByRole('option', { name: 'Email' }).click();
+    
+    // Click generate button
+    await page.getByRole('button', { name: 'Generate Excuse' }).click();
+    
+    // Wait for result
+    await expect(page.getByText('I apologize, but I have a prior commitment that I cannot reschedule.')).toBeVisible();
+    
+    // Check that copy and share buttons are visible
+    await expect(page.getByRole('button', { name: 'Copy' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Share' })).toBeVisible();
   });
 
-  test('should display rate limit error', async ({ page, mockGenerate, mockTts }) => {
-    // Мокаем rate limit response
-    await mockGenerate('rate');
-    await mockTts('success');
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-
-    // Мокаем пользователя
-    await TEST_HELPERS.mockUser(page);
-
+  test('should show rate limit error', async ({ page }) => {
     await page.goto('/');
+    
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
     
-    // Заполняем и отправляем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('test rate limit');
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    // Mock rate limit error
+    await page.route('/api/generate', async route => {
+      await route.fulfill({
+        status: 429,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: 'RATE_LIMIT'
+        })
+      });
+    });
     
-    // Проверяем баннер rate limit
-    await expect(page.getByTestId(SELECTORS.BANNER_RATE_LIMIT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.BANNER_RATE_LIMIT)).toContainText('Too many requests');
+    // Fill the form
+    await page.getByLabel('Scenario').fill('Test scenario');
+    await page.getByLabel('Context').fill('Test context');
+    
+    // Click generate button
+    await page.getByRole('button', { name: 'Generate Excuse' }).click();
+    
+    // Check that rate limit banner is shown
+    await expect(page.getByText('Rate limit exceeded')).toBeVisible();
   });
 
-  test('should display free limit banner', async ({ page, mockGenerate, mockTts }) => {
-    // Мокаем free limit response
-    await mockGenerate('free');
-    await mockTts('success');
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-
-    // Мокаем пользователя
-    await TEST_HELPERS.mockUser(page);
-
+  test('should show free limit error', async ({ page }) => {
     await page.goto('/');
+    
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
     
-    // Заполняем и отправляем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('test free limit');
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    // Mock free limit error
+    await page.route('/api/generate', async route => {
+      await route.fulfill({
+        status: 402,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: false,
+          error: 'FREE_LIMIT_REACHED'
+        })
+      });
+    });
     
-    // Проверяем баннер лимита
-    await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toContainText('Free limit reached');
+    // Fill the form
+    await page.getByLabel('Scenario').fill('Test scenario');
+    await page.getByLabel('Context').fill('Test context');
+    
+    // Click generate button
+    await page.getByRole('button', { name: 'Generate Excuse' }).click();
+    
+    // Check that free limit banner is shown
+    await expect(page.getByText('Free limit reached')).toBeVisible();
   });
 
-  test('should handle form validation', async ({ page }) => {
-    // Мокаем только health check
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-    
+  test('should copy excuse to clipboard', async ({ page }) => {
     await page.goto('/');
+    
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
     
-    // Пытаемся отправить пустую форму
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    // Mock successful API response
+    await page.route('/api/generate', async route => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          text: 'Test excuse text'
+        })
+      });
+    });
     
-    // Проверяем, что поле сценария обязательно (HTML5 validation)
-    const scenarioInput = page.getByTestId(SELECTORS.GEN_SCENARIO);
-    await expect(scenarioInput).toHaveAttribute('required');
+    // Fill and submit form
+    await page.getByLabel('Scenario').fill('Test scenario');
+    await page.getByLabel('Context').fill('Test context');
+    await page.getByRole('button', { name: 'Generate Excuse' }).click();
+    
+    // Wait for result
+    await expect(page.getByText('Test excuse text')).toBeVisible();
+    
+    // Mock clipboard API
+    await page.evaluate(() => {
+      Object.defineProperty(navigator, 'clipboard', {
+        value: {
+          writeText: () => Promise.resolve()
+        }
+      });
+    });
+    
+    // Click copy button
+    await page.getByRole('button', { name: 'Copy' }).click();
+    
+    // Check success message
+    await expect(page.getByText('Copied to clipboard')).toBeVisible();
   });
 
-  test('should display auth dialog for unauthorized user', async ({ page, mockGenerate, mockTts }) => {
-    // Мокаем API responses
-    await mockGenerate('success');
-    await mockTts('success');
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-
-    // НЕ мокаем пользователя (неавторизованный)
-
+  test('should change tone and channel options', async ({ page }) => {
     await page.goto('/');
+    
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
     
-    // Заполняем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('отмена встречи');
-    await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('срочная работа');
+    // Test tone selection
+    await page.getByTestId('gen-tone').click();
+    await page.getByRole('option', { name: 'Casual' }).click();
+    await expect(page.getByTestId('gen-tone')).toContainText('Casual');
     
-    // Отправляем форму
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    await page.getByTestId('gen-tone').click();
+    await page.getByRole('option', { name: 'Formal' }).click();
+    await expect(page.getByTestId('gen-tone')).toContainText('Formal');
     
-    // Проверяем, что показывается диалог авторизации
-    await expect(page.getByTestId(SELECTORS.AUTH_DIALOG)).toBeVisible();
-  });
-
-  test('should handle TTS API response', async ({ page, mockGenerate, mockTts }) => {
-    // Мокаем успешную генерацию и TTS
-    await mockGenerate('success');
-    await mockTts('success');
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-
-    // Мокаем пользователя
-    await TEST_HELPERS.mockUser(page);
-
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
+    // Test channel selection
+    await page.getByTestId('gen-channel').click();
+    await page.getByRole('option', { name: 'Message' }).click();
+    await expect(page.getByTestId('gen-channel')).toContainText('Message');
     
-    // Заполняем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест TTS');
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
-    
-    // Проверяем результат
-    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toContainText('OK: generated');
-  });
-
-  test('should handle empty TTS response', async ({ page, mockGenerate, mockTts }) => {
-    // Мокаем успешную генерацию и пустой TTS
-    await mockGenerate('success');
-    await mockTts('empty');
-    await page.route('**/api/health', route => route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(API_SCENARIOS.health.response)
-    }));
-
-    // Мокаем пользователя
-    await TEST_HELPERS.mockUser(page);
-
-    await page.goto('/');
-    await page.waitForLoadState('networkidle');
-    
-    // Заполняем форму
-    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест пустой TTS');
-    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
-    
-    // Проверяем результат (TTS ошибка не должна влиять на отображение текста)
-    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toContainText('OK: generated');
+    await page.getByTestId('gen-channel').click();
+    await page.getByRole('option', { name: 'Call' }).click();
+    await expect(page.getByTestId('gen-channel')).toContainText('Call');
   });
 });

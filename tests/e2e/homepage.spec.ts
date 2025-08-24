@@ -1,68 +1,88 @@
-import { test, expect, API_SCENARIOS } from '../fixtures';
-import { SELECTORS, TEST_HELPERS, EXPECTED_TEXT } from '../selectors';
+import { test, expect } from '@playwright/test';
 
 test.describe('Homepage', () => {
-  test('should display main page with generation form', async ({ page, mockApi }) => {
-    // Мокаем health check
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
-    
+  test('should display main page with generation form', async ({ page }) => {
     await page.goto('/');
 
-    // Ждем загрузки страницы
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
 
-    // Проверяем заголовок
+    // Check page title
     await expect(page).toHaveTitle(/ExcuseME/);
     
-    // Проверяем основные элементы страницы
+    // Check main elements
     await expect(page.getByRole('heading', { name: 'ExcuseME' })).toBeVisible();
     await expect(page.getByText('AI helps you create polite and convincing excuses for any situation')).toBeVisible();
     
-    // Проверяем форму генерации и все её элементы
-    await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();
+    // Check generation form elements
+    await expect(page.getByTestId('gen-form')).toBeVisible();
     await expect(page.getByRole('heading', { name: 'Create Excuse' })).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_SCENARIO)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_CONTEXT)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_TONE)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_CHANNEL)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toBeVisible();
+    await expect(page.getByLabel('Scenario')).toBeVisible();
+    await expect(page.getByLabel('Context')).toBeVisible();
+    await expect(page.getByTestId('gen-tone')).toBeVisible();
+    await expect(page.getByTestId('gen-channel')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Generate Excuse' })).toBeVisible();
     
-    // Проверяем плейсхолдеры
+    // Check placeholders
     await expect(page.getByPlaceholder('e.g., canceling a meeting, being late to work, missing a party...')).toBeVisible();
     await expect(page.getByPlaceholder('Additional details for more accurate excuse...')).toBeVisible();
     
-    // Проверяем селекты через testid
-    await expect(page.getByTestId(SELECTORS.GEN_TONE)).toContainText('Professional'); // Тон по умолчанию
-    await expect(page.getByTestId(SELECTORS.GEN_CHANNEL)).toContainText('Email'); // Канал по умолчанию
+    // Check default values
+    await expect(page.getByTestId('gen-tone')).toContainText('Professional');
+    await expect(page.getByTestId('gen-channel')).toContainText('Email');
     
-    // Проверяем кнопку генерации
-    await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toHaveText(EXPECTED_TEXT.GENERATION.BUTTON);
-    
-    // Проверяем кнопку входа для неавторизованных пользователей
-    await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toHaveText(EXPECTED_TEXT.AUTH.LOGIN_BUTTON);
+    // Check sign in button for non-authenticated users
+    await expect(page.getByTestId('btn-login')).toBeVisible();
+    await expect(page.getByTestId('btn-login')).toHaveText('Sign In');
   });
 
-  test('should show auth form when login button clicked', async ({ page, mockApi }) => {
-    // Мокаем health check
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
-    
+  test('should show auth form when login button clicked', async ({ page }) => {
     await page.goto('/');
     
-    // Ждем загрузки страницы
+    // Wait for page to load
     await page.waitForLoadState('networkidle');
     
-    // Проверяем, что форма генерации видна
-    await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();
+    // Check that generation form is visible
+    await expect(page.getByTestId('gen-form')).toBeVisible();
     
-    // Кликаем на кнопку входа
-    await page.getByTestId(SELECTORS.BTN_LOGIN).click();
+    // Click login button
+    await page.getByTestId('btn-login').click();
     
-    // Проверяем, что отображается диалог авторизации
-    await expect(page.getByTestId(SELECTORS.AUTH_DIALOG)).toBeVisible();
+    // Check that auth dialog is displayed
+    await expect(page.getByTestId('auth-dialog')).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
     
-    // Проверяем, что форма генерации остается видимой под модальным окном
-    await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();
+    // Check that generation form remains visible under modal
+    await expect(page.getByTestId('gen-form')).toBeVisible();
+  });
+
+  test('should show loading state when generating excuse', async ({ page }) => {
+    await page.goto('/');
+    
+    // Wait for page to load
+    await page.waitForLoadState('networkidle');
+    
+    // Fill form with test data
+    await page.getByLabel('Scenario').fill('Test scenario');
+    await page.getByLabel('Context').fill('Test context');
+    
+    // Mock the API response to be slow
+    await page.route('/api/generate', async route => {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          success: true,
+          text: 'Test excuse response'
+        })
+      });
+    });
+    
+    // Click generate button
+    await page.getByRole('button', { name: 'Generate Excuse' }).click();
+    
+    // Check that loading state is shown
+    await expect(page.getByText('Generating...')).toBeVisible();
   });
 });
