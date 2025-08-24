@@ -132,15 +132,7 @@ export default function HomePage() {
     );
   }
 
-  if (showAuth) {
-    return (
-      <main className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <div data-testid="auth-dialog">
-          <AuthForm />
-        </div>
-      </main>
-    );
-  }
+
 
   return (
     <ErrorBoundary>
@@ -366,6 +358,15 @@ export default function HomePage() {
                 </Button>
               </CardContent>
             </Card>
+          )}
+
+          {/* Модальное окно аутентификации */}
+          {showAuth && (
+            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+              <div data-testid="auth-dialog">
+                <AuthForm />
+              </div>
+            </div>
           )}
         </div>
       </div>
