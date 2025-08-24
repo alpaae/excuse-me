@@ -1,13 +1,14 @@
 import { cookies } from 'next/headers';
-import { detectLanguage } from './i18n-detect';
+import { detectLanguage, normalizeLocale } from './i18n-detect';
 
 export async function getLanguageFromRequest(request: Request): Promise<string> {
   const url = new URL(request.url);
-  // Поддерживаем оба параметра: lang и lng
+  // Приоритет: lang > lng
   const queryLang = url.searchParams.get('lang') || url.searchParams.get('lng');
   
   const cookieStore = await cookies();
-  const cookieLang = cookieStore.get('i18nextLng')?.value;
+  // Новый cookie: excuseme_lang
+  const cookieLang = cookieStore.get('excuseme_lang')?.value || cookieStore.get('i18nextLng')?.value;
   
   const acceptLanguage = request.headers.get('accept-language');
 
@@ -16,4 +17,19 @@ export async function getLanguageFromRequest(request: Request): Promise<string> 
     cookie: cookieLang || undefined,
     acceptLanguage: acceptLanguage || undefined,
   });
+}
+
+/**
+ * Получает локаль из cookie на сервере
+ * @returns нормализованная локаль или null
+ */
+export async function getLanguageFromCookie(): Promise<string | null> {
+  const cookieStore = await cookies();
+  const cookieLang = cookieStore.get('excuseme_lang')?.value || cookieStore.get('i18nextLng')?.value;
+  
+  if (cookieLang) {
+    return normalizeLocale(cookieLang);
+  }
+  
+  return null;
 }

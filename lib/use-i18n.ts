@@ -2,31 +2,33 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
-import { detectLanguage, setLanguageCookie } from './i18n-detect';
+import { 
+  detectLanguage, 
+  syncLanguage, 
+  getLanguageCookie, 
+  normalizeLocale 
+} from './i18n-detect';
 
 export function useI18n() {
   const { t, i18n } = useTranslation();
   const [currentLanguage, setCurrentLanguage] = useState(i18n.language);
 
   const changeLanguage = useCallback((lang: string) => {
-    i18n.changeLanguage(lang);
-    setCurrentLanguage(lang);
-    setLanguageCookie(lang);
-    
-    // Обновляем URL без перезагрузки (используем lang параметр)
-    const url = new URL(window.location.href);
-    url.searchParams.set('lang', lang);
-    // Удаляем старый параметр lng если есть
-    url.searchParams.delete('lng');
-    window.history.replaceState({}, '', url.toString());
+    const normalized = normalizeLocale(lang);
+    i18n.changeLanguage(normalized);
+    setCurrentLanguage(normalized);
+    syncLanguage(normalized); // Синхронизирует cookie + query
   }, [i18n]);
 
   useEffect(() => {
-    // Детектируем язык при загрузке (приоритет: lang > lng > cookie > accept-language)
+    // Детектируем язык при загрузке с новым порядком приоритетов
     const searchParams = new URLSearchParams(window.location.search);
+    const queryLang = searchParams.get('lang') || searchParams.get('lng');
+    const cookieLang = getLanguageCookie();
+    
     const detectedLang = detectLanguage({
-      query: searchParams.get('lang') || searchParams.get('lng') || undefined,
-      cookie: document.cookie.split('; ').find(row => row.startsWith('i18nextLng='))?.split('=')[1] || undefined,
+      query: queryLang || undefined,
+      cookie: cookieLang || undefined,
       acceptLanguage: navigator.language,
     });
 

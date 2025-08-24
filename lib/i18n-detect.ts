@@ -1,3 +1,94 @@
+// BCP-47 Language Tag Aliases
+// Маппинг алиасов к стандартным BCP-47 тегам
+const LOCALE_ALIASES: Record<string, string> = {
+  // Китайский
+  'cn': 'zh-CN',
+  'zh-cn': 'zh-CN',
+  'zh_cn': 'zh-CN',
+  
+  // Украинский
+  'ua': 'uk',
+  'ukraine': 'uk',
+  
+  // Португальский
+  'pt': 'pt-PT',
+  'pt-pt': 'pt-PT',
+  'portugal': 'pt-PT',
+  'br': 'pt-BR',
+  'pt-br': 'pt-BR',
+  'brazil': 'pt-BR',
+  
+  // Английский
+  'en': 'en',
+  'en-us': 'en',
+  'en-US': 'en',
+  'us': 'en',
+  'usa': 'en',
+  
+  // Русский
+  'ru': 'ru',
+  'ru-ru': 'ru',
+  'ru-RU': 'ru',
+  'russian': 'ru',
+  'русский': 'ru',
+  'рус': 'ru',
+  
+  // Испанский
+  'es': 'es',
+  'es-es': 'es',
+  'spanish': 'es',
+  'esp': 'es',
+  
+  // Французский
+  'fr': 'fr',
+  'fr-fr': 'fr',
+  'french': 'fr',
+  'fra': 'fr',
+  
+  // Немецкий
+  'de': 'de',
+  'de-de': 'de',
+  'german': 'de',
+  'deu': 'de',
+  
+  // Итальянский
+  'it': 'it',
+  'it-it': 'it',
+  'italian': 'it',
+  'ita': 'it',
+  
+  // Японский
+  'ja': 'ja',
+  'ja-jp': 'ja',
+  'japanese': 'ja',
+  'jpn': 'ja',
+  
+  // Корейский
+  'ko': 'ko',
+  'ko-kr': 'ko',
+  'korean': 'ko',
+  'kor': 'ko',
+};
+
+// Поддерживаемые локали (BCP-47)
+const SUPPORTED_LOCALES = [
+  'en',      // English
+  'ru',      // Russian
+  'es',      // Spanish
+  'fr',      // French
+  'de',      // German
+  'it',      // Italian
+  'pt-PT',   // Portuguese (Portugal)
+  'pt-BR',   // Portuguese (Brazil)
+  'ja',      // Japanese
+  'ko',      // Korean
+  'zh-CN',   // Chinese (Simplified)
+  'uk',      // Ukrainian
+];
+
+// Базовая локаль (fallback)
+const BASE_LOCALE = 'ru';
+
 export interface LanguageDetectOptions {
   query?: string;
   cookie?: string;
@@ -6,130 +97,213 @@ export interface LanguageDetectOptions {
   defaultLanguage?: string;
 }
 
+/**
+ * Нормализует локаль к BCP-47 формату
+ * @param input - входная строка локали
+ * @returns нормализованная локаль
+ */
+export function normalizeLocale(input: string): string {
+  if (!input || typeof input !== 'string') {
+    return BASE_LOCALE;
+  }
+
+  // Очищаем и приводим к lowercase
+  const cleaned = input.trim().toLowerCase();
+  
+  // Проверяем алиасы
+  if (LOCALE_ALIASES[cleaned]) {
+    return LOCALE_ALIASES[cleaned];
+  }
+  
+  // Проверяем точное совпадение
+  if (SUPPORTED_LOCALES.includes(cleaned)) {
+    return cleaned;
+  }
+  
+  // Пытаемся нормализовать BCP-47 формат
+  const parts = cleaned.split('-');
+  const language = parts[0];
+  const region = parts[1]?.toUpperCase();
+  
+  // Собираем BCP-47 тег
+  const bcp47 = region ? `${language}-${region}` : language;
+  
+  // Проверяем алиасы для BCP-47
+  if (LOCALE_ALIASES[bcp47.toLowerCase()]) {
+    return LOCALE_ALIASES[bcp47.toLowerCase()];
+  }
+  
+  // Проверяем поддержку
+  if (SUPPORTED_LOCALES.includes(bcp47)) {
+    return bcp47;
+  }
+  
+  // Fallback к базовой локали
+  return BASE_LOCALE;
+}
+
+/**
+ * Проверяет, поддерживается ли локаль
+ * @param locale - локаль для проверки
+ * @returns true если локаль поддерживается
+ */
+export function isValidLocale(locale: string): boolean {
+  const normalized = normalizeLocale(locale);
+  return SUPPORTED_LOCALES.includes(normalized);
+}
+
+/**
+ * Парсит Accept-Language заголовок
+ * @param acceptLanguage - строка Accept-Language
+ * @returns нормализованная локаль или null
+ */
+export function parseAcceptLanguage(acceptLanguage: string): string | null {
+  if (!acceptLanguage) return null;
+
+  try {
+    // Парсим "en-US,en;q=0.9,ru;q=0.8"
+    const languages = acceptLanguage
+      .split(',')
+      .map(lang => {
+        const [code, quality = '1'] = lang.trim().split(';q=');
+        return {
+          code: code.trim(),
+          quality: parseFloat(quality)
+        };
+      })
+      .sort((a, b) => b.quality - a.quality);
+
+    // Ищем первую поддерживаемую локаль
+    for (const lang of languages) {
+      const normalized = normalizeLocale(lang.code);
+      if (SUPPORTED_LOCALES.includes(normalized)) {
+        return normalized;
+      }
+    }
+  } catch (error) {
+    console.warn('Failed to parse Accept-Language:', acceptLanguage, error);
+  }
+
+  return null;
+}
+
+/**
+ * Детектирует язык по приоритету источников
+ * @param options - опции детекта
+ * @returns нормализованная локаль
+ */
 export function detectLanguage(options: LanguageDetectOptions = {}): string {
   const {
     query,
     cookie,
     telegramLanguage,
     acceptLanguage,
-    defaultLanguage = 'en'
+    defaultLanguage = BASE_LOCALE
   } = options;
 
   // 1. Query parameter (highest priority)
   if (query) {
-    const lang = normalizeLanguage(query);
-    if (isValidLanguage(lang)) {
-      return lang;
+    const normalized = normalizeLocale(query);
+    if (SUPPORTED_LOCALES.includes(normalized)) {
+      return normalized;
     }
   }
 
-  // 2. Cookie
+  // 2. Cookie (excuseme_lang)
   if (cookie) {
-    const lang = cookie.toLowerCase().trim();
-    if (isValidLanguage(lang)) {
-      return lang;
+    const normalized = normalizeLocale(cookie);
+    if (SUPPORTED_LOCALES.includes(normalized)) {
+      return normalized;
     }
   }
 
   // 3. Telegram language_code
   if (telegramLanguage) {
-    const lang = telegramLanguage.toLowerCase().trim();
-    if (isValidLanguage(lang)) {
-      return lang;
+    const normalized = normalizeLocale(telegramLanguage);
+    if (SUPPORTED_LOCALES.includes(normalized)) {
+      return normalized;
     }
   }
 
   // 4. Accept-Language header
   if (acceptLanguage) {
-    const lang = parseAcceptLanguage(acceptLanguage);
-    if (lang) {
-      return lang;
+    const detected = parseAcceptLanguage(acceptLanguage);
+    if (detected) {
+      return detected;
     }
   }
 
   // 5. Default
-  return defaultLanguage;
+  return normalizeLocale(defaultLanguage);
 }
 
-// Поддерживаемые языки и их алиасы
-const LANGUAGE_ALIASES: Record<string, string> = {
-  // Алиасы для русского
-  'ru': 'ru',
-  'russian': 'ru',
-  'русский': 'ru',
-  'рус': 'ru',
+/**
+ * Устанавливает cookie для локали
+ * @param locale - локаль для сохранения
+ * @param days - количество дней (по умолчанию 365)
+ */
+export function setLanguageCookie(locale: string, days: number = 365): void {
+  if (typeof document === 'undefined') return; // SSR
+
+  const normalized = normalizeLocale(locale);
+  const expires = new Date();
+  expires.setTime(expires.getTime() + (days * 24 * 60 * 60 * 1000));
   
-  // Алиасы для английского
-  'en': 'en',
-  'english': 'en',
-  'eng': 'en',
-  
-  // Алиасы для других языков
-  'es': 'es',
-  'spanish': 'es',
-  'esp': 'es',
-  'fr': 'fr',
-  'french': 'fr',
-  'fra': 'fr',
-  'de': 'de',
-  'german': 'de',
-  'deu': 'de',
-  'it': 'it',
-  'italian': 'it',
-  'ita': 'it',
-  'pt': 'pt',
-  'portuguese': 'pt',
-  'por': 'pt',
-  'ja': 'ja',
-  'japanese': 'ja',
-  'jpn': 'ja',
-  'ko': 'ko',
-  'korean': 'ko',
-  'kor': 'ko',
-  'zh': 'zh',
-  'chinese': 'zh',
-  'zho': 'zh',
-};
-
-// Базовые поддерживаемые языки
-const SUPPORTED_LANGUAGES = ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'];
-
-export function normalizeLanguage(lang: string): string {
-  const normalized = lang.toLowerCase().trim();
-  return LANGUAGE_ALIASES[normalized] || normalized;
+  document.cookie = `excuseme_lang=${normalized}; path=/; expires=${expires.toUTCString()}; SameSite=Lax`;
 }
 
-export function isValidLanguage(lang: string): boolean {
-  const normalized = normalizeLanguage(lang);
-  return SUPPORTED_LANGUAGES.includes(normalized);
-}
+/**
+ * Получает локаль из cookie
+ * @returns локаль из cookie или null
+ */
+export function getLanguageCookie(): string | null {
+  if (typeof document === 'undefined') return null; // SSR
 
-export function parseAcceptLanguage(acceptLanguage: string): string | null {
-  // Parse Accept-Language header like "en-US,en;q=0.9,ru;q=0.8"
-  const languages = acceptLanguage
-    .split(',')
-    .map(lang => {
-      const [code, quality = '1'] = lang.trim().split(';q=');
-      return {
-        code: code.split('-')[0].toLowerCase(), // Get primary language code
-        quality: parseFloat(quality)
-      };
-    })
-    .sort((a, b) => b.quality - a.quality);
-
-  // Find first supported language
-  for (const lang of languages) {
-    if (isValidLanguage(lang.code)) {
-      return lang.code;
+  const cookies = document.cookie.split(';');
+  for (const cookie of cookies) {
+    const [name, value] = cookie.trim().split('=');
+    if (name === 'excuseme_lang' && value) {
+      return normalizeLocale(value);
     }
   }
-
   return null;
 }
 
+/**
+ * Обновляет URL с параметром lang
+ * @param locale - локаль для установки
+ */
+export function updateLanguageQuery(locale: string): void {
+  if (typeof window === 'undefined') return; // SSR
 
-
-export function setLanguageCookie(lang: string): void {
-  // This would be used in client-side to set the cookie
-  document.cookie = `i18nextLng=${lang}; path=/; max-age=31536000`; // 1 year
+  const normalized = normalizeLocale(locale);
+  const url = new URL(window.location.href);
+  
+  if (normalized === BASE_LOCALE) {
+    url.searchParams.delete('lang');
+  } else {
+    url.searchParams.set('lang', normalized);
+  }
+  
+  // Удаляем старые параметры
+  url.searchParams.delete('lng');
+  
+  window.history.replaceState({}, '', url.toString());
 }
+
+/**
+ * Синхронизирует локаль между cookie и query
+ * @param locale - локаль для синхронизации
+ */
+export function syncLanguage(locale: string): void {
+  const normalized = normalizeLocale(locale);
+  setLanguageCookie(normalized);
+  updateLanguageQuery(normalized);
+}
+
+// Экспортируем константы для тестов
+export const I18N_CONSTANTS = {
+  LOCALE_ALIASES,
+  SUPPORTED_LOCALES,
+  BASE_LOCALE,
+} as const;

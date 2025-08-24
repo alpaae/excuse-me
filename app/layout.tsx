@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { ToastProvider } from '@/components/toast-provider';
-import { I18nProvider } from '@/components/i18n-provider';
+import { I18nProviderServer } from '@/components/i18n-provider-server';
 
 // === FONT КОНФИГУРАЦИЯ ===
 // Next.js 15: обновленная конфигурация шрифтов
@@ -171,10 +171,10 @@ export default function RootLayout({
         <link rel="dns-prefetch" href="//supabase.co" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <I18nProvider>
+        <I18nProviderServer>
           {children}
           <ToastProvider />
-        </I18nProvider>
+        </I18nProviderServer>
         
         {/* PWA инициализация */}
         <script
