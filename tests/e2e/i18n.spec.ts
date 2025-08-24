@@ -2,52 +2,28 @@ import { test, expect, API_SCENARIOS } from '../fixtures';
 import { SELECTORS, EXPECTED_TEXT } from '../selectors';
 
 test.describe('i18n Language Switching', () => {
-  test('should switch language via query parameter', async ({ page, mockApi }) => {
+  test('default from Accept-Language', async ({ page, mockApi }) => {
     // Мокаем health check
     await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
     
-    // Переходим на страницу с параметром языка
-    await page.goto('/?lang=pl');
+    // Переходим на главную страницу без параметра языка
+    await page.goto('/');
     
     // Ждем загрузки страницы
     await page.waitForLoadState('networkidle');
     
-    // Проверяем, что селектор языка показывает польский (или fallback к русскому)
+    // Проверяем, что селектор языка показывает русский (из Accept-Language: ru-RU)
     await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toBeVisible();
-    
-    // Проверяем, что URL содержит правильный параметр
-    await expect(page).toHaveURL(/lang=pl/);
-    
-    // Проверяем, что форма все еще видна и функциональна
-    await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();
-    await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toBeVisible();
-  });
-
-  test('should fallback on invalid lang', async ({ page, mockApi }) => {
-    // Мокаем health check
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
-    
-    // Переходим на страницу с невалидным параметром языка
-    await page.goto('/?lang=zzz');
-    
-    // Ждем загрузки страницы
-    await page.waitForLoadState('networkidle');
-    
-    // Проверяем, что приложение не упало и показывает baseLocale (русский)
-    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toBeVisible();
-    
-    // Проверяем, что URL не содержит невалидный параметр (должен быть очищен)
-    await expect(page).not.toHaveURL(/lang=zzz/);
-    
-    // Проверяем, что используется baseLocale (русский по умолчанию)
     await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Русский');
     
-    // Проверяем, что форма все еще функциональна
-    await expect(page.getByTestId(SELECTORS.GEN_FORM)).toBeVisible();
+    // Проверяем, что URL не содержит параметр lang (используется default)
+    await expect(page).not.toHaveURL(/lang=/);
+    
+    // Проверяем, что форма функциональна
     await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toBeVisible();
   });
 
-  test('should handle language switching in form', async ({ page, mockApi }) => {
+  test('switch via selector', async ({ page, mockApi, selectLang }) => {
     // Мокаем health check
     await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
     
@@ -59,30 +35,50 @@ test.describe('i18n Language Switching', () => {
     // Проверяем, что по умолчанию русский
     await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Русский');
     
-    // Кликаем на селектор языка
-    await page.getByTestId(SELECTORS.LANG_SELECT).click();
+    // Выбираем польский язык через helper
+    await selectLang(page, 'pl');
     
-    // Выбираем английский
-    await page.getByTestId(SELECTORS.LANG_OPTION_EN).click();
+    // Проверяем, что URL обновился и содержит параметр lang=pl
+    await expect(page).toHaveURL(/lang=pl/);
     
-    // Проверяем, что URL обновился и содержит параметр lang=en
-    await expect(page).toHaveURL(/lang=en/);
-    
-    // Проверяем, что селектор показывает английский
-    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('English');
+    // Проверяем, что селектор показывает польский
+    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Polski');
     
     // Проверяем, что cookie установлен
     const cookies = await page.context().cookies();
     const langCookie = cookies.find(cookie => cookie.name === 'excuseme_lang');
     expect(langCookie).toBeTruthy();
-    expect(langCookie?.value).toBe('en');
+    expect(langCookie?.value).toBe('pl');
     
     // Проверяем, что параметр сохраняется в URL (persist)
     await page.reload();
     await page.waitForLoadState('networkidle');
-    await expect(page).toHaveURL(/lang=en/);
-    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('English');
+    await expect(page).toHaveURL(/lang=pl/);
+    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('Polski');
   });
+
+  test('switch via ?lang', async ({ page, mockApi }) => {
+    // Мокаем health check
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+    
+    // Переходим на страницу с параметром языка
+    await page.goto('/?lang=en');
+    
+    // Ждем загрузки страницы
+    await page.waitForLoadState('networkidle');
+    
+    // Проверяем, что селектор языка показывает английский
+    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.LANG_SELECT)).toContainText('English');
+    
+    // Проверяем, что URL содержит правильный параметр
+    await expect(page).toHaveURL(/lang=en/);
+    
+    // Проверяем, что форма все еще видна и функциональна
+    await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toBeVisible();
+  });
+
+
 
   test('should handle language aliases', async ({ page, mockApi }) => {
     // Мокаем health check

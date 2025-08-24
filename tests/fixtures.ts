@@ -5,9 +5,15 @@ export const test = base.extend<{
   mockApi: (route: string, json: any, status?: number) => Promise<void>;
   mockGenerate: (mode: 'success' | 'rate' | 'free') => Promise<void>;
   mockTts: (mode?: 'success' | 'empty') => Promise<void>;
+  selectLang: (page: Page, code: string) => Promise<void>;
 }>({
   // Устанавливаем baseURL
   baseURL: 'http://localhost:3000',
+  
+  // Устанавливаем Accept-Language заголовок для детекта языка
+  extraHTTPHeaders: {
+    'Accept-Language': 'ru-RU,ru;q=0.9,en;q=0.8'
+  },
   
   // Кастомная фикстура для мока API
   mockApi: async ({ page }, use) => {
@@ -99,6 +105,22 @@ export const test = base.extend<{
     };
     
     await use(mockTts);
+  },
+  
+  // Кастомная фикстура для выбора языка
+  selectLang: async ({ page }, use) => {
+    const selectLang = async (page: Page, code: string) => {
+      // Кликаем по селектору языка
+      await page.getByTestId('lang-select').click();
+      
+      // Выбираем опцию по data-value
+      await page.locator(`[data-value="${code}"]`).click();
+      
+      // Ждем обновления URL
+      await page.waitForURL(`**/?*lang=${code}*`, { timeout: 5000 });
+    };
+    
+    await use(selectLang);
   },
 });
 
