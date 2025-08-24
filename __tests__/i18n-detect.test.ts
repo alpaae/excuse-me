@@ -107,6 +107,12 @@ describe('i18n-detect', () => {
       expect(parseAcceptLanguage('')).toBe(null);
       expect(parseAcceptLanguage('invalid')).toBe(null);
     });
+
+    it('should prioritize Russian when Accept-Language starts with ru', () => {
+      expect(parseAcceptLanguage('ru-XX,en;q=0.9')).toBe('ru');
+      expect(parseAcceptLanguage('ru-RU,ru;q=0.8,en;q=0.9')).toBe('ru');
+      expect(parseAcceptLanguage('ru,en;q=0.9')).toBe('ru');
+    });
   });
 
   describe('detectLanguage', () => {
@@ -210,14 +216,14 @@ describe('i18n-detect', () => {
     it('should call setLanguageCookie and updateLanguageQuery', () => {
       syncLanguage('en');
       
-      expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 365);
+      expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 180);
       expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('en');
     });
 
     it('should normalize locale before syncing', () => {
       syncLanguage('EN-US');
       
-      expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 365);
+      expect(mockSetLanguageCookie).toHaveBeenCalledWith('en', 180);
       expect(mockUpdateLanguageQuery).toHaveBeenCalledWith('en');
     });
   });

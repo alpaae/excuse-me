@@ -180,6 +180,13 @@ export function parseAcceptLanguage(acceptLanguage: string): string | null {
         return normalized;
       }
     }
+
+    // Специальная обработка для русского языка
+    // Если Accept-Language начинается с 'ru', но не найден в поддерживаемых
+    const firstLang = languages[0]?.code?.toLowerCase();
+    if (firstLang && firstLang.startsWith('ru')) {
+      return 'ru'; // Принудительно используем русский
+    }
   } catch (error) {
     console.warn('Failed to parse Accept-Language:', acceptLanguage, error);
   }
@@ -240,9 +247,9 @@ export function detectLanguage(options: LanguageDetectOptions = {}): string {
 /**
  * Устанавливает cookie для локали
  * @param locale - локаль для сохранения
- * @param days - количество дней (по умолчанию 365)
+ * @param days - количество дней (по умолчанию 180)
  */
-export function setLanguageCookie(locale: string, days: number = 365): void {
+export function setLanguageCookie(locale: string, days: number = 180): void {
   if (typeof document === 'undefined') return; // SSR
 
   const normalized = normalizeLocale(locale);
@@ -297,7 +304,7 @@ export function updateLanguageQuery(locale: string): void {
  */
 export function syncLanguage(locale: string): void {
   const normalized = normalizeLocale(locale);
-  setLanguageCookie(normalized);
+  setLanguageCookie(normalized, 180); // 180 дней
   updateLanguageQuery(normalized);
 }
 

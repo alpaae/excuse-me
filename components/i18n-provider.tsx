@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18next from '@/lib/i18n';
-import { detectLanguage, getLanguageCookie, normalizeLocale } from '@/lib/i18n-detect';
+import { detectLanguage, getLanguageCookie, normalizeLocale, syncLanguage } from '@/lib/i18n-detect';
 
 interface I18nProviderProps {
   children: React.ReactNode;
@@ -19,23 +19,31 @@ export function I18nProvider({ children, initialLanguage }: I18nProviderProps) {
       i18next.init();
     }
 
+    let finalLanguage: string;
+
     // Синхронизируем язык с SSR
     if (initialLanguage) {
-      const normalized = normalizeLocale(initialLanguage);
-      i18next.changeLanguage(normalized);
+      finalLanguage = normalizeLocale(initialLanguage);
+      i18next.changeLanguage(finalLanguage);
     } else {
       // Детектируем язык на клиенте
       const searchParams = new URLSearchParams(window.location.search);
       const queryLang = searchParams.get('lang') || searchParams.get('lng');
       const cookieLang = getLanguageCookie();
       
-      const detectedLang = detectLanguage({
+      finalLanguage = detectLanguage({
         query: queryLang || undefined,
         cookie: cookieLang || undefined,
         acceptLanguage: navigator.language,
       });
 
-      i18next.changeLanguage(detectedLang);
+      i18next.changeLanguage(finalLanguage);
+    }
+
+    // Сохраняем выбранную локаль в cookie для будущих посещений
+    // Только если нет query параметра (чтобы не перезаписывать явный выбор)
+    if (!window.location.search.includes('lang=') && !window.location.search.includes('lng=')) {
+      syncLanguage(finalLanguage);
     }
 
     setIsInitialized(true);
