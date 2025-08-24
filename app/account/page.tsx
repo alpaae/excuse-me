@@ -251,6 +251,7 @@ export default function AccountPage() {
               </Button>
             </CardContent>
           </Card>
+          </div>
         </div>
       </div>
     </AuthGuard>

@@ -6,6 +6,7 @@ import { Clock, Crown } from 'lucide-react';
 
 export function FreeLimitBanner() {
   const { limits, isLoading } = useLimits();
+  const countdown = useCountdown(limits?.nextResetAt || '');
 
   if (isLoading || !limits) {
     return null;
@@ -16,7 +17,6 @@ export function FreeLimitBanner() {
     return null;
   }
 
-  const countdown = useCountdown(limits.nextResetAt);
   const remaining = limits.remaining;
 
   return (
