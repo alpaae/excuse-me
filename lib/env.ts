@@ -13,7 +13,7 @@ const clientSchema = z.object({
 // Переменные, доступные только на сервере
 const serverSchema = z.object({
   // Supabase
-  SUPABASE_SERVICE_ROLE: z.string().min(1, 'SUPABASE_SERVICE_ROLE is required for server operations'),
+  SUPABASE_SERVICE_ROLE: z.string().min(1, 'SUPABASE_SERVICE_ROLE is required for server operations'), // server-only: для загрузки файлов в private bucket
   
   // OpenAI
   OPENAI_API_KEY: z.string().min(1, 'OPENAI_API_KEY is required for AI features'),

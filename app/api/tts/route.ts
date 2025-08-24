@@ -6,6 +6,7 @@ import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/log
 import { serverEnv } from '@/lib/env';
 
 // Node.js runtime для работы с OpenAI и Supabase Storage
+// private bucket + signed URL; не требуется настраивать RLS
 export const runtime = 'nodejs';
 
 const openai = new OpenAI({
