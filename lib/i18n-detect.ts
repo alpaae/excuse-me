@@ -76,6 +76,7 @@ const LOCALE_ALIASES: Record<string, string> = {
 const SUPPORTED_LOCALES = [
   'en',      // English
   'ru',      // Russian
+  'pl',      // Polish
   'es',      // Spanish
   'fr',      // French
   'de',      // German
@@ -89,7 +90,7 @@ const SUPPORTED_LOCALES = [
 ];
 
 // Базовая локаль (fallback)
-const BASE_LOCALE = 'ru';
+const BASE_LOCALE = 'en';
 
 /**
  * Нормализует локаль к BCP-47 формату
