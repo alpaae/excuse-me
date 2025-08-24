@@ -554,6 +554,95 @@ npm run lighthouse:report
 ✅ Все метрики соответствуют бюджету!
 ```
 
+## Readiness Checks
+
+### Environment Readiness
+
+Эндпоинт `/api/ready` проверяет готовность приложения к работе:
+
+```bash
+# Локально
+curl http://localhost:3000/api/ready
+
+# Production
+curl https://your-app.vercel.app/api/ready
+```
+
+**Пример успешного ответа:**
+```json
+{
+  "ok": true,
+  "missing": [],
+  "missingOptional": ["STRIPE_SECRET_KEY", "TG_BOT_TOKEN"],
+  "env": {
+    "nodeEnv": "production",
+    "vercel": true,
+    "vercelEnv": "production",
+    "vercelRegion": "iad1"
+  },
+  "features": {
+    "payments": false,
+    "telegram": false,
+    "redis": true
+  },
+  "timestamp": "2025-08-24T01:30:00.000Z"
+}
+```
+
+**Пример ответа с ошибками:**
+```json
+{
+  "ok": false,
+  "missing": ["OPENAI_API_KEY", "SUPABASE_SERVICE_ROLE"],
+  "missingOptional": ["STRIPE_SECRET_KEY", "TG_BOT_TOKEN"],
+  "env": {
+    "nodeEnv": "development",
+    "vercel": false,
+    "vercelEnv": null,
+    "vercelRegion": null
+  },
+  "features": {
+    "payments": false,
+    "telegram": false,
+    "redis": false
+  },
+  "timestamp": "2025-08-24T01:30:00.000Z"
+}
+```
+
+### Проверяемые переменные
+
+#### Критические (обязательные):
+- `OPENAI_API_KEY` - для генерации отмазок
+- `NEXT_PUBLIC_SUPABASE_URL` - для подключения к БД
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY` - для клиентского доступа
+- `SUPABASE_SERVICE_ROLE` - для серверных операций
+
+#### Опциональные (для полной функциональности):
+- `STRIPE_SECRET_KEY` - для платежей
+- `STRIPE_PRICE_PRO_MONTHLY` - для подписок
+- `STRIPE_WEBHOOK_SECRET` - для webhook'ов
+- `TG_BOT_TOKEN` - для Telegram Mini App
+
+### Использование в CI/CD
+
+Добавьте проверку готовности в ваш deployment pipeline:
+
+```bash
+# Проверка после деплоя
+curl -f https://your-app.vercel.app/api/ready || exit 1
+
+# Проверка с ожиданием
+for i in {1..30}; do
+  if curl -s https://your-app.vercel.app/api/ready | jq -e '.ok == true'; then
+    echo "✅ App is ready!"
+    break
+  fi
+  echo "⏳ Waiting for app to be ready... ($i/30)"
+  sleep 10
+done
+```
+
 ## Мониторинг
 
 ### Health Check
