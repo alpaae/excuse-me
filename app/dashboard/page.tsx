@@ -160,7 +160,7 @@ export default function DashboardPage() {
                   <p className="text-muted-foreground">
                     You don&apos;t have any excuses yet. Create your first one!
                   </p>
-                  <Button className="mt-4" onClick={() => window.location.href = '/'}>
+                  <Button className="mt-4" onClick={() => window.history.back()}>
                     Create Excuse
                   </Button>
                 </CardContent>

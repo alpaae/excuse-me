@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -99,7 +100,7 @@ export default function ExcusesPage() {
       await audio.play();
     } catch (error) {
       console.error('Error playing TTS:', error);
-      showError('Не удалось воспроизвести аудио');
+      showError('Failed to play audio');
     }
   };
 
@@ -141,11 +142,11 @@ export default function ExcusesPage() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => window.location.href = '/'}
+                  onClick={() => window.history.back()}
                   className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
                 >
                   <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
-                  Назад
+                  Back
                 </Button>
               </div>
             </div>
@@ -193,7 +194,7 @@ export default function ExcusesPage() {
                       </p>
                       <Button 
                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                        onClick={() => window.location.href = '/'}
+                        onClick={() => window.history.back()}
                       >
                         Create Excuse
                       </Button>
