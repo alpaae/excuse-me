@@ -67,7 +67,8 @@ test.describe('Generate Excuse', () => {
     await page.getByRole('button', { name: 'Generate Excuse' }).click();
     
     // Check that rate limit banner is shown
-    await expect(page.getByText('Rate limit exceeded')).toBeVisible();
+    await expect(page.getByTestId('banner-rate-limit')).toBeVisible();
+    await expect(page.getByText('Too many requests')).toBeVisible();
   });
 
   test('should show free limit error', async ({ page }) => {
@@ -96,6 +97,7 @@ test.describe('Generate Excuse', () => {
     await page.getByRole('button', { name: 'Generate Excuse' }).click();
     
     // Check that free limit banner is shown
+    await expect(page.getByTestId('banner-free-limit')).toBeVisible();
     await expect(page.getByText('Free limit reached')).toBeVisible();
   });
 
