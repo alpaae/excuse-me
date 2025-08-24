@@ -6,6 +6,7 @@ import { rateLimit } from '@/lib/rate-limit';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 import { serverEnv } from '@/lib/env';
 import { getWarsawDateString, nextMidnightZonedISO } from '@/lib/time-warsaw';
+import { pickRarity } from '@/lib/rarity';
 
 // Node.js runtime для работы с OpenAI и Supabase
 export const runtime = 'nodejs';
@@ -152,7 +153,16 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Сохраняем результат в БД с detected language
+    // Get total excuses before this one for rarity calculation
+    const { count: totalBefore } = await supabase
+      .from('excuses')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', user.id);
+
+    // Calculate rarity
+    const rarity = pickRarity(totalBefore || 0);
+
+    // Сохраняем результат в БД с detected language and rarity
     const { data: excuse, error: dbError } = await supabase
       .from('excuses')
       .insert({
@@ -160,6 +170,7 @@ export async function POST(request: NextRequest) {
         input: { scenario, tone, channel, lang: targetLang, context },
         result_text: resultText,
         sent_via: channel,
+        rarity: rarity,
       })
       .select()
       .single();
@@ -179,6 +190,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       text: resultText,
+      rarity: rarity,
       excuse_id: excuse?.id,
       requestId,
       limits: {

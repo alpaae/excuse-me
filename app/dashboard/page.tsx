@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Star, Copy, Share2, Volume2, Heart, Calendar, MessageSquare, Phone, User } from 'lucide-react';
 import { SocialProofBar } from '@/components/social-proof-bar';
 import { FreeLimitBanner } from '@/components/free-limit-banner';
+import { ExcuseCard } from '@/components/excuse-card';
 
 interface Excuse {
   id: string;
@@ -21,6 +22,7 @@ interface Excuse {
     context?: string;
   };
   result_text: string;
+  rarity: 'common' | 'rare' | 'legendary';
   tts_url?: string;
   sent_via: string;
   is_favorite: boolean;
@@ -207,9 +209,11 @@ export default function DashboardPage() {
                     </div>
                   </CardHeader>
                   <CardContent className="space-y-4">
-                    <div className="bg-muted p-4 rounded-lg">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{excuse.result_text}</p>
-                    </div>
+                    <ExcuseCard 
+                      text={excuse.result_text} 
+                      rarity={excuse.rarity} 
+                      className="mb-4"
+                    />
                     
                     <div className="flex items-center gap-2 flex-wrap">
                       <Button

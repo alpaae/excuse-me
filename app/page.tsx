@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { SocialProofBar } from '@/components/social-proof-bar';
 import { FreeLimitBanner } from '@/components/free-limit-banner';
+import { ExcuseCard } from '@/components/excuse-card';
 
 interface User {
   id: string;
@@ -50,6 +51,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState('');
+  const [resultRarity, setResultRarity] = useState<'common' | 'rare' | 'legendary' | null>(null);
   const [showAuth, setShowAuth] = useState(false);
   const [showLimitBanner, setShowLimitBanner] = useState(false);
   const [showRateLimitBanner, setShowRateLimitBanner] = useState(false);
@@ -85,6 +87,7 @@ export default function HomePage() {
     // Clear previous results and banners
     setGenerating(true);
     setResult('');
+    setResultRarity(null);
     setShowLimitBanner(false);
     setShowRateLimitBanner(false);
     
@@ -105,6 +108,7 @@ export default function HomePage() {
       if (response.status === 200 && data.success) {
         // Successful generation - show result
         setResult(data.text);
+        setResultRarity(data.rarity);
         showSuccess('Excuse generated successfully!');
         
         // Update limits if provided
@@ -444,11 +448,19 @@ export default function HomePage() {
                     </CardHeader>
                     
                     <CardContent className="p-6">
-                      <div className="bg-gray-50 rounded-xl p-6 mb-6">
-                        <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
-                          {result}
-                        </p>
-                      </div>
+                      {resultRarity ? (
+                        <ExcuseCard 
+                          text={result} 
+                          rarity={resultRarity} 
+                          className="mb-6"
+                        />
+                      ) : (
+                        <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                          <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
+                            {result}
+                          </p>
+                        </div>
+                      )}
                       
                       <div className="flex items-center space-x-3">
                         <Button 
