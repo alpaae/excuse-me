@@ -173,21 +173,31 @@ export default function RootLayout({
         {children}
         <ToastProvider />
         
-        {/* Service Worker регистрация */}
+        {/* PWA инициализация */}
         <script
           dangerouslySetInnerHTML={{
             __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js')
-                    .then(function(registration) {
-                      console.log('SW registered: ', registration);
-                    })
-                    .catch(function(registrationError) {
-                      console.log('SW registration failed: ', registrationError);
-                    });
-                });
-              }
+              // Инициализация PWA при загрузке страницы
+              window.addEventListener('load', async function() {
+                try {
+                  // Динамический импорт PWA утилит
+                  const { initializePWA } = await import('/lib/pwa-utils.js');
+                  await initializePWA();
+                } catch (error) {
+                  console.warn('PWA initialization failed:', error);
+                  
+                  // Fallback к базовой регистрации SW
+                  if ('serviceWorker' in navigator) {
+                    navigator.serviceWorker.register('/sw.js')
+                      .then(function(registration) {
+                        console.log('SW registered (fallback): ', registration);
+                      })
+                      .catch(function(registrationError) {
+                        console.log('SW registration failed (fallback): ', registrationError);
+                      });
+                  }
+                }
+              });
             `,
           }}
         />
