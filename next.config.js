@@ -2,16 +2,9 @@
 const nextConfig = {
   // === ОПТИМИЗАЦИИ ПРОИЗВОДИТЕЛЬНОСТИ ===
   
-  // === TURBO CONFIGURATION ===
-  // Next.js 15: используем config.turbopack вместо experimental.turbo
-  turbopack: {
-    // Включаем кэширование для ускорения повторных сборок
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
-      },
-    },
+  // Отключаем devtools для устранения ошибок
+  devIndicators: {
+    position: 'bottom-right',
   },
 
   // === НАСТРОЙКИ ИЗОБРАЖЕНИЙ ===
