@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { AuthGuard } from '@/lib/auth-guard';
 import { Button } from '@/components/ui/button';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { useToast } from '@/lib/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
@@ -45,6 +47,7 @@ interface PaginationInfo {
 
 export default function DashboardPage() {
   const [excuses, setExcuses] = useState<Excuse[]>([]);
+  const { showError, showSuccess } = useToast();
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<PaginationInfo>({
     page: 1,
@@ -85,9 +88,11 @@ export default function DashboardPage() {
         setPagination(data.pagination);
       } else {
         console.error('Error loading excuses:', data.error);
+        showError('Не удалось загрузить историю отмазок');
       }
     } catch (error) {
       console.error('Error loading excuses:', error);
+      showError('Ошибка сети при загрузке истории');
     } finally {
       setLoading(false);
     }
@@ -101,24 +106,29 @@ export default function DashboardPage() {
         body: JSON.stringify({ is_favorite: !currentFavorite }),
       });
 
-      if (response.ok) {
-        setExcuses(excuses.map(excuse => 
-          excuse.id === excuseId 
+            if (response.ok) {
+        setExcuses(excuses.map(excuse =>
+          excuse.id === excuseId
             ? { ...excuse, is_favorite: !currentFavorite }
             : excuse
         ));
+        showSuccess(currentFavorite ? 'Убрано из избранного' : 'Добавлено в избранное');
+      } else {
+        showError('Не удалось обновить избранное');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
+      showError('Ошибка сети при обновлении избранного');
     }
   };
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      // Можно добавить toast уведомление
+      showSuccess('Скопировано в буфер обмена');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
+      showError('Не удалось скопировать текст');
     }
   };
 
@@ -165,8 +175,9 @@ export default function DashboardPage() {
   }
 
   return (
-    <AuthGuard>
-      <div className="container mx-auto px-4 py-8">
+    <ErrorBoundary>
+      <AuthGuard>
+        <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
           {/* Заголовок */}
           <div className="text-center">
@@ -394,6 +405,7 @@ export default function DashboardPage() {
           )}
         </div>
       </div>
-    </AuthGuard>
+      </AuthGuard>
+    </ErrorBoundary>
   );
 }

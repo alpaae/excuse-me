@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase';
 import { AuthForm } from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';
+import { ErrorBoundary } from '@/components/error-boundary';
+import { useToast, toastMessages } from '@/lib/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -23,6 +25,7 @@ export default function HomePage() {
   const [result, setResult] = useState('');
   const [showAuth, setShowAuth] = useState(false);
   const [showLimitBanner, setShowLimitBanner] = useState(false);
+  const { showSuccess, showError } = useToast();
   
   const [formData, setFormData] = useState({
     scenario: '',
@@ -65,18 +68,24 @@ export default function HomePage() {
       if (data.success) {
         setResult(data.text);
         setShowLimitBanner(false);
+        showSuccess(toastMessages.generate.success);
       } else if (data.error === 'FREE_LIMIT_REACHED') {
         setShowLimitBanner(true);
         setResult('');
+        showError(toastMessages.generate.freeLimit);
       } else if (data.error === 'RATE_LIMIT') {
         setResult('Слишком много запросов. Попробуйте через минуту.');
         setShowLimitBanner(false);
+        showError(toastMessages.generate.rateLimit);
       } else {
         setResult('Ошибка при генерации. Попробуйте еще раз.');
         setShowLimitBanner(false);
+        showError(toastMessages.generate.error);
       }
     } catch (error) {
       setResult('Произошла ошибка. Попробуйте еще раз.');
+      setShowLimitBanner(false);
+      showError(toastMessages.general.serverError);
     } finally {
       setGenerating(false);
     }
@@ -118,7 +127,8 @@ export default function HomePage() {
   }
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
+    <ErrorBoundary>
+      <main className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       <div className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto space-y-8">
           {/* Заголовок */}
@@ -307,6 +317,7 @@ export default function HomePage() {
           )}
         </div>
       </div>
-    </main>
+      </main>
+    </ErrorBoundary>
   );
 }
