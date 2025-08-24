@@ -172,35 +172,7 @@ export default function HomePage() {
             )}
           </div>
 
-          {/* Баннер лимита */}
-          {showLimitBanner && (
-            <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950" data-testid="banner-free-limit">
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Crown className="h-5 w-5 text-orange-600 dark:text-orange-400" />
-                    <div>
-                      <h3 className="font-semibold text-orange-900 dark:text-orange-100">
-                        Достигнут дневной лимит
-                      </h3>
-                      <p className="text-sm text-orange-700 dark:text-orange-300">
-                        Бесплатные пользователи могут генерировать до 3 отмазок в день
-                      </p>
-                    </div>
-                  </div>
-                  <Button 
-                    onClick={() => window.location.href = '/account'}
-                    className="bg-orange-600 hover:bg-orange-700 text-white"
-                  >
-                    <Crown className="mr-2 h-4 w-4" />
-                    Перейти на Pro
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
 
-          {/* Баннер rate limit */}
 
 
           {/* Форма генерации */}
