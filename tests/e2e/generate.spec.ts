@@ -5,28 +5,40 @@ test.describe('Excuse Generation', () => {
   test('should display result when API returns success', async ({ page, mockApi }) => {
     // Мокаем API response
     await mockApi('/api/generate', API_SCENARIOS.success.response, API_SCENARIOS.success.status);
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+
+    // Мокаем пользователя
+    await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
+    
+    // Ждем загрузки страницы
+    await page.waitForLoadState('networkidle');
     
     // Заполняем форму
     await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('отмена встречи');
     await page.getByTestId(SELECTORS.GEN_CONTEXT).fill('срочная работа');
     
-    // Отправляем форму (должно показать auth форму)
+    // Отправляем форму
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
-    // Проверяем, что показывается форма авторизации
-    await expect(page.getByRole('heading', { name: 'Войти в ExcuseME' })).toBeVisible();
+    // Проверяем, что показывается результат
+    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
+    await expect(page.getByText(API_SCENARIOS.success.response.text)).toBeVisible();
   });
 
   test('should display rate limit error', async ({ page, mockApi }) => {
     // Мокаем rate limit response
     await mockApi('/api/generate', API_SCENARIOS.rateLimit.response, API_SCENARIOS.rateLimit.status);
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
 
-    // Мокаем пользователя (имитируем авторизацию)
+    // Мокаем пользователя
     await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
+    
+    // Ждем загрузки страницы
+    await page.waitForLoadState('networkidle');
     
     // Заполняем и отправляем форму
     await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест rate limit');
@@ -40,11 +52,15 @@ test.describe('Excuse Generation', () => {
   test('should display free limit banner', async ({ page, mockApi }) => {
     // Мокаем free limit response
     await mockApi('/api/generate', API_SCENARIOS.freeLimit.response, API_SCENARIOS.freeLimit.status);
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
 
     // Мокаем пользователя
     await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
+    
+    // Ждем загрузки страницы
+    await page.waitForLoadState('networkidle');
     
     // Заполняем и отправляем форму
     await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест free limit');
@@ -63,6 +79,9 @@ test.describe('Excuse Generation', () => {
     
     await page.goto('/');
     
+    // Ждем загрузки страницы
+    await page.waitForLoadState('networkidle');
+    
     // Пытаемся отправить пустую форму
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
@@ -74,11 +93,15 @@ test.describe('Excuse Generation', () => {
   test('should display result for authorized user', async ({ page, mockApi }) => {
     // Мокаем API response
     await mockApi('/api/generate', API_SCENARIOS.success.response, API_SCENARIOS.success.status);
+    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
 
     // Мокаем пользователя
     await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
+    
+    // Ждем загрузки страницы
+    await page.waitForLoadState('networkidle');
     
     // Заполняем форму
     await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('отмена встречи');
