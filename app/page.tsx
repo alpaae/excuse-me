@@ -13,7 +13,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Wand2, Copy, Share2, Volume2, Crown, History, AlertCircle } from 'lucide-react';
+import { Textarea } from '@/components/ui/textarea';
+import { 
+  Wand2, 
+  Copy, 
+  Share2, 
+  Volume2, 
+  Crown, 
+  History, 
+  AlertCircle, 
+  Sparkles,
+  MessageSquare,
+  Mail,
+  Phone,
+  User,
+  ArrowRight,
+  CheckCircle,
+  Star,
+  Zap,
+  Globe
+} from 'lucide-react';
 
 interface User {
   id: string;
@@ -100,14 +119,12 @@ export default function HomePage() {
         setShowLimitBanner(true);
         showError(toastMessages.generate.freeLimit);
       } else {
-        // Общая ошибка - показываем в результате
-        setResult('Ошибка при генерации. Попробуйте еще раз.');
-        showError(toastMessages.generate.error);
+        // Другие ошибки
+        showError(data.error || toastMessages.generate.error);
       }
     } catch (error) {
-      // Ошибка сети - показываем в результате
-      setResult('Произошла ошибка сети. Проверьте подключение и попробуйте еще раз.');
-      showError(toastMessages.general.serverError);
+      console.error('Generation error:', error);
+      showError(toastMessages.generate.error);
     } finally {
       setGenerating(false);
     }
@@ -116,246 +133,378 @@ export default function HomePage() {
   const copyToClipboard = async () => {
     try {
       await navigator.clipboard.writeText(result);
+      showSuccess('Скопировано в буфер обмена');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
+      showError('Не удалось скопировать');
     }
   };
 
-  const shareResult = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'ExcuseME - Отмазка',
-        text: result,
-      });
-    } else {
-      copyToClipboard();
+  const shareExcuse = async () => {
+    try {
+      if (navigator.share) {
+        await navigator.share({
+          title: 'Отмазка',
+          text: result,
+        });
+      } else {
+        await navigator.clipboard.writeText(result);
+        showSuccess('Скопировано в буфер обмена');
+      }
+    } catch (error) {
+      console.error('Error sharing:', error);
+      showError('Не удалось поделиться');
+    }
+  };
+
+  const getChannelIcon = (channel: string) => {
+    switch (channel) {
+      case 'email': return <Mail className="h-4 w-4" />;
+      case 'message': return <MessageSquare className="h-4 w-4" />;
+      case 'call': return <Phone className="h-4 w-4" />;
+      case 'in_person': return <User className="h-4 w-4" />;
+      default: return <MessageSquare className="h-4 w-4" />;
     }
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-
-
   return (
     <ErrorBoundary>
-      <main className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          {/* Заголовок */}
-          <div className="text-center">
-            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-              ExcuseME
-            </h1>
-            <p className="text-xl text-gray-600 dark:text-gray-300">
-              Генератор вежливых отмазок
-            </p>
-            {user && (
-              <div className="mt-4 flex items-center justify-center gap-4">
-                <Badge variant="outline">
-                  {user.email}
-                </Badge>
-                <Button variant="outline" size="sm" onClick={() => window.location.href = '/excuses'}>
-                  <History className="mr-2 h-4 w-4" />
-                  История
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => window.location.href = '/account'}>
-                  <Crown className="mr-2 h-4 w-4" />
-                  Аккаунт
-                </Button>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Header */}
+        <header className="border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  ExcuseMe
+                </h1>
               </div>
-            )}
-          </div>
-
-
-
-
-          {/* Форма генерации */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wand2 className="h-5 w-5" />
-                Создать отмазку
-              </CardTitle>
-              <CardDescription>
-                Опишите ситуацию и получите вежливую отмазку
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleGenerate} className="space-y-4" data-testid="gen-form">
-                <div className="space-y-2">
-                  <Label htmlFor="scenario">Сценарий</Label>
-                  <Input
-                    id="scenario"
-                    data-testid="gen-scenario"
-                    placeholder="Например: отмена встречи, опоздание на работу, пропуск вечеринки..."
-                    value={formData.scenario}
-                    onChange={(e) => setFormData({ ...formData, scenario: e.target.value })}
-                    required
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2" key="tone-select">
-                    <Label>Тон</Label>
-                    <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                      <SelectTrigger data-testid="gen-tone">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="professional">Профессиональный</SelectItem>
-                        <SelectItem value="friendly">Дружелюбный</SelectItem>
-                        <SelectItem value="formal">Формальный</SelectItem>
-                        <SelectItem value="casual">Неформальный</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2" key="channel-select">
-                    <Label>Канал</Label>
-                    <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
-                      <SelectTrigger data-testid="gen-channel">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="email">Email</SelectItem>
-                        <SelectItem value="message">Сообщение</SelectItem>
-                        <SelectItem value="call">Звонок</SelectItem>
-                        <SelectItem value="in_person">Лично</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <div className="space-y-2" key="lang-select">
-                  <Label>Язык</Label>
-                  <LanguageSwitch />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="context">Дополнительный контекст (опционально)</Label>
-                  <Input
-                    id="context"
-                    data-testid="gen-context"
-                    placeholder="Дополнительные детали для более точной отмазки..."
-                    value={formData.context}
-                    onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-                  />
-                </div>
-
-                <Button type="submit" className="w-full" disabled={generating} data-testid="gen-submit">
-                  <Wand2 className="mr-2 h-4 w-4" />
-                  {generating ? 'Генерация...' : 'Сгенерировать отмазку'}
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-
-          {/* Rate Limit Banner */}
-          {showRateLimitBanner && (
-            <Card key="rate-limit-banner" className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3" data-testid="banner-rate-limit">
-                  <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-orange-900 dark:text-orange-100">
-                      Слишком много запросов
-                    </h3>
-                    <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
-                      Пожалуйста, подождите немного перед следующим запросом.
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Free Limit Banner */}
-          {showLimitBanner && (
-            <Card key="free-limit-banner" className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
-              <CardContent className="pt-6">
-                <div className="flex items-start gap-3" data-testid="banner-free-limit">
-                  <Crown className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <h3 className="font-medium text-blue-900 dark:text-blue-100">
-                      Достигнут дневной лимит
-                    </h3>
-                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 mb-3">
-                      Вы использовали все бесплатные генерации на сегодня. Перейдите на Pro для неограниченного доступа.
-                    </p>
+              
+              <div className="flex items-center space-x-4">
+                <LanguageSwitch />
+                
+                {user ? (
+                  <div className="flex items-center space-x-3">
+                    <Badge variant="secondary" className="bg-white/50 backdrop-blur-sm">
+                      {user.email}
+                    </Badge>
                     <Button 
-                      onClick={() => window.location.href = '/account'} 
-                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => window.location.href = '/excuses'}
+                      className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
                     >
-                      Перейти на Pro
+                      <History className="mr-2 h-4 w-4" />
+                      История
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => window.location.href = '/account'}
+                      className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                    >
+                      <Crown className="mr-2 h-4 w-4" />
+                      Аккаунт
                     </Button>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Результат */}
-          {result && (
-            <Card key="generation-result">
-              <CardHeader>
-                <CardTitle>Результат</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg" data-testid="gen-result">
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{result}</p>
-                </div>
-                
-                <div className="flex items-center gap-2">
-                  <Button variant="outline" onClick={copyToClipboard}>
-                    <Copy className="mr-2 h-4 w-4" />
-                    Копировать
+                ) : (
+                  <Button 
+                    onClick={() => setShowAuth(true)}
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                  >
+                    Войти
                   </Button>
-                  
-                  <Button variant="outline" onClick={shareResult}>
-                    <Share2 className="mr-2 h-4 w-4" />
-                    Поделиться
-                  </Button>
-                  
-                  <Button variant="outline">
-                    <Volume2 className="mr-2 h-4 w-4" />
-                    Слушать
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* CTA для неавторизованных пользователей */}
-          {!user && (
-            <Card key="login-cta">
-              <CardContent className="pt-6 text-center">
-                <p className="text-muted-foreground mb-4">
-                  Войдите, чтобы сохранять историю отмазок и получить больше возможностей
-                </p>
-                <Button onClick={() => setShowAuth(true)} data-testid="btn-login">
-                  Войти в аккаунт
-                </Button>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Модальное окно аутентификации */}
-          {showAuth && (
-            <div key="auth-modal" className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-              <div data-testid="auth-dialog">
-                <AuthForm />
+                )}
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="container mx-auto px-4 py-12">
+          <div className="max-w-4xl mx-auto">
+            {/* Hero Section */}
+            <div className="text-center mb-16">
+              <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2 mb-6">
+                <Zap className="h-4 w-4 text-blue-600" />
+                <span className="text-sm font-medium text-blue-700">AI-powered excuses</span>
+              </div>
+              
+              <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-6">
+                Создавайте идеальные отмазки
+              </h1>
+              
+              <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
+                Искусственный интеллект поможет вам создать вежливые и убедительные отмазки для любой ситуации
+              </p>
+              
+              <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Мгновенная генерация</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Множество языков</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Профессиональный тон</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Form Section */}
+            <div className="grid lg:grid-cols-2 gap-8 mb-12">
+              {/* Input Form */}
+              <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
+                <CardHeader className="pb-6">
+                  <CardTitle className="flex items-center space-x-2 text-2xl">
+                    <Wand2 className="h-6 w-6 text-blue-600" />
+                    <span>Создать отмазку</span>
+                  </CardTitle>
+                  <CardDescription className="text-gray-600">
+                    Опишите ситуацию и получите вежливую отмазку
+                  </CardDescription>
+                </CardHeader>
+                
+                <CardContent>
+                  <form onSubmit={handleGenerate} className="space-y-6">
+                    <div className="space-y-2">
+                      <Label htmlFor="scenario" className="text-sm font-medium text-gray-700">
+                        Сценарий
+                      </Label>
+                                             <Textarea
+                         id="scenario"
+                         placeholder="Например: отмена встречи, опоздание на работу, пропуск вечеринки..."
+                         value={formData.scenario}
+                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
+                         required
+                         className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                       />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700">Тон</Label>
+                        <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
+                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="professional">Профессиональный</SelectItem>
+                            <SelectItem value="friendly">Дружелюбный</SelectItem>
+                            <SelectItem value="formal">Формальный</SelectItem>
+                            <SelectItem value="casual">Неформальный</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700">Канал</Label>
+                        <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
+                          <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="message">Сообщение</SelectItem>
+                            <SelectItem value="call">Звонок</SelectItem>
+                            <SelectItem value="in_person">Лично</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label className="text-sm font-medium text-gray-700">Язык</Label>
+                      <LanguageSwitch />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="context" className="text-sm font-medium text-gray-700">
+                        Дополнительный контекст (опционально)
+                      </Label>
+                      <Input
+                        id="context"
+                        placeholder="Дополнительные детали для более точной отмазки..."
+                        value={formData.context}
+                        onChange={(e) => setFormData({ ...formData, context: e.target.value })}
+                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
+                    </div>
+
+                    <Button 
+                      type="submit" 
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg font-medium"
+                      disabled={generating}
+                    >
+                      {generating ? (
+                        <>
+                          <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                          Генерация...
+                        </>
+                      ) : (
+                        <>
+                          <Wand2 className="mr-2 h-5 w-5" />
+                          Сгенерировать отмазку
+                        </>
+                      )}
+                    </Button>
+                  </form>
+                </CardContent>
+              </Card>
+
+              {/* Result Section */}
+              <div className="space-y-6">
+                {result && (
+                  <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
+                    <CardHeader className="pb-4">
+                      <CardTitle className="flex items-center space-x-2">
+                        <Star className="h-5 w-5 text-yellow-500" />
+                        <span>Результат</span>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100">
+                        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result}</p>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={copyToClipboard}
+                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Копировать
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={shareExcuse}
+                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                        >
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Поделиться
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Features Preview */}
+                <Card className="bg-white/60 backdrop-blur-xl border-0 shadow-lg">
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">Возможности</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <MessageSquare className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Множество каналов</p>
+                          <p className="text-sm text-gray-600">Email, сообщения, звонки, личные встречи</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Globe className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Множество языков</p>
+                          <p className="text-sm text-gray-600">Русский, английский, испанский и другие</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                          <Sparkles className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">AI-генерация</p>
+                          <p className="text-sm text-gray-600">Умные и контекстные отмазки</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+
+            {/* Rate Limit Banner */}
+            {showRateLimitBanner && (
+              <Card className="bg-yellow-50 border-yellow-200 mb-6">
+                <CardContent className="pt-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-yellow-800">Слишком много запросов</h3>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Пожалуйста, подождите немного перед следующим запросом.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Free Limit Banner */}
+            {showLimitBanner && (
+              <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6">
+                <CardContent className="pt-6">
+                  <div className="flex items-start space-x-3">
+                    <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-purple-800">Достигнут лимит бесплатных запросов</h3>
+                      <p className="text-sm text-purple-700 mt-1">
+                        Обновите аккаунт для неограниченного доступа к генерации отмазок.
+                      </p>
+                      <Button 
+                        className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                        onClick={() => window.location.href = '/account'}
+                      >
+                        Обновить аккаунт
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        </main>
+
+        {/* Auth Modal */}
+        {showAuth && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6">
+                             <AuthForm />
+              <Button 
+                variant="ghost" 
+                className="w-full mt-4" 
+                onClick={() => setShowAuth(false)}
+              >
+                Отмена
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
-      </main>
     </ErrorBoundary>
   );
 }

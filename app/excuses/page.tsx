@@ -121,19 +121,51 @@ export default function ExcusesPage() {
     );
   }
 
-  return (
+    return (
     <ErrorBoundary>
       <AuthGuard>
-        <div className="container mx-auto px-4 py-8">
-          <div className="space-y-6">
-            {/* Заголовок */}
-            <div className="text-center">
-              <h1 className="text-3xl font-bold">История отмазок</h1>
-              <p className="text-muted-foreground">Ваши созданные отмазки</p>
-              <div className="mt-4 text-sm text-muted-foreground">
-                Всего отмазок: {excuses.length}
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+          {/* Header */}
+          <header className="border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+            <div className="container mx-auto px-4 py-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                  <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                    ExcuseMe
+                  </h1>
+                </div>
+                
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={() => window.location.href = '/'}
+                  className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                >
+                  <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
+                  Назад
+                </Button>
               </div>
             </div>
+          </header>
+
+          <div className="container mx-auto px-4 py-12">
+            <div className="max-w-4xl mx-auto">
+              {/* Заголовок */}
+              <div className="text-center mb-12">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
+                  История отмазок
+                </h1>
+                <p className="text-xl text-gray-600 mb-4">Ваши созданные отмазки</p>
+                <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2">
+                  <History className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-700">
+                    Всего отмазок: {excuses.length}
+                  </span>
+                </div>
+              </div>
 
             {/* Ошибка */}
             {error && (
@@ -166,66 +198,70 @@ export default function ExcusesPage() {
                 </Card>
               ) : (
                 excuses.map((excuse) => (
-                  <Card key={excuse.id} className="hover:shadow-md transition-shadow">
-                    <CardHeader>
+                  <Card key={excuse.id} className="bg-white/80 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+                    <CardHeader className="pb-4">
                       <div className="flex items-start justify-between">
-                        <div className="space-y-2 flex-1">
-                          <div className="flex items-center gap-2">
-                            <CardTitle className="text-lg">{excuse.input.scenario}</CardTitle>
+                        <div className="space-y-3 flex-1">
+                          <div className="flex items-center gap-3">
+                            <CardTitle className="text-xl font-semibold text-gray-900">{excuse.input.scenario}</CardTitle>
                             {excuse.is_favorite && (
-                              <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
+                              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
                             )}
                           </div>
-                          <CardDescription className="flex items-center gap-4">
-                            <span className="flex items-center gap-1">
-                              <Calendar className="h-3 w-3" />
+                          <div className="flex items-center gap-4 text-sm text-gray-600">
+                            <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
+                              <Calendar className="h-4 w-4" />
                               {new Date(excuse.created_at).toLocaleDateString()}
                             </span>
-                            <span className="flex items-center gap-1">
+                            <span className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full">
                               {getChannelIcon(excuse.input.channel)}
-                              {excuse.input.channel}
+                              <span className="capitalize">{excuse.input.channel}</span>
                             </span>
-                            <span className="capitalize">{excuse.input.tone}</span>
-                          </CardDescription>
+                            <span className="bg-purple-50 px-3 py-1 rounded-full capitalize">{excuse.input.tone}</span>
+                          </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline">{excuse.input.lang}</Badge>
+                        <div className="flex items-center gap-3">
+                          <Badge variant="secondary" className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0">
+                            {excuse.input.lang.toUpperCase()}
+                          </Badge>
                           <Button
                             variant="ghost"
                             size="sm"
                             onClick={() => toggleFavorite(excuse.id, excuse.is_favorite)}
+                            className="hover:bg-red-50"
                           >
                             {excuse.is_favorite ? (
-                              <Heart className="h-4 w-4 fill-red-500 text-red-500" />
+                              <Heart className="h-5 w-5 fill-red-500 text-red-500" />
                             ) : (
-                              <Heart className="h-4 w-4" />
+                              <Heart className="h-5 w-5 text-gray-400 hover:text-red-500" />
                             )}
                           </Button>
                         </div>
                       </div>
                     </CardHeader>
-                    <CardContent className="space-y-4">
-                      <div className="bg-muted p-4 rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-2">Сценарий:</p>
-                        <p className="text-sm">{excuse.input.scenario}</p>
+                    <CardContent className="space-y-6">
+                      <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-100">
+                        <p className="text-sm font-medium text-gray-700 mb-3">Сценарий:</p>
+                        <p className="text-gray-800 leading-relaxed">{excuse.input.scenario}</p>
                         {excuse.input.context && (
                           <>
-                            <p className="text-sm text-muted-foreground mt-2 mb-2">Контекст:</p>
-                            <p className="text-sm">{excuse.input.context}</p>
+                            <p className="text-sm font-medium text-gray-700 mt-4 mb-3">Контекст:</p>
+                            <p className="text-gray-800 leading-relaxed">{excuse.input.context}</p>
                           </>
                         )}
                       </div>
                       
-                      <div className="bg-primary/5 p-4 rounded-lg">
-                        <p className="text-sm text-muted-foreground mb-2">Результат:</p>
-                        <p className="whitespace-pre-wrap">{excuse.result_text}</p>
+                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-100">
+                        <p className="text-sm font-medium text-blue-700 mb-3">Результат:</p>
+                        <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{excuse.result_text}</p>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-3">
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => copyToClipboard(excuse.result_text)}
+                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
                         >
                           <Copy className="mr-2 h-4 w-4" />
                           Копировать
@@ -235,6 +271,7 @@ export default function ExcusesPage() {
                             variant="outline"
                             size="sm"
                             onClick={() => playTTS(excuse.tts_url!)}
+                            className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
                           >
                             <Play className="mr-2 h-4 w-4" />
                             Воспроизвести
