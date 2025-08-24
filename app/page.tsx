@@ -38,6 +38,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { SocialProofBar } from '@/components/social-proof-bar';
+import { FreeLimitBanner } from '@/components/free-limit-banner';
 
 interface User {
   id: string;
@@ -105,6 +106,12 @@ export default function HomePage() {
         // Successful generation - show result
         setResult(data.text);
         showSuccess('Excuse generated successfully!');
+        
+        // Update limits if provided
+        if (data.limits) {
+          // Trigger SWR revalidation for limits
+          // This will be handled by the FreeLimitBanner component
+        }
       } else if (response.status === 429) {
         // Rate limit exceeded
         setShowRateLimitBanner(true);
@@ -314,6 +321,13 @@ export default function HomePage() {
                 </div>
               </div>
             </div>
+
+            {/* Free Limit Banner */}
+            {user && (
+              <div className="mb-8">
+                <FreeLimitBanner />
+              </div>
+            )}
 
             {/* Form Section */}
             <div className="grid lg:grid-cols-2 gap-12 mb-16">

@@ -5,6 +5,7 @@ import { SYSTEM_PROMPT, generateUserPrompt } from '@/lib/prompts';
 import { rateLimit } from '@/lib/rate-limit';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 import { serverEnv } from '@/lib/env';
+import { getWarsawDateString, nextMidnightZonedISO } from '@/lib/time-warsaw';
 
 // Node.js runtime для работы с OpenAI и Supabase
 export const runtime = 'nodejs';
@@ -91,24 +92,33 @@ export async function POST(request: NextRequest) {
       .eq('status', 'active')
       .single();
 
-    if (!subscription) {
-      // Проверяем дневной лимит
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
+    const isPro = !!subscription;
+    let remaining = Infinity;
+    let nextResetAt = nextMidnightZonedISO();
+
+    if (!isPro) {
+      // Проверяем дневной лимит по Warsaw timezone
+      const today = getWarsawDateString();
+      const todayStart = new Date(today + 'T00:00:00.000Z');
+      const todayEnd = new Date(today + 'T23:59:59.999Z');
       
       const { count } = await supabase
         .from('excuses')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('created_at', today.toISOString());
+        .gte('created_at', todayStart.toISOString())
+        .lte('created_at', todayEnd.toISOString());
 
-      if (count && count >= 3) {
-        return createErrorResponse(
-          ErrorCodes.FREE_LIMIT_REACHED,
-          'Daily free limit reached',
-          402,
-          requestId
-        );
+      const used = count || 0;
+      remaining = Math.max(0, 3 - used);
+
+      if (remaining === 0) {
+        return NextResponse.json({
+          success: false,
+          error: 'FREE_LIMIT_REACHED',
+          remaining: 0,
+          nextResetAt,
+        }, { status: 402 });
       }
     }
 
@@ -171,6 +181,10 @@ export async function POST(request: NextRequest) {
       text: resultText,
       excuse_id: excuse?.id,
       requestId,
+      limits: {
+        remaining: isPro ? Infinity : remaining - 1, // Уменьшаем на 1 после успешной генерации
+        nextResetAt,
+      },
     });
 
   } catch (error) {

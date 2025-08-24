@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Star, Copy, Share2, Volume2, Heart, Calendar, MessageSquare, Phone, User } from 'lucide-react';
 import { SocialProofBar } from '@/components/social-proof-bar';
+import { FreeLimitBanner } from '@/components/free-limit-banner';
 
 interface Excuse {
   id: string;
@@ -128,6 +129,9 @@ export default function DashboardPage() {
       <AuthGuard>
         <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
+          {/* Free Limit Banner */}
+          <FreeLimitBanner />
+
           {/* Header */}
           <div className="text-center">
             <h1 className="text-3xl font-bold">Excuse History</h1>
