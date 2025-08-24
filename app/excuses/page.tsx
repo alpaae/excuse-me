@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { History, Calendar, MessageSquare, Mail, Phone, User, Star, Heart, Copy, Play } from 'lucide-react';
-import { useToast } from '@/components/ui/use-toast';
+import { useToast } from '@/lib/use-toast';
 import { AuthGuard } from '@/lib/auth-guard';
 import { ErrorBoundary } from '@/components/error-boundary';
 

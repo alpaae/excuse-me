@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+.next/
+out/
+dist/
+
+# Playwright reports and traces
+playwright-report/
+test-results/
+
+# Coverage reports
+coverage/
+
+# Environment files
+.env*
+!.env.example
+
+# Logs
+*.log
+
+# Cache
+.cache/
+.vercel/
+
+# Generated files
+*.generated.*
