@@ -110,11 +110,8 @@ export const test = base.extend<{
   // Кастомная фикстура для выбора языка
   selectLang: async ({ page }, use) => {
     const selectLang = async (page: Page, code: string) => {
-      // Кликаем по селектору языка
-      await page.getByTestId('lang-select').click();
-      
-      // Выбираем опцию по data-value
-      await page.locator(`[data-value="${code}"]`).click();
+      // Используем selectOption для надежности с нативным select
+      await page.getByTestId('lang-select').selectOption(code);
       
       // Ждем обновления URL
       await page.waitForURL(`**/?*lang=${code}*`, { timeout: 5000 });
@@ -342,6 +339,39 @@ export const TEST_HELPERS = {
    */
   getText: async (page: Page, selector: string): Promise<string> => {
     return await page.locator(selector).textContent() || '';
+  },
+  
+  /**
+   * Проверяет текущее значение select
+   */
+  expectSelectValue: async (page: Page, selector: string, expectedValue: string) => {
+    await expect(page.locator(selector)).toHaveValue(expectedValue);
+  },
+  
+  /**
+   * Проверяет, что URL содержит параметр lang
+   */
+  expectUrlContainsLang: async (page: Page, langCode: string) => {
+    await expect(page).toHaveURL(new RegExp(`[?&]lang=${langCode}(&|$)`));
+  },
+  
+  /**
+   * Проверяет, что cookie excuseme_lang установлен
+   */
+  expectCookieSet: async (page: Page, expectedValue: string) => {
+    const cookies = await page.context().cookies();
+    const langCookie = cookies.find(cookie => cookie.name === 'excuseme_lang');
+    expect(langCookie).toBeDefined();
+    expect(langCookie?.value).toBe(expectedValue);
+  },
+  
+  /**
+   * Проверяет, что cookie excuseme_lang НЕ установлен
+   */
+  expectCookieNotSet: async (page: Page) => {
+    const cookies = await page.context().cookies();
+    const langCookie = cookies.find(cookie => cookie.name === 'excuseme_lang');
+    expect(langCookie).toBeUndefined();
   }
 } as const;
 
