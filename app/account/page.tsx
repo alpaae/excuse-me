@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { User, Crown, LogOut, Save } from 'lucide-react';
+import { User, Crown, LogOut, Save, ArrowRight, Sparkles } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -125,13 +125,40 @@ export default function AccountPage() {
 
   return (
     <AuthGuard>
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        <div className="space-y-6">
-          {/* Header */}
-          <div className="text-center">
-            <h1 className="text-3xl font-bold">Account</h1>
-            <p className="text-muted-foreground">Manage your profile and subscription</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Header */}
+        <header className="border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Sparkles className="h-5 w-5 text-white" />
+                </div>
+                <h1 className="text-xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
+                  ExcuseMe
+                </h1>
+              </div>
+              
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={() => window.history.back()}
+                className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+              >
+                <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
+                Back
+              </Button>
+            </div>
           </div>
+        </header>
+
+        <div className="container mx-auto px-4 py-8 max-w-2xl">
+          <div className="space-y-6">
+            {/* Page Title */}
+            <div className="text-center">
+              <h1 className="text-3xl font-bold">Account</h1>
+              <p className="text-muted-foreground">Manage your profile and subscription</p>
+            </div>
 
           {/* Profile */}
           <Card>
