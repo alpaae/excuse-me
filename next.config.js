@@ -2,16 +2,14 @@
 const nextConfig = {
   // === ОПТИМИЗАЦИИ ПРОИЗВОДИТЕЛЬНОСТИ ===
   
-  // Включаем Turbo по умолчанию для ускорения сборки
-  // Next.js 15: Turbo теперь стабилен и рекомендуется для production
-  experimental: {
-    turbo: {
-      // Включаем кэширование для ускорения повторных сборок
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
+  // === TURBO CONFIGURATION ===
+  // Next.js 15: используем config.turbopack вместо experimental.turbo
+  turbopack: {
+    // Включаем кэширование для ускорения повторных сборок
+    rules: {
+      '*.svg': {
+        loaders: ['@svgr/webpack'],
+        as: '*.js',
       },
     },
   },
@@ -43,8 +41,8 @@ const nextConfig = {
 
   // === НАСТРОЙКИ СБОРКИ ===
   
-  // Включаем SWC minification для лучшей производительности
-  swcMinify: true,
+  // SWC minification включен по умолчанию в Next.js 15
+  // swcMinify: true, // Удалено - больше не нужно
   
   // Оптимизация для production
   compress: true,
