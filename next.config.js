@@ -41,9 +41,6 @@ const nextConfig = {
 
   // === НАСТРОЙКИ СБОРКИ ===
   
-  // SWC minification включен по умолчанию в Next.js 15
-  // swcMinify: true, // Удалено - больше не нужно
-  
   // Оптимизация для production
   compress: true,
   
