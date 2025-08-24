@@ -334,12 +334,12 @@ export default function HomePage() {
                   <form onSubmit={handleGenerate} className="space-y-8" data-testid="gen-form">
                     <div className="space-y-3">
                       <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
-                        What's the situation?
+                        What&apos;s the situation?
                       </Label>
                       <Textarea
                         id="scenario"
                         data-testid="gen-scenario"
-                        placeholder="e.g., I need to cancel a meeting, I'm running late to work, I can't make it to the party..."
+                        placeholder="e.g., I need to cancel a meeting, I&apos;m running late to work, I can&apos;t make it to the party..."
                         value={formData.scenario}
                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
                         required
