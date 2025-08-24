@@ -3,7 +3,81 @@
 import { useEffect, useState, createContext, useContext } from 'react';
 import { I18nextProvider } from 'react-i18next';
 import i18next from '@/lib/i18n';
-import { normalizeLocale, syncLanguage } from '@/lib/i18n-detect';
+
+// Константы из middleware (синхронизированы с сервером)
+const SUPPORTED_LOCALES = ['ru', 'en', 'pl', 'de', 'fr', 'es', 'it', 'pt', 'uk', 'zh-CN', 'ja', 'ko'] as const;
+const BASE_LOCALE = 'ru';
+
+const LOCALE_ALIASES: Record<string, string> = {
+  'cn': 'zh-CN',
+  'ua': 'uk',
+  'pt': 'pt-PT',
+  'br': 'pt-BR',
+  'en-US': 'en',
+  'ru-RU': 'ru',
+  'russian': 'ru',
+  'русский': 'ru',
+  'рус': 'ru',
+  'english': 'en',
+  'английский': 'en',
+  'polish': 'pl',
+  'polski': 'pl',
+  'german': 'de',
+  'deutsch': 'de',
+  'french': 'fr',
+  'français': 'fr',
+  'spanish': 'es',
+  'español': 'es',
+  'italian': 'it',
+  'italiano': 'it',
+  'portuguese': 'pt',
+  'português': 'pt',
+  'ukrainian': 'uk',
+  'українська': 'uk',
+  'chinese': 'zh-CN',
+  '中文': 'zh-CN',
+  'japanese': 'ja',
+  '日本語': 'ja',
+  'korean': 'ko',
+  '한국어': 'ko',
+};
+
+/**
+ * Нормализует локаль к BCP-47 формату (синхронизировано с сервером)
+ */
+function normalizeLocale(input: string): string {
+  if (!input || typeof input !== 'string') {
+    return BASE_LOCALE;
+  }
+
+  const cleaned = input.trim().toLowerCase();
+
+  if (LOCALE_ALIASES[cleaned]) {
+    return LOCALE_ALIASES[cleaned];
+  }
+
+  const bcp47Match = cleaned.match(/^([a-z]{2})(?:-([A-Z]{2}))?$/);
+  if (bcp47Match) {
+    const lang = bcp47Match[1];
+    const region = bcp47Match[2];
+    
+    if (LOCALE_ALIASES[lang]) {
+      return LOCALE_ALIASES[lang];
+    }
+    
+    const normalized = region ? `${lang}-${region}` : lang;
+    
+    if (SUPPORTED_LOCALES.includes(normalized as any)) {
+      return normalized;
+    }
+    
+    if (SUPPORTED_LOCALES.includes(lang as any)) {
+      return lang;
+    }
+  }
+
+  return BASE_LOCALE;
+}
 
 // Контекст для текущей локали
 interface LocaleContextType {
@@ -48,8 +122,9 @@ async function setLanguageCookie(lang: string): Promise<void> {
 export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
   const [isInitialized, setIsInitialized] = useState(false);
   const [currentLocale, setCurrentLocale] = useState<string>(() => {
-    // Инициализируем состояние с серверной локалью или fallback
-    return initialLocale ? normalizeLocale(initialLocale) : 'ru';
+    // Инициализируем состояние с серверной локалью
+    const normalizedLocale = initialLocale ? normalizeLocale(initialLocale) : BASE_LOCALE;
+    return normalizedLocale;
   });
 
   useEffect(() => {
@@ -58,8 +133,8 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
       i18next.init();
     }
 
-    // Устанавливаем локаль из сервера или текущего состояния
-    const localeToUse = initialLocale ? normalizeLocale(initialLocale) : currentLocale;
+    // Устанавливаем локаль из сервера
+    const localeToUse = initialLocale ? normalizeLocale(initialLocale) : BASE_LOCALE;
     
     // Обновляем i18next
     i18next.changeLanguage(localeToUse);
@@ -76,7 +151,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
       setLanguageCookie(localeToUse);
       // Обновляем URL
       const url = new URL(window.location.href);
-      if (localeToUse === 'ru') {
+      if (localeToUse === BASE_LOCALE) {
         url.searchParams.delete('lang');
       } else {
         url.searchParams.set('lang', localeToUse);
@@ -99,7 +174,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     
     // Обновляем URL
     const url = new URL(window.location.href);
-    if (normalizedLocale === 'ru') {
+    if (normalizedLocale === BASE_LOCALE) {
       url.searchParams.delete('lang');
     } else {
       url.searchParams.set('lang', normalizedLocale);
