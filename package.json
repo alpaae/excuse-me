@@ -26,7 +26,7 @@
     "@radix-ui/react-tabs": "^1.0.4",
     "@radix-ui/react-toast": "^1.1.5",
     "@stripe/stripe-js": "^2.2.0",
-    "@supabase/ssr": "^0.0.10",
+    "@supabase/ssr": "^0.7.0",
     "@supabase/supabase-js": "^2.38.5",
     "@upstash/ratelimit": "^1.0.0",
     "class-variance-authority": "^0.7.0",
@@ -35,7 +35,7 @@
     "i18next-browser-languagedetector": "^7.2.0",
     "i18next-http-backend": "^2.4.2",
     "lucide-react": "^0.294.0",
-    "next": "14.0.4",
+    "next": "^15.5.0",
     "openai": "^4.20.1",
     "react": "^18",
     "react-dom": "^18",
@@ -46,6 +46,8 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    // TODO: @lhci/cli has 4 low severity vulnerabilities (tmp, inquirer, external-editor)
+    // Consider updating when breaking changes are acceptable
     "@lhci/cli": "^0.15.1",
     "@playwright/test": "^1.55.0",
     "@types/node": "^20",
