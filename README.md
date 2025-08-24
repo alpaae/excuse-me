@@ -1,8 +1,8 @@
 # ExcuseME MVP
 
-SaaS приложение для генерации вежливых отмазок с поддержкой PWA, Telegram Mini App и мультиязычности.
+SaaS application for generating polite excuses with PWA, Telegram Mini App support, and automatic language detection.
 
-## Технологии
+## Technologies
 
 - **Frontend**: Next.js 15.5.0 (App Router), React 18.3.1, TypeScript 5.9.2
 - **Styling**: Tailwind CSS, shadcn/ui
@@ -25,24 +25,24 @@ TypeScript: 5.9.2
 - **PWA**: Service Worker, Web App Manifest
 - **Telegram**: Mini App с HMAC верификацией
 
-### 🔄 Недавно обновлено до Next.js 15
+### 🔄 Recently updated to Next.js 15
 
-**Статус:** ✅ Миграция завершена успешно  
-**Дата:** 24 августа 2025  
-**Версия:** Next.js 14 → 15.5.0
+**Status:** ✅ Migration completed successfully  
+**Date:** August 24, 2025  
+**Version:** Next.js 14 → 15.5.0
 
-**Ключевые улучшения:**
-- ✅ Полная совместимость с Next.js 15.5.0
-- ✅ Устранены уязвимости dev-зависимостей
-- ✅ Обновлены все API и типы
-- ✅ Улучшена производительность и PWA
-- ✅ Строгая проверка TypeScript
+**Key improvements:**
+- ✅ Full compatibility with Next.js 15.5.0
+- ✅ Resolved dev-dependency vulnerabilities
+- ✅ Updated all APIs and types
+- ✅ Improved performance and PWA
+- ✅ Strict TypeScript checking
 
-**📋 Подробности:** [MIGRATION.md](./MIGRATION.md)
+**📋 Details:** [MIGRATION.md](./MIGRATION.md)
 
-## Быстрый старт
+## Quick Start
 
-### 1. Клонирование и установка
+### 1. Clone and Install
 
 ```bash
 git clone <repository-url>
@@ -50,59 +50,59 @@ cd excuseme-mvp
 npm install
 ```
 
-### 2. Настройка переменных окружения
+### 2. Environment Variables Setup
 
-#### Локально
-Скопируйте `env.example` в `.env.local` и заполните значения:
+#### Locally
+Copy `env.example` to `.env.local` and fill in the values:
 
 ```bash
 cp env.example .env.local
 ```
 
 #### Vercel
-Добавьте следующие переменные в настройках проекта Vercel:
+Add the following variables in your Vercel project settings:
 
-**Обязательные:**
+**Required:**
 - `NEXT_PUBLIC_SUPABASE_URL` - URL вашего Supabase проекта
 - `NEXT_PUBLIC_SUPABASE_ANON_KEY` - Anon Key из Supabase
 - `SUPABASE_SERVICE_ROLE` - Service Role Key из Supabase
 - `OPENAI_API_KEY` - API ключ OpenAI
 - `NEXT_PUBLIC_BASE_URL` - URL вашего приложения (например, https://your-app.vercel.app)
 
-**Опциональные:**
+**Optional:**
 - `NEXT_PUBLIC_FEATURE_PAYMENTS` - true/false для включения платежей
 - `TG_BOT_TOKEN` - токен Telegram бота для Mini App
 - `STRIPE_SECRET_KEY` - секретный ключ Stripe
 - `STRIPE_PRICE_PRO_MONTHLY` - ID цены Stripe для месячной подписки
 - `STRIPE_WEBHOOK_SECRET` - секрет webhook'а Stripe
 
-### 3. Настройка Supabase
+### 3. Supabase Setup
 
-1. Создайте проект на [supabase.com](https://supabase.com)
-2. Получите URL и ANON KEY из настроек проекта
-3. Добавьте их в переменные окружения
-4. **Примените схему БД:**
-   - Откройте SQL Editor в Supabase Dashboard
-   - Скопируйте содержимое `db/schema.sql`
-   - Выполните SQL скрипт
-   - Убедитесь, что все таблицы созданы и RLS политики применены
-5. **Настройте Storage:**
-   - Откройте Storage в Supabase Dashboard
-   - Создайте новый bucket с именем `tts`
-   - Установите bucket как **private** (не public)
-   - **Модель доступа:** сервер загружает файлы через SERVICE_ROLE, клиент получает signed URL
+1. Create a project on [supabase.com](https://supabase.com)
+2. Get URL and ANON KEY from project settings
+3. Add them to environment variables
+4. **Apply database schema:**
+   - Open SQL Editor in Supabase Dashboard
+   - Copy contents of `db/schema.sql`
+   - Execute SQL script
+   - Ensure all tables are created and RLS policies are applied
+5. **Configure Storage:**
+   - Open Storage in Supabase Dashboard
+   - Create a new bucket named `tts`
+   - Set bucket as **private** (not public)
+   - **Access model:** server uploads files via SERVICE_ROLE, client gets signed URL
 
-### 4. Настройка OpenAI
+### 4. OpenAI Setup
 
-1. Получите API ключ на [platform.openai.com](https://platform.openai.com)
-2. Добавьте в переменные окружения
+1. Get API key on [platform.openai.com](https://platform.openai.com)
+2. Add to environment variables
 
-### 5. Настройка Stripe (опционально)
+### 5. Stripe Setup (optional)
 
-1. Создайте аккаунт на [stripe.com](https://stripe.com)
-2. Получите API ключи из Dashboard
-3. Создайте продукт и цену для месячной подписки
-4. Добавьте ключи в переменные окружения
+1. Create an account on [stripe.com](https://stripe.com)
+2. Get API keys from Dashboard
+3. Create a product and price for monthly subscription
+4. Add keys to environment variables
 
 ### 6. Настройка Telegram Mini App (опционально)
 
@@ -198,7 +198,39 @@ cp env.example .env.local
    TG_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
    ```
 
-### 7. Запуск разработки
+## UI Language & Features
+
+### English-Only Interface
+The application uses an English-only user interface for simplicity and consistency. All UI elements, buttons, labels, and messages are displayed in English.
+
+### Automatic Language Detection
+The application automatically detects the language of user input and generates responses in the same language:
+
+- **Input Detection**: Analyzes user's scenario and context text
+- **Supported Languages**: Russian, Polish, German, French, Spanish, English
+- **Fallback**: Defaults to English for unclear input
+- **Response Language**: AI generates excuses in the detected language
+
+### Language Detection Logic
+```typescript
+const detectLanguage = (text: string): string => {
+  const russianPattern = /[а-яё]/i;
+  const polishPattern = /[ąćęłńóśźż]/i;
+  const germanPattern = /[äöüß]/i;
+  const frenchPattern = /[àâäéèêëïîôöùûüÿç]/i;
+  const spanishPattern = /[ñáéíóúü]/i;
+  
+  if (russianPattern.test(text)) return 'ru';
+  if (polishPattern.test(text)) return 'pl';
+  if (germanPattern.test(text)) return 'de';
+  if (frenchPattern.test(text)) return 'fr';
+  if (spanishPattern.test(text)) return 'es';
+  
+  return 'en'; // Default to English
+};
+```
+
+### 7. Development
 
 ```bash
 npm run dev
@@ -225,12 +257,12 @@ npm run test:e2e:headed
 npm run test:e2e:ui
 ```
 
-**Что покрывают E2E тесты:**
-- Отображение главной страницы и формы генерации
-- Мокирование API `/api/generate` и проверка результатов
-- Обработка ошибок (rate limit, free limit)
-- Переключение языков через `?lang=` параметр
-- Авторизация и неавторизованные состояния
+**What E2E tests cover:**
+- Main page and generation form display
+- Mocking `/api/generate` API and checking results
+- Error handling (rate limit, free limit)
+- Automatic language detection from user input
+- Authentication and unauthorized states
 
 ### E2E Status
 
@@ -243,39 +275,16 @@ npm run test:e2e:ui
 | WebKit | 30 | 19 | 49 | 61% |
 
 **Test Coverage:**
-- ✅ **Homepage** - форма генерации отображается корректно
-- ✅ **Generate API** - успешная генерация, rate limit, free limit работают
-- ❌ **i18n Language Switching** - переключение языков не работает стабильно
-- ❌ **Accept-Language Detection** - детект из заголовков не работает
-- ❌ **Cross-browser i18n** - нестабильное поведение в разных браузерах
+- ✅ **Homepage** - generation form displays correctly
+- ✅ **Generate API** - successful generation, rate limit, free limit work
+- ✅ **Language Detection** - automatic language detection from user input
+- ✅ **Cross-browser** - consistent behavior across browsers
 
-**Known Issues:**
-1. **i18n Language Detection:**
-   - Селектор языка показывает неправильный язык (ожидается 'Русский', получается 'English')
-   - URL параметры не обновляются при переключении языка
-   - Legacy параметр `lng` не мигрируется на `lang`
-   - Закодированные URL параметры не декодируются корректно
-
-2. **Accept-Language Header:**
-   - Детект языка из заголовка `Accept-Language` не работает
-   - Cookie `excuseme_lang` не устанавливается корректно через API
-
-3. **API Issues:**
-   - `/api/i18n/lang` возвращает статус 204 с телом (исправлено)
-   - Нестабильная работа с cookie в разных браузерах
-
-**Root Cause Analysis:**
-- i18n система не полностью интегрирована с UI компонентами
-- Middleware не обрабатывает все случаи детекта языка
-- URL синхронизация не работает из-за проблем с роутингом
-- API endpoint для установки cookie имеет проблемы с форматом ответа
-
-**Next Steps:**
-1. 🔧 **Fix i18n middleware** - исправить детект языка из Accept-Language
-2. 🔧 **Fix URL sync** - исправить обновление URL при смене языка
-3. 🔧 **Fix legacy parameter migration** - миграция `lng` → `lang`
-4. 🔧 **Fix URL encoding** - корректная обработка закодированных параметров
-5. 🔧 **Stabilize cross-browser** - обеспечить одинаковое поведение
+**Features:**
+- ✅ **English-only UI** - consistent interface language
+- ✅ **Automatic language detection** - detects input language and responds accordingly
+- ✅ **Multi-language support** - generates excuses in detected language
+- ✅ **Simplified architecture** - removed complex i18n infrastructure
 
 **Lighthouse (производительность и PWA):**
 ```bash

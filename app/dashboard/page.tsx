@@ -44,11 +44,11 @@ export default function DashboardPage() {
         setExcuses(data.excuses || []);
       } else {
         console.error('Error loading excuses:', data.error);
-        setError(data.error || 'Не удалось загрузить историю отмазок');
+        setError(data.error || 'Failed to load excuse history');
       }
     } catch (error) {
       console.error('Error loading excuses:', error);
-      setError('Ошибка сети при загрузке истории');
+      setError('Network error while loading history');
     } finally {
       setLoading(false);
     }
@@ -72,30 +72,30 @@ export default function DashboardPage() {
             ? { ...excuse, is_favorite: !currentFavorite }
             : excuse
         ));
-        showSuccess(currentFavorite ? 'Убрано из избранного' : 'Добавлено в избранное');
+        showSuccess(currentFavorite ? 'Removed from favorites' : 'Added to favorites');
       } else {
-        showError('Не удалось обновить избранное');
+        showError('Failed to update favorites');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      showError('Ошибка сети при обновлении избранного');
+      showError('Network error while updating favorites');
     }
   };
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showSuccess('Скопировано в буфер обмена');
+      showSuccess('Copied to clipboard');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      showError('Не удалось скопировать текст');
+      showError('Failed to copy text');
     }
   };
 
   const shareExcuse = (text: string) => {
     if (navigator.share) {
       navigator.share({
-        title: 'ExcuseME - Отмазка',
+        title: 'ExcuseME - Excuse',
         text: text,
       });
     } else {
@@ -127,12 +127,12 @@ export default function DashboardPage() {
       <AuthGuard>
         <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
-          {/* Заголовок */}
+          {/* Header */}
           <div className="text-center">
-            <h1 className="text-3xl font-bold">История отмазок</h1>
-            <p className="text-muted-foreground">Ваши созданные отмазки</p>
+            <h1 className="text-3xl font-bold">Excuse History</h1>
+            <p className="text-muted-foreground">Your created excuses</p>
             <div className="mt-4 text-sm text-muted-foreground">
-              Всего отмазок: {excuses.length}
+              Total excuses: {excuses.length}
             </div>
           </div>
 
@@ -146,7 +146,7 @@ export default function DashboardPage() {
                   className="mt-2"
                   onClick={loadExcuses}
                 >
-                  Попробовать снова
+                  Try Again
                 </Button>
               </CardContent>
             </Card>
@@ -158,10 +158,10 @@ export default function DashboardPage() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-muted-foreground">
-                    У вас пока нет отмазок. Создайте первую!
+                    You don't have any excuses yet. Create your first one!
                   </p>
                   <Button className="mt-4" onClick={() => window.location.href = '/'}>
-                    Создать отмазку
+                    Create Excuse
                   </Button>
                 </CardContent>
               </Card>
@@ -213,7 +213,7 @@ export default function DashboardPage() {
                         onClick={() => copyToClipboard(excuse.result_text)}
                       >
                         <Copy className="mr-2 h-4 w-4" />
-                        Копировать
+                        Copy
                       </Button>
                       
                       <Button
@@ -222,7 +222,7 @@ export default function DashboardPage() {
                         onClick={() => shareExcuse(excuse.result_text)}
                       >
                         <Share2 className="mr-2 h-4 w-4" />
-                        Поделиться
+                        Share
                       </Button>
                       
                       {excuse.tts_url && (
@@ -235,7 +235,7 @@ export default function DashboardPage() {
                           }}
                         >
                           <Volume2 className="mr-2 h-4 w-4" />
-                          Слушать
+                          Listen
                         </Button>
                       )}
                     </div>

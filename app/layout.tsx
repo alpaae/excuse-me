@@ -1,9 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
-import { headers } from 'next/headers';
 import './globals.css';
 import { ToastProvider } from '@/components/toast-provider';
-import I18nProviderServer from '@/components/i18n-provider-server';
 
 // === FONT КОНФИГУРАЦИЯ ===
 // Next.js 15: обновленная конфигурация шрифтов
@@ -18,11 +16,11 @@ const inter = Inter({
 // Next.js 15: обновленная структура метаданных
 export const metadata: Metadata = {
   title: {
-    default: 'ExcuseME - Вежливые отмазки',
+    default: 'ExcuseME - Polite Excuses',
     template: '%s | ExcuseME'
   },
-  description: 'Генератор вежливых отмазок с поддержкой PWA и Telegram Mini App. Создавайте вежливые отмазки для любых ситуаций с помощью ИИ.',
-  keywords: ['отмазки', 'генератор', 'вежливость', 'ИИ', 'OpenAI', 'PWA', 'Telegram'],
+  description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support. Create polite excuses for any situation using AI.',
+  keywords: ['excuses', 'generator', 'polite', 'AI', 'OpenAI', 'PWA', 'Telegram'],
   authors: [{ name: 'ExcuseME Team' }],
   creator: 'ExcuseME',
   publisher: 'ExcuseME',
@@ -40,17 +38,17 @@ export const metadata: Metadata = {
   // === OPEN GRAPH ===
   openGraph: {
     type: 'website',
-    locale: 'ru_RU',
+    locale: 'en_US',
     url: 'https://excuseme.app',
-    title: 'ExcuseME - Вежливые отмазки',
-    description: 'Генератор вежливых отмазок с поддержкой PWA и Telegram Mini App',
+    title: 'ExcuseME - Polite Excuses',
+    description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support',
     siteName: 'ExcuseME',
     images: [
       {
         url: '/og-image.png',
         width: 1200,
         height: 630,
-        alt: 'ExcuseME - Генератор вежливых отмазок',
+        alt: 'ExcuseME - Polite Excuse Generator',
       },
     ],
   },
@@ -58,8 +56,8 @@ export const metadata: Metadata = {
   // === TWITTER ===
   twitter: {
     card: 'summary_large_image',
-    title: 'ExcuseME - Вежливые отмазки',
-    description: 'Генератор вежливых отмазок с поддержкой PWA и Telegram Mini App',
+    title: 'ExcuseME - Polite Excuses',
+    description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support',
     images: ['/og-image.png'],
     creator: '@excuseme_app',
   },
@@ -103,11 +101,6 @@ export const metadata: Metadata = {
   // === АЛЬТЕРНАТИВНЫЕ ЯЗЫКИ ===
   alternates: {
     canonical: 'https://excuseme.app',
-    languages: {
-      'ru-RU': 'https://excuseme.app',
-      'en-US': 'https://excuseme.app/en',
-      'pl-PL': 'https://excuseme.app/pl',
-    },
   },
   
   // === РОБОТЫ ===
@@ -149,16 +142,8 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // Получаем заголовки для определения локали
-  const headersList = await headers();
-  
-  // Читаем локаль из заголовка x-locale, установленного middleware
-  const locale = headersList.get('x-locale') || 'en';
-  
-  console.log('[Layout] Resolved locale from x-locale header:', locale);
-
   return (
-    <html lang={locale} className={inter.variable}>
+    <html lang="en" className={inter.variable}>
       <head>
         {/* PWA мета-теги для лучшей совместимости */}
         <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -180,10 +165,8 @@ export default async function RootLayout({
         <link rel="dns-prefetch" href="//supabase.co" />
       </head>
       <body className={`${inter.className} antialiased`}>
-        <I18nProviderServer>
-          {children}
-          <ToastProvider />
-        </I18nProviderServer>
+        {children}
+        <ToastProvider />
         
         {/* PWA инициализация */}
         <script

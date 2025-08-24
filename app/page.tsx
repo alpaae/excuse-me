@@ -6,8 +6,6 @@ import { AuthForm } from '@/components/auth/auth-form';
 import { Button } from '@/components/ui/button';
 import { ErrorBoundary } from '@/components/error-boundary';
 import { useToast, toastMessages } from '@/lib/use-toast';
-import { useCurrentLocale } from '@/components/i18n-provider';
-import { LanguageSwitch } from '@/components/language-switch';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -48,7 +46,6 @@ export default function HomePage() {
   const [showLimitBanner, setShowLimitBanner] = useState(false);
   const [showRateLimitBanner, setShowRateLimitBanner] = useState(false);
   const { showSuccess, showError } = useToast();
-  const { currentLocale } = useCurrentLocale();
   
   const [formData, setFormData] = useState({
     scenario: '',
@@ -69,9 +66,9 @@ export default function HomePage() {
     checkUser();
   }, [checkUser]);
 
-  // Функция для определения языка текста
+  // Function to detect language from user input
   const detectLanguage = (text: string): string => {
-    // Простая эвристика для определения языка
+    // Simple heuristics for language detection
     const russianPattern = /[а-яё]/i;
     const englishPattern = /[a-z]/i;
     const polishPattern = /[ąćęłńóśźż]/i;
@@ -86,7 +83,7 @@ export default function HomePage() {
     if (spanishPattern.test(text)) return 'es';
     if (englishPattern.test(text)) return 'en';
     
-    return 'en'; // По умолчанию английский
+    return 'en'; // Default to English
   };
 
   const handleGenerate = async (e: React.FormEvent) => {
@@ -97,14 +94,14 @@ export default function HomePage() {
       return;
     }
 
-    // Очищаем предыдущие результаты и баннеры
+    // Clear previous results and banners
     setGenerating(true);
     setResult('');
     setShowLimitBanner(false);
     setShowRateLimitBanner(false);
     
     try {
-      // Автоматически определяем язык на основе контекста
+      // Automatically detect language based on context
       const combinedText = `${formData.scenario} ${formData.context}`.trim();
       const detectedLang = detectLanguage(combinedText);
       
@@ -122,19 +119,19 @@ export default function HomePage() {
       const data = await response.json();
       
       if (response.status === 200 && data.success) {
-        // Успешная генерация - показываем результат
+        // Successful generation - show result
         setResult(data.text);
         showSuccess(toastMessages.generate.success);
       } else if (response.status === 429 || data.error === 'RATE_LIMIT') {
-        // Rate limit ошибка - показываем баннер
+        // Rate limit error - show banner
         setShowRateLimitBanner(true);
         showError(toastMessages.generate.rateLimit);
       } else if (response.status === 402 || data.error === 'FREE_LIMIT_REACHED') {
-        // Free limit ошибка - показываем баннер с CTA
+        // Free limit error - show banner with CTA
         setShowLimitBanner(true);
         showError(toastMessages.generate.freeLimit);
       } else {
-        // Другие ошибки
+        // Other errors
         showError(data.error || toastMessages.generate.error);
       }
     } catch (error) {
@@ -159,7 +156,7 @@ export default function HomePage() {
     try {
       if (navigator.share) {
         await navigator.share({
-          title: 'Отмазка',
+          title: 'Excuse',
           text: result,
         });
       } else {
@@ -212,27 +209,27 @@ export default function HomePage() {
                     <Badge variant="secondary" className="bg-white/50 backdrop-blur-sm">
                       {user.email}
                     </Badge>
-                                         <Button 
-                       variant="ghost" 
-                       size="sm" 
-                       onClick={() => window.location.href = '/excuses'}
-                       className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
-                     >
-                       <History className="mr-2 h-4 w-4" />
-                       History
-                     </Button>
-                     <Button 
-                       variant="ghost" 
-                       size="sm" 
-                       onClick={() => window.location.href = '/account'}
-                       className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
-                     >
-                       <Crown className="mr-2 h-4 w-4" />
-                       Account
-                     </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => window.location.href = '/excuses'}
+                      className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                    >
+                      <History className="mr-2 h-4 w-4" />
+                      History
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      onClick={() => window.location.href = '/account'}
+                      className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                    >
+                      <Crown className="mr-2 h-4 w-4" />
+                      Account
+                    </Button>
                   </div>
                 ) : (
-                                                    <Button 
+                  <Button 
                     onClick={() => setShowAuth(true)}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                     data-testid="btn-login"
@@ -263,20 +260,20 @@ export default function HomePage() {
                 AI helps you create polite and convincing excuses for any situation
               </p>
               
-                              <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>Instant generation</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>Multiple languages</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
-                    <span>Professional tone</span>
-                  </div>
+              <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Instant generation</span>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Multiple languages</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Professional tone</span>
+                </div>
+              </div>
             </div>
 
             {/* Form Section */}
@@ -295,75 +292,73 @@ export default function HomePage() {
                 
                 <CardContent>
                   <form onSubmit={handleGenerate} className="space-y-6" data-testid="gen-form">
-                                        <div className="space-y-2">
+                    <div className="space-y-2">
                       <Label htmlFor="scenario" className="text-sm font-medium text-gray-700">
                         Scenario
                       </Label>
-                                             <Textarea
-                         id="scenario"
-                         data-testid="gen-scenario"
-                         placeholder="e.g., canceling a meeting, being late to work, missing a party..."
-                         value={formData.scenario}
-                         onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
-                         required
-                         className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                       />
+                      <Textarea
+                        id="scenario"
+                        data-testid="gen-scenario"
+                        placeholder="e.g., canceling a meeting, being late to work, missing a party..."
+                        value={formData.scenario}
+                        onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
+                        required
+                        className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
                     </div>
 
-                                          <div className="grid grid-cols-2 gap-4">
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium text-gray-700">Tone</Label>
-                                                  <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700">Tone</Label>
+                        <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
                           <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500" data-testid="gen-tone">
                             <SelectValue />
                           </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="professional">Professional</SelectItem>
-                              <SelectItem value="friendly">Friendly</SelectItem>
-                              <SelectItem value="formal">Formal</SelectItem>
-                              <SelectItem value="casual">Casual</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                          <SelectContent>
+                            <SelectItem value="professional">Professional</SelectItem>
+                            <SelectItem value="friendly">Friendly</SelectItem>
+                            <SelectItem value="formal">Formal</SelectItem>
+                            <SelectItem value="casual">Casual</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                        <div className="space-y-2">
-                          <Label className="text-sm font-medium text-gray-700">Channel</Label>
-                                                  <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium text-gray-700">Channel</Label>
+                        <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
                           <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500" data-testid="gen-channel">
                             <SelectValue />
                           </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="email">Email</SelectItem>
-                              <SelectItem value="message">Message</SelectItem>
-                              <SelectItem value="call">Call</SelectItem>
-                              <SelectItem value="in_person">In Person</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                          <SelectContent>
+                            <SelectItem value="email">Email</SelectItem>
+                            <SelectItem value="message">Message</SelectItem>
+                            <SelectItem value="call">Call</SelectItem>
+                            <SelectItem value="in_person">In Person</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-
-
+                    </div>
 
                     <div className="space-y-2">
                       <Label htmlFor="context" className="text-sm font-medium text-gray-700">
                         Additional Context (optional)
                       </Label>
-                                             <Input
-                         id="context"
-                         data-testid="gen-context"
-                         placeholder="Additional details for more accurate excuse..."
-                         value={formData.context}
-                         onChange={(e) => setFormData({ ...formData, context: e.target.value })}
-                         className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
-                       />
+                      <Input
+                        id="context"
+                        data-testid="gen-context"
+                        placeholder="Additional details for more accurate excuse..."
+                        value={formData.context}
+                        onChange={(e) => setFormData({ ...formData, context: e.target.value })}
+                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500"
+                      />
                     </div>
 
-                                         <Button 
-                       type="submit" 
-                       data-testid="gen-submit"
-                       className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg font-medium"
-                       disabled={generating}
-                     >
+                    <Button 
+                      type="submit" 
+                      data-testid="gen-submit"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-lg font-medium"
+                      disabled={generating}
+                    >
                       {generating ? (
                         <>
                           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
@@ -385,36 +380,36 @@ export default function HomePage() {
                 {result && (
                   <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
                     <CardHeader className="pb-4">
-                                             <CardTitle className="flex items-center space-x-2">
-                         <Star className="h-5 w-5 text-yellow-500" />
-                         <span>Result</span>
-                       </CardTitle>
+                      <CardTitle className="flex items-center space-x-2">
+                        <Star className="h-5 w-5 text-yellow-500" />
+                        <span>Result</span>
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                                             <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100" data-testid="gen-result">
-                         <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result}</p>
-                       </div>
+                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-lg border border-blue-100" data-testid="gen-result">
+                        <p className="whitespace-pre-wrap text-gray-800 leading-relaxed">{result}</p>
+                      </div>
                       
                       <div className="flex items-center space-x-3">
-                                                 <Button
-                           variant="outline"
-                           size="sm"
-                           onClick={copyToClipboard}
-                           className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
-                         >
-                           <Copy className="mr-2 h-4 w-4" />
-                           Copy
-                         </Button>
-                         
-                         <Button
-                           variant="outline"
-                           size="sm"
-                           onClick={shareExcuse}
-                           className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
-                         >
-                           <Share2 className="mr-2 h-4 w-4" />
-                           Share
-                         </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={copyToClipboard}
+                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                        >
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy
+                        </Button>
+                        
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={shareExcuse}
+                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                        >
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Share
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -422,84 +417,84 @@ export default function HomePage() {
 
                 {/* Features Preview */}
                 <Card className="bg-white/60 backdrop-blur-xl border-0 shadow-lg">
-                                     <CardContent className="p-6">
-                     <h3 className="font-semibold text-gray-900 mb-4">Features</h3>
-                     <div className="space-y-3">
-                       <div className="flex items-center space-x-3">
-                         <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
-                           <MessageSquare className="h-4 w-4 text-blue-600" />
-                         </div>
-                         <div>
-                           <p className="font-medium text-gray-900">Multiple channels</p>
-                           <p className="text-sm text-gray-600">Email, messages, calls, in-person meetings</p>
-                         </div>
-                       </div>
-                       
-                       <div className="flex items-center space-x-3">
-                         <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
-                           <Globe className="h-4 w-4 text-purple-600" />
-                         </div>
-                         <div>
-                           <p className="font-medium text-gray-900">Auto language detection</p>
-                           <p className="text-sm text-gray-600">Write in any language, get response in same language</p>
-                         </div>
-                       </div>
-                       
-                       <div className="flex items-center space-x-3">
-                         <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
-                           <Sparkles className="h-4 w-4 text-green-600" />
-                         </div>
-                         <div>
-                           <p className="font-medium text-gray-900">AI generation</p>
-                           <p className="text-sm text-gray-600">Smart and contextual excuses</p>
-                         </div>
-                       </div>
-                     </div>
-                   </CardContent>
+                  <CardContent className="p-6">
+                    <h3 className="font-semibold text-gray-900 mb-4">Features</h3>
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                          <MessageSquare className="h-4 w-4 text-blue-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Multiple channels</p>
+                          <p className="text-sm text-gray-600">Email, messages, calls, in-person meetings</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-purple-100 rounded-lg flex items-center justify-center">
+                          <Globe className="h-4 w-4 text-purple-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">Auto language detection</p>
+                          <p className="text-sm text-gray-600">Write in any language, get response in same language</p>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-green-100 rounded-lg flex items-center justify-center">
+                          <Sparkles className="h-4 w-4 text-green-600" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-gray-900">AI generation</p>
+                          <p className="text-sm text-gray-600">Smart and contextual excuses</p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardContent>
                 </Card>
               </div>
             </div>
 
-                         {/* Rate Limit Banner */}
-             {showRateLimitBanner && (
-               <Card className="bg-yellow-50 border-yellow-200 mb-6" data-testid="banner-rate-limit">
-                 <CardContent className="pt-6">
-                   <div className="flex items-start space-x-3">
-                     <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
-                     <div className="flex-1">
-                       <h3 className="font-medium text-yellow-800">Too many requests</h3>
-                       <p className="text-sm text-yellow-700 mt-1">
-                         Please wait a moment before making another request.
-                       </p>
-                     </div>
-                   </div>
-                 </CardContent>
-               </Card>
-             )}
+            {/* Rate Limit Banner */}
+            {showRateLimitBanner && (
+              <Card className="bg-yellow-50 border-yellow-200 mb-6" data-testid="banner-rate-limit">
+                <CardContent className="pt-6">
+                  <div className="flex items-start space-x-3">
+                    <AlertCircle className="h-5 w-5 text-yellow-600 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-yellow-800">Too many requests</h3>
+                      <p className="text-sm text-yellow-700 mt-1">
+                        Please wait a moment before making another request.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-                         {/* Free Limit Banner */}
-             {showLimitBanner && (
-               <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6" data-testid="banner-free-limit">
-                 <CardContent className="pt-6">
-                   <div className="flex items-start space-x-3">
-                     <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
-                     <div className="flex-1">
-                       <h3 className="font-medium text-purple-800">Free limit reached</h3>
-                       <p className="text-sm text-purple-700 mt-1">
-                         Upgrade your account for unlimited excuse generation.
-                       </p>
-                       <Button 
-                         className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                         onClick={() => window.location.href = '/account'}
-                       >
-                         Upgrade Account
-                         <ArrowRight className="ml-2 h-4 w-4" />
-                       </Button>
-                     </div>
-                   </div>
-                 </CardContent>
-               </Card>
-             )}
+            {/* Free Limit Banner */}
+            {showLimitBanner && (
+              <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6" data-testid="banner-free-limit">
+                <CardContent className="pt-6">
+                  <div className="flex items-start space-x-3">
+                    <Crown className="h-5 w-5 text-purple-600 mt-0.5" />
+                    <div className="flex-1">
+                      <h3 className="font-medium text-purple-800">Free limit reached</h3>
+                      <p className="text-sm text-purple-700 mt-1">
+                        Upgrade your account for unlimited excuse generation.
+                      </p>
+                      <Button 
+                        className="mt-3 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
+                        onClick={() => window.location.href = '/account'}
+                      >
+                        Upgrade Account
+                        <ArrowRight className="ml-2 h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
           </div>
         </main>
 
@@ -507,14 +502,14 @@ export default function HomePage() {
         {showAuth && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full p-6" data-testid="auth-dialog">
-                             <AuthForm />
-                             <Button 
-                 variant="ghost" 
-                 className="w-full mt-4" 
-                 onClick={() => setShowAuth(false)}
-               >
-                 Cancel
-               </Button>
+              <AuthForm />
+              <Button 
+                variant="ghost" 
+                className="w-full mt-4" 
+                onClick={() => setShowAuth(false)}
+              >
+                Cancel
+              </Button>
             </div>
           </div>
         )}

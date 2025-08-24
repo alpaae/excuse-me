@@ -43,11 +43,11 @@ export default function ExcusesPage() {
         setExcuses(data.excuses || []);
       } else {
         console.error('Error loading excuses:', data.error);
-        setError(data.error || 'Не удалось загрузить историю отмазок');
+        setError(data.error || 'Failed to load excuse history');
       }
     } catch (error) {
       console.error('Error loading excuses:', error);
-      setError('Ошибка сети при загрузке истории');
+      setError('Network error while loading history');
     } finally {
       setLoading(false);
     }
@@ -73,23 +73,23 @@ export default function ExcusesPage() {
               : excuse
           )
         );
-        showSuccess(currentFavorite ? 'Убрано из избранного' : 'Добавлено в избранное');
+        showSuccess(currentFavorite ? 'Removed from favorites' : 'Added to favorites');
       } else {
-        showError('Не удалось обновить избранное');
+        showError('Failed to update favorites');
       }
     } catch (error) {
       console.error('Error toggling favorite:', error);
-      showError('Ошибка сети');
+      showError('Network error');
     }
   };
 
   const copyToClipboard = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
-      showSuccess('Скопировано в буфер обмена');
+      showSuccess('Copied to clipboard');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      showError('Не удалось скопировать');
+      showError('Failed to copy');
     }
   };
 
@@ -156,13 +156,13 @@ export default function ExcusesPage() {
               {/* Заголовок */}
               <div className="text-center mb-12">
                 <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
-                  История отмазок
+                  Excuse History
                 </h1>
-                <p className="text-xl text-gray-600 mb-4">Ваши созданные отмазки</p>
+                <p className="text-xl text-gray-600 mb-4">Your created excuses</p>
                 <div className="inline-flex items-center space-x-2 bg-blue-50 border border-blue-200 rounded-full px-4 py-2">
                   <History className="h-4 w-4 text-blue-600" />
                   <span className="text-sm font-medium text-blue-700">
-                    Всего отмазок: {excuses.length}
+                    Total excuses: {excuses.length}
                   </span>
                 </div>
               </div>
@@ -177,7 +177,7 @@ export default function ExcusesPage() {
                       className="mt-2"
                       onClick={loadExcuses}
                     >
-                      Попробовать снова
+                      Try Again
                     </Button>
                   </CardContent>
                 </Card>
@@ -189,13 +189,13 @@ export default function ExcusesPage() {
                   <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
                     <CardContent className="py-12 text-center">
                       <p className="text-gray-600 mb-4">
-                        У вас пока нет отмазок. Создайте первую!
+                        You don't have any excuses yet. Create your first one!
                       </p>
                       <Button 
                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                         onClick={() => window.location.href = '/'}
                       >
-                        Создать отмазку
+                        Create Excuse
                       </Button>
                     </CardContent>
                   </Card>
@@ -244,18 +244,18 @@ export default function ExcusesPage() {
                       </CardHeader>
                       <CardContent className="space-y-6">
                         <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-100">
-                          <p className="text-sm font-medium text-gray-700 mb-3">Сценарий:</p>
+                          <p className="text-sm font-medium text-gray-700 mb-3">Scenario:</p>
                           <p className="text-gray-800 leading-relaxed">{excuse.input.scenario}</p>
                           {excuse.input.context && (
                             <>
-                              <p className="text-sm font-medium text-gray-700 mt-4 mb-3">Контекст:</p>
+                              <p className="text-sm font-medium text-gray-700 mt-4 mb-3">Context:</p>
                               <p className="text-gray-800 leading-relaxed">{excuse.input.context}</p>
                             </>
                           )}
                         </div>
                         
                         <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-100">
-                          <p className="text-sm font-medium text-blue-700 mb-3">Результат:</p>
+                          <p className="text-sm font-medium text-blue-700 mb-3">Result:</p>
                           <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{excuse.result_text}</p>
                         </div>
 
@@ -267,7 +267,7 @@ export default function ExcusesPage() {
                             className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
                           >
                             <Copy className="mr-2 h-4 w-4" />
-                            Копировать
+                            Copy
                           </Button>
                           {excuse.tts_url && (
                             <Button
@@ -277,7 +277,7 @@ export default function ExcusesPage() {
                               className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
                             >
                               <Play className="mr-2 h-4 w-4" />
-                              Воспроизвести
+                              Play
                             </Button>
                           )}
                         </div>
