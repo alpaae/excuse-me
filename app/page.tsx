@@ -292,7 +292,7 @@ export default function HomePage() {
 
         {/* Main Content */}
         <main className="relative z-10 container mx-auto px-6 py-8">
-          <div className="max-w-3xl mx-auto">
+          <div className="max-w-7xl mx-auto">
             {/* Hero Section */}
             <div className="text-center mb-8">
               <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-blue-200/50 rounded-full px-4 py-2 mb-4 shadow-lg">
@@ -322,8 +322,8 @@ export default function HomePage() {
 
 
 
-            {/* Form Section */}
-            <div className="mb-8">
+            {/* Mobile Layout */}
+            <div className="lg:hidden mb-8">
               {/* Input Form */}
               <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
                 <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-purple-50">
@@ -457,6 +457,172 @@ export default function HomePage() {
                   </CardContent>
                 </Card>
               )}
+            </div>
+
+            {/* Desktop Two-Column Layout */}
+            <div className="hidden lg:grid lg:grid-cols-2 lg:gap-8 lg:items-start lg:mb-8">
+              {/* Left Column - Form */}
+              <div>
+                {/* Input Form */}
+                <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
+                  <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-purple-50">
+                    <CardTitle className="flex items-center space-x-3 text-xl">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <Wand2 className="h-4 w-4 text-white" />
+                      </div>
+                      <span>Create Excuse</span>
+                    </CardTitle>
+                    <CardDescription className="text-sm text-gray-600">
+                      Describe the situation and get a polished excuse
+                    </CardDescription>
+                  </CardHeader>
+                  
+                  <CardContent className="p-4">
+                    <form onSubmit={handleGenerate} className="space-y-4" data-testid="gen-form">
+                      <div className="space-y-3">
+                        <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
+                          What&apos;s the situation?
+                        </Label>
+                        <Textarea
+                          id="scenario"
+                          data-testid="gen-scenario"
+                          placeholder="e.g., I need to cancel a meeting, I&apos;m running late to work, I can&apos;t make it to the party..."
+                          value={formData.scenario}
+                          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
+                          required
+                          className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                          <Label className="text-base font-semibold text-gray-700">Tone</Label>
+                          <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
+                            <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-tone">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="professional">Professional</SelectItem>
+                              <SelectItem value="friendly">Friendly</SelectItem>
+                              <SelectItem value="formal">Formal</SelectItem>
+                              <SelectItem value="casual">Casual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-3">
+                          <Label className="text-base font-semibold text-gray-700">Channel</Label>
+                          <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
+                            <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-channel">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="email">Email</SelectItem>
+                              <SelectItem value="message">Message</SelectItem>
+                              <SelectItem value="call">Phone Call</SelectItem>
+                              <SelectItem value="in_person">In Person</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      <div className="space-y-3">
+                        <Label htmlFor="context" className="text-base font-semibold text-gray-700">
+                          Additional Context (Optional)
+                        </Label>
+                        <Input
+                          id="context"
+                          data-testid="gen-context"
+                          placeholder="Any specific details or requirements..."
+                          value={formData.context}
+                          onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, context: e.target.value })}
+                          className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                        />
+                      </div>
+
+                      <PromptTips />
+
+                      <Button 
+                        type="submit" 
+                        disabled={generating || !formData.scenario.trim()}
+                        className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                        data-testid="gen-submit"
+                      >
+                        {generating ? (
+                          <div className="flex items-center space-x-2">
+                            <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                            <span>Generating...</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center space-x-2">
+                            <Wand2 className="h-5 w-5" />
+                            <span>Generate Excuse</span>
+                          </div>
+                        )}
+                      </Button>
+                    </form>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Right Column - Result */}
+              <div>
+                {result && (
+                  <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden sticky top-8">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-emerald-50">
+                      <CardTitle className="flex items-center space-x-3 text-xl">
+                        <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                          <CheckCircle className="h-4 w-4 text-white" />
+                        </div>
+                        <span>Your Excuse</span>
+                      </CardTitle>
+                    </CardHeader>
+                    
+                    <CardContent className="p-4">
+                      {resultRarity ? (
+                        <ExcuseCard 
+                          text={result} 
+                          rarity={resultRarity} 
+                          excuseId={resultExcuseId || undefined}
+                          showCTA={true}
+                          className="mb-4"
+                        />
+                      ) : (
+                        <div className="bg-gray-50 rounded-xl p-4 mb-4">
+                          <p className="text-gray-800 text-base leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
+                            {result}
+                          </p>
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {!result && (
+                  <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden sticky top-8">
+                    <CardHeader className="pb-4 bg-gradient-to-r from-gray-50 to-blue-50">
+                      <CardTitle className="flex items-center space-x-3 text-xl">
+                        <div className="w-8 h-8 bg-gradient-to-br from-gray-600 to-blue-600 rounded-xl flex items-center justify-center">
+                          <Wand2 className="h-4 w-4 text-white" />
+                        </div>
+                        <span>Ready to Generate</span>
+                      </CardTitle>
+                    </CardHeader>
+                    
+                    <CardContent className="p-4">
+                      <div className="text-center py-8">
+                        <div className="w-16 h-16 bg-gradient-to-br from-gray-100 to-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                          <Wand2 className="h-8 w-8 text-gray-400" />
+                        </div>
+                        <h3 className="text-lg font-semibold text-gray-900 mb-2">No excuse yet</h3>
+                        <p className="text-gray-600 text-sm">
+                          Fill out the form on the left and click &ldquo;Generate Excuse&rdquo; to create your first excuse
+                        </p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </div>
 
             {/* Banners */}
