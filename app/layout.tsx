@@ -176,26 +176,28 @@ export default async function RootLayout({
           dangerouslySetInnerHTML={{
             __html: `
               // Инициализация PWA при загрузке страницы
-              window.addEventListener('load', async function() {
-                try {
-                  // Динамический импорт PWA утилит
-                  const { initializePWA } = await import('/lib/pwa-utils.js');
-                  await initializePWA();
-                } catch (error) {
-                  console.warn('PWA initialization failed:', error);
-                  
-                  // Fallback к базовой регистрации SW
-                  if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('/sw.js')
-                      .then(function(registration) {
-                        console.log('SW registered (fallback): ', registration);
-                      })
-                      .catch(function(registrationError) {
-                        console.log('SW registration failed (fallback): ', registrationError);
-                      });
+              if (typeof window !== 'undefined') {
+                window.addEventListener('load', async function() {
+                  try {
+                    // Динамический импорт PWA утилит
+                    const { initializePWA } = await import('/lib/pwa-utils.js');
+                    await initializePWA();
+                  } catch (error) {
+                    console.warn('PWA initialization failed:', error);
+                    
+                    // Fallback к базовой регистрации SW
+                    if ('serviceWorker' in navigator) {
+                      navigator.serviceWorker.register('/sw.js')
+                        .then(function(registration) {
+                          console.log('SW registered (fallback): ', registration);
+                        })
+                        .catch(function(registrationError) {
+                          console.log('SW registration failed (fallback): ', registrationError);
+                        });
+                    }
                   }
-                }
-              });
+                });
+              }
             `,
           }}
         />

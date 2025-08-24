@@ -96,8 +96,8 @@ export default function AccountPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          success_url: `${window.location.origin}/account?success=true`,
-          cancel_url: `${window.location.origin}/account?canceled=true`,
+          success_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/account?success=true`,
+          cancel_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/account?canceled=true`,
         }),
       });
 
@@ -142,7 +142,11 @@ export default function AccountPage() {
               <Button 
                 variant="ghost" 
                 size="sm" 
-                onClick={() => window.history.back()}
+                onClick={() => {
+                  if (typeof window !== 'undefined') {
+                    window.history.back();
+                  }
+                }}
                 className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
               >
                 <ArrowRight className="mr-2 h-4 w-4 rotate-180" />

@@ -173,7 +173,11 @@ export default function DashboardPage() {
                     Create your first excuse to get started
                   </p>
                   <Button 
-                    onClick={() => window.history.back()}
+                    onClick={() => {
+                      if (typeof window !== 'undefined') {
+                        window.history.back();
+                      }
+                    }}
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
                   >
                     Create Excuse

@@ -142,7 +142,11 @@ export default function ExcusesPage() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  onClick={() => window.history.back()}
+                  onClick={() => {
+                    if (typeof window !== 'undefined') {
+                      window.history.back();
+                    }
+                  }}
                   className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
                 >
                   <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
@@ -194,7 +198,11 @@ export default function ExcusesPage() {
                       </p>
                       <Button 
                         className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
-                        onClick={() => window.history.back()}
+                        onClick={() => {
+                          if (typeof window !== 'undefined') {
+                            window.history.back();
+                          }
+                        }}
                       >
                         Create Excuse
                       </Button>

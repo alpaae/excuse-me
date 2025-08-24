@@ -48,7 +48,7 @@ export function ExcuseCTA({ excuseId, text, isFavorite = false, onFavoriteToggle
       navigator.share({
         title: 'ExcuseME - Excuse',
         text: text,
-        url: window.location.origin,
+        url: typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000',
       }).catch(() => {
         // Fallback to WhatsApp
         window.open(shareUrl, '_blank');

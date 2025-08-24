@@ -47,11 +47,13 @@ export function OnboardingModal() {
   const [currentStep, setCurrentStep] = useState(0);
 
   useEffect(() => {
-    const completed = localStorage.getItem(ONBOARDING_KEY);
-    if (!completed) {
-      // Show modal after a short delay
-      const timer = setTimeout(() => setIsOpen(true), 500);
-      return () => clearTimeout(timer);
+    if (typeof window !== 'undefined') {
+      const completed = localStorage.getItem(ONBOARDING_KEY);
+      if (!completed) {
+        // Show modal after a short delay
+        const timer = setTimeout(() => setIsOpen(true), 500);
+        return () => clearTimeout(timer);
+      }
     }
   }, []);
 
