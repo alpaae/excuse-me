@@ -71,7 +71,7 @@ export function PromptTips() {
             <div className="mt-4 p-3 bg-white rounded-lg border border-blue-200">
               <h4 className="font-semibold text-gray-900 text-sm mb-2">Example:</h4>
               <p className="text-gray-700 text-sm italic">
-                "I need to cancel my dentist appointment tomorrow at 3 PM because I have an urgent work meeting that just came up"
+                &ldquo;I need to cancel my dentist appointment tomorrow at 3 PM because I have an urgent work meeting that just came up&rdquo;
               </p>
             </div>
           </CardContent>

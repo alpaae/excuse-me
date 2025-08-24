@@ -312,7 +312,6 @@ export default function AccountPage() {
               </CardContent>
             </Card>
           </div>
-          </div>
         </div>
       </div>
     </AuthGuard>
