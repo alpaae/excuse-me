@@ -13,15 +13,29 @@ const openai = new OpenAI({
   apiKey: serverEnv.OPENAI_API_KEY,
 });
 
+// Server-side language detection function
+function detectLanguage(text: string): string {
+  const t = (text || '').trim();
+  if (!t) return 'en';
+  // very rough heuristics
+  if (/[а-яё]/i.test(t)) return 'ru';
+  if (/[ñáéíóúü¿¡]/i.test(t)) return 'es';
+  if (/[ąćęłńóśźż]/i.test(t)) return 'pl';
+  if (/[äöüß]/i.test(t)) return 'de';
+  if (/[àâçéèêëîïôûùüÿœ]/i.test(t)) return 'fr';
+  // fallback
+  return 'en';
+}
+
 export async function POST(request: NextRequest) {
   const requestId = getRequestId(request);
   logger.info('Generate API started', requestId);
   
   try {
-    const { scenario, tone, channel, lang, context, generateAudio } = await request.json();
+    const { scenario, tone, channel, context, generateAudio } = await request.json();
     
     // Валидация входных данных
-    if (!scenario || !tone || !channel || !lang) {
+    if (!scenario || !tone || !channel) {
       return createErrorResponse(
         ErrorCodes.VALIDATION_ERROR,
         'Missing required fields',
@@ -29,6 +43,16 @@ export async function POST(request: NextRequest) {
         requestId
       );
     }
+
+    // Server-side language detection
+    const combinedText = `${scenario} ${context || ''}`.trim();
+    const targetLang = detectLanguage(combinedText);
+    
+    logger.info('Language detected', requestId, { 
+      scenario, 
+      context, 
+      detectedLang: targetLang 
+    });
 
     // Получаем пользователя
     const supabase = createClient();
@@ -83,8 +107,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Генерируем отмазку через OpenAI
-    const userPrompt = generateUserPrompt({ scenario, tone, channel, lang, context });
+    // Генерируем отмазку через OpenAI с server-detected language
+    const userPrompt = generateUserPrompt({ 
+      scenario, 
+      tone, 
+      channel, 
+      targetLang, 
+      context 
+    });
     
     const completion = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
@@ -107,12 +137,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Сохраняем результат в БД
+    // Сохраняем результат в БД с detected language
     const { data: excuse, error: dbError } = await supabase
       .from('excuses')
       .insert({
         user_id: user.id,
-        input: { scenario, tone, channel, lang, context },
+        input: { scenario, tone, channel, lang: targetLang, context },
         result_text: resultText,
         sent_via: channel,
       })
@@ -127,7 +157,7 @@ export async function POST(request: NextRequest) {
       scenario, 
       tone, 
       channel, 
-      lang,
+      detectedLang: targetLang,
       excuseId: excuse?.id 
     });
 

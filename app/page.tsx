@@ -66,25 +66,7 @@ export default function HomePage() {
     checkUser();
   }, [checkUser]);
 
-  // Function to detect language from user input
-  const detectLanguage = (text: string): string => {
-    // Simple heuristics for language detection
-    const russianPattern = /[а-яё]/i;
-    const englishPattern = /[a-z]/i;
-    const polishPattern = /[ąćęłńóśźż]/i;
-    const germanPattern = /[äöüß]/i;
-    const frenchPattern = /[àâäéèêëïîôöùûüÿç]/i;
-    const spanishPattern = /[ñáéíóúü]/i;
-    
-    if (russianPattern.test(text)) return 'ru';
-    if (polishPattern.test(text)) return 'pl';
-    if (germanPattern.test(text)) return 'de';
-    if (frenchPattern.test(text)) return 'fr';
-    if (spanishPattern.test(text)) return 'es';
-    if (englishPattern.test(text)) return 'en';
-    
-    return 'en'; // Default to English
-  };
+
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,13 +83,9 @@ export default function HomePage() {
     setShowRateLimitBanner(false);
     
     try {
-      // Automatically detect language based on context
-      const combinedText = `${formData.scenario} ${formData.context}`.trim();
-      const detectedLang = detectLanguage(combinedText);
-      
+      // Server will automatically detect language from input
       const requestData = {
         ...formData,
-        lang: detectedLang,
       };
 
       const response = await fetch('/api/generate', {
