@@ -191,6 +191,121 @@ npm run lighthouse:assert
 /tests/e2e        # Playwright E2E тесты
 ```
 
+## Environments
+
+### Переменные окружения
+
+Приложение использует разные переменные окружения для разных сред:
+
+#### 1. **Development (.env.local)**
+```bash
+# Supabase (локальная разработка)
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE=your-service-role-key
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Stripe (test mode)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_PRO_MONTHLY=price_test_...
+STRIPE_WEBHOOK_SECRET=whsec_test_...
+
+# Telegram (опционально)
+TG_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+# App
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+NEXT_PUBLIC_FEATURE_PAYMENTS=true
+
+# Upstash Redis (опционально)
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+```
+
+#### 2. **Vercel Preview (Pull Requests)**
+```bash
+# Supabase (тестовый проект)
+NEXT_PUBLIC_SUPABASE_URL=https://your-preview-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=preview-anon-key
+SUPABASE_SERVICE_ROLE=preview-service-role-key
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Stripe (test mode)
+STRIPE_SECRET_KEY=sk_test_...
+STRIPE_PRICE_PRO_MONTHLY=price_test_...
+STRIPE_WEBHOOK_SECRET=whsec_test_...
+
+# App
+NEXT_PUBLIC_BASE_URL=https://your-app-git-preview-branch.vercel.app
+NEXT_PUBLIC_FEATURE_PAYMENTS=true
+```
+
+#### 3. **Vercel Production**
+```bash
+# Supabase (production проект)
+NEXT_PUBLIC_SUPABASE_URL=https://your-production-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=production-anon-key
+SUPABASE_SERVICE_ROLE=production-service-role-key
+
+# OpenAI
+OPENAI_API_KEY=sk-...
+
+# Stripe (live mode)
+STRIPE_SECRET_KEY=sk_live_...
+STRIPE_PRICE_PRO_MONTHLY=price_live_...
+STRIPE_WEBHOOK_SECRET=whsec_live_...
+
+# Telegram
+TG_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+
+# App
+NEXT_PUBLIC_BASE_URL=https://your-app.vercel.app
+NEXT_PUBLIC_FEATURE_PAYMENTS=true
+
+# Upstash Redis
+UPSTASH_REDIS_REST_URL=https://your-redis.upstash.io
+UPSTASH_REDIS_REST_TOKEN=your-redis-token
+```
+
+### Матрица переменных
+
+| Переменная | Dev | Preview | Production | Примечание |
+|------------|-----|---------|------------|------------|
+| `NEXT_PUBLIC_SUPABASE_URL` | ✅ | ✅ | ✅ | Разные проекты |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | ✅ | ✅ | ✅ | Разные ключи |
+| `SUPABASE_SERVICE_ROLE` | ✅ | ✅ | ✅ | **Только сервер** |
+| `OPENAI_API_KEY` | ✅ | ✅ | ✅ | Одинаковый |
+| `STRIPE_SECRET_KEY` | `sk_test_` | `sk_test_` | `sk_live_` | Test/Live режимы |
+| `STRIPE_PRICE_PRO_MONTHLY` | `price_test_` | `price_test_` | `price_live_` | Test/Live цены |
+| `STRIPE_WEBHOOK_SECRET` | `whsec_test_` | `whsec_test_` | `whsec_live_` | Test/Live webhooks |
+| `TG_BOT_TOKEN` | ❌ | ❌ | ✅ | Только production |
+| `NEXT_PUBLIC_BASE_URL` | `localhost:3000` | `preview.vercel.app` | `app.vercel.app` | Автоматически |
+| `NEXT_PUBLIC_FEATURE_PAYMENTS` | `true` | `true` | `true` | Одинаковый |
+| `UPSTASH_REDIS_REST_URL` | ❌ | ❌ | ✅ | Только production |
+
+### Важные замечания
+
+#### 🔒 **Безопасность**
+- `SUPABASE_SERVICE_ROLE` используется **только на сервере** (API routes)
+- Никогда не экспортируйте service role в клиентский код
+- В development можно использовать один проект Supabase
+- В production обязательно отдельный проект
+
+#### 🧪 **Тестирование**
+- Preview environment использует Stripe test mode
+- Можно безопасно тестировать платежи
+- Webhook URL: `https://preview.vercel.app/api/stripe/webhook`
+
+#### 🚀 **Production**
+- Обязательно Stripe live mode
+- Отдельный Supabase проект
+- Настроенный Telegram бот
+- Upstash Redis для rate limiting
+
 ## Деплой
 
 ### Чек-лист деплоя
