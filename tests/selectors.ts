@@ -15,6 +15,8 @@ export const SELECTORS = {
   
   // Language selector
   LANG_SELECT: 'lang-select',
+  LANG_OPTION_RU: '[data-value="ru"]',
+  LANG_OPTION_EN: '[data-value="en"]',
   
   // Authentication
   BTN_LOGIN: 'btn-login',

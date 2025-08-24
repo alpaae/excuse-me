@@ -1,5 +1,3 @@
-import { cookies } from 'next/headers';
-
 export interface LanguageDetectOptions {
   query?: string;
   cookie?: string;
@@ -19,7 +17,7 @@ export function detectLanguage(options: LanguageDetectOptions = {}): string {
 
   // 1. Query parameter (highest priority)
   if (query) {
-    const lang = query.toLowerCase().trim();
+    const lang = normalizeLanguage(query);
     if (isValidLanguage(lang)) {
       return lang;
     }
@@ -53,9 +51,57 @@ export function detectLanguage(options: LanguageDetectOptions = {}): string {
   return defaultLanguage;
 }
 
+// Поддерживаемые языки и их алиасы
+const LANGUAGE_ALIASES: Record<string, string> = {
+  // Алиасы для русского
+  'ru': 'ru',
+  'russian': 'ru',
+  'русский': 'ru',
+  'рус': 'ru',
+  
+  // Алиасы для английского
+  'en': 'en',
+  'english': 'en',
+  'eng': 'en',
+  
+  // Алиасы для других языков
+  'es': 'es',
+  'spanish': 'es',
+  'esp': 'es',
+  'fr': 'fr',
+  'french': 'fr',
+  'fra': 'fr',
+  'de': 'de',
+  'german': 'de',
+  'deu': 'de',
+  'it': 'it',
+  'italian': 'it',
+  'ita': 'it',
+  'pt': 'pt',
+  'portuguese': 'pt',
+  'por': 'pt',
+  'ja': 'ja',
+  'japanese': 'ja',
+  'jpn': 'ja',
+  'ko': 'ko',
+  'korean': 'ko',
+  'kor': 'ko',
+  'zh': 'zh',
+  'chinese': 'zh',
+  'zho': 'zh',
+};
+
+// Базовые поддерживаемые языки
+const SUPPORTED_LANGUAGES = ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'];
+
+export function normalizeLanguage(lang: string): string {
+  const normalized = lang.toLowerCase().trim();
+  return LANGUAGE_ALIASES[normalized] || normalized;
+}
+
 export function isValidLanguage(lang: string): boolean {
-  const supportedLanguages = ['en', 'ru', 'es', 'fr', 'de', 'it', 'pt', 'ja', 'ko', 'zh'];
-  return supportedLanguages.includes(lang);
+  const normalized = normalizeLanguage(lang);
+  return SUPPORTED_LANGUAGES.includes(normalized);
 }
 
 export function parseAcceptLanguage(acceptLanguage: string): string | null {
@@ -81,21 +127,7 @@ export function parseAcceptLanguage(acceptLanguage: string): string | null {
   return null;
 }
 
-export async function getLanguageFromRequest(request: Request): Promise<string> {
-  const url = new URL(request.url);
-  const queryLang = url.searchParams.get('lng');
-  
-  const cookieStore = await cookies();
-  const cookieLang = cookieStore.get('i18nextLng')?.value;
-  
-  const acceptLanguage = request.headers.get('accept-language');
 
-  return detectLanguage({
-    query: queryLang || undefined,
-    cookie: cookieLang || undefined,
-    acceptLanguage: acceptLanguage || undefined,
-  });
-}
 
 export function setLanguageCookie(lang: string): void {
   // This would be used in client-side to set the cookie

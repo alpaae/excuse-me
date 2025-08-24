@@ -13,16 +13,19 @@ export function useI18n() {
     setCurrentLanguage(lang);
     setLanguageCookie(lang);
     
-    // Обновляем URL без перезагрузки
+    // Обновляем URL без перезагрузки (используем lang параметр)
     const url = new URL(window.location.href);
-    url.searchParams.set('lng', lang);
+    url.searchParams.set('lang', lang);
+    // Удаляем старый параметр lng если есть
+    url.searchParams.delete('lng');
     window.history.replaceState({}, '', url.toString());
   }, [i18n]);
 
   useEffect(() => {
-    // Детектируем язык при загрузке
+    // Детектируем язык при загрузке (приоритет: lang > lng > cookie > accept-language)
+    const searchParams = new URLSearchParams(window.location.search);
     const detectedLang = detectLanguage({
-      query: new URLSearchParams(window.location.search).get('lng') || undefined,
+      query: searchParams.get('lang') || searchParams.get('lng') || undefined,
       cookie: document.cookie.split('; ').find(row => row.startsWith('i18nextLng='))?.split('=')[1] || undefined,
       acceptLanguage: navigator.language,
     });
