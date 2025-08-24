@@ -2,14 +2,27 @@
 
 import { Badge } from '@/components/ui/badge';
 import { getRarityInfo, type Rarity } from '@/lib/rarity';
+import { ExcuseCTA } from './excuse-cta';
 
 interface ExcuseCardProps {
   text: string;
   rarity: Rarity;
+  excuseId?: string;
+  isFavorite?: boolean;
+  onFavoriteToggle?: (isFavorite: boolean) => void;
+  showCTA?: boolean;
   className?: string;
 }
 
-export function ExcuseCard({ text, rarity, className = '' }: ExcuseCardProps) {
+export function ExcuseCard({ 
+  text, 
+  rarity, 
+  excuseId, 
+  isFavorite = false, 
+  onFavoriteToggle, 
+  showCTA = false, 
+  className = '' 
+}: ExcuseCardProps) {
   const rarityInfo = getRarityInfo(rarity);
 
   return (
@@ -29,6 +42,16 @@ export function ExcuseCard({ text, rarity, className = '' }: ExcuseCardProps) {
       <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap">
         {text}
       </p>
+
+      {/* CTA Actions */}
+      {showCTA && excuseId && (
+        <ExcuseCTA
+          excuseId={excuseId}
+          text={text}
+          isFavorite={isFavorite}
+          onFavoriteToggle={onFavoriteToggle}
+        />
+      )}
     </div>
   );
 }

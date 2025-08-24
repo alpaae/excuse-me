@@ -212,42 +212,16 @@ export default function DashboardPage() {
                     <ExcuseCard 
                       text={excuse.result_text} 
                       rarity={excuse.rarity} 
+                      excuseId={excuse.id}
+                      isFavorite={excuse.is_favorite}
+                      onFavoriteToggle={(isFavorite) => {
+                        setExcuses(excuses.map(e =>
+                          e.id === excuse.id ? { ...e, is_favorite: isFavorite } : e
+                        ));
+                      }}
+                      showCTA={true}
                       className="mb-4"
                     />
-                    
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => copyToClipboard(excuse.result_text)}
-                      >
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy
-                      </Button>
-                      
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => shareExcuse(excuse.result_text)}
-                      >
-                        <Share2 className="mr-2 h-4 w-4" />
-                        Share
-                      </Button>
-                      
-                      {excuse.tts_url && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => {
-                            const audio = new Audio(excuse.tts_url);
-                            audio.play();
-                          }}
-                        >
-                          <Volume2 className="mr-2 h-4 w-4" />
-                          Listen
-                        </Button>
-                      )}
-                    </div>
                   </CardContent>
                 </Card>
               ))

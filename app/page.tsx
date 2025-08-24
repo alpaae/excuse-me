@@ -53,6 +53,7 @@ export default function HomePage() {
   const [generating, setGenerating] = useState(false);
   const [result, setResult] = useState('');
   const [resultRarity, setResultRarity] = useState<'common' | 'rare' | 'legendary' | null>(null);
+  const [resultExcuseId, setResultExcuseId] = useState<string | null>(null);
   const [showLegendaryPop, setShowLegendaryPop] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [showLimitBanner, setShowLimitBanner] = useState(false);
@@ -90,6 +91,7 @@ export default function HomePage() {
     setGenerating(true);
     setResult('');
     setResultRarity(null);
+    setResultExcuseId(null);
     setShowLegendaryPop(false);
     setShowLimitBanner(false);
     setShowRateLimitBanner(false);
@@ -112,6 +114,7 @@ export default function HomePage() {
         // Successful generation - show result
         setResult(data.text);
         setResultRarity(data.rarity);
+        setResultExcuseId(data.excuse_id);
         showSuccess('Excuse generated successfully!');
         
         // Show legendary pop if it's legendary and hasn't been shown this session
@@ -465,6 +468,8 @@ export default function HomePage() {
                         <ExcuseCard 
                           text={result} 
                           rarity={resultRarity} 
+                          excuseId={resultExcuseId || undefined}
+                          showCTA={true}
                           className="mb-6"
                         />
                       ) : (
@@ -474,32 +479,6 @@ export default function HomePage() {
                           </p>
                         </div>
                       )}
-                      
-                      <div className="flex items-center space-x-3">
-                        <Button 
-                          onClick={() => copyToClipboard(result)}
-                          variant="outline"
-                          className="flex-1 bg-white hover:bg-gray-50 border-gray-200 rounded-xl"
-                        >
-                          <Copy className="mr-2 h-4 w-4" />
-                          Copy
-                        </Button>
-                        <Button 
-                          onClick={() => shareExcuse(result)}
-                          variant="outline"
-                          className="flex-1 bg-white hover:bg-gray-50 border-gray-200 rounded-xl"
-                        >
-                          <Share2 className="mr-2 h-4 w-4" />
-                          Share
-                        </Button>
-                        <Button 
-                          onClick={() => playTTS(result)}
-                          variant="outline"
-                          className="bg-white hover:bg-gray-50 border-gray-200 rounded-xl"
-                        >
-                          <Volume2 className="h-4 w-4" />
-                        </Button>
-                      </div>
                     </CardContent>
                   </Card>
                 )}
