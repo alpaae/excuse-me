@@ -214,16 +214,17 @@ NEXT_PUBLIC_FEATURE_PAYMENTS=true
 
 #### 4. Health Check
 
-Создайте `/api/health` endpoint для мониторинга:
+Endpoint `/api/health` для мониторинга приложения уже создан.
 
-```typescript
-// app/api/health/route.ts
-export async function GET() {
-  return Response.json({ 
-    status: 'ok', 
-    timestamp: new Date().toISOString(),
-    version: process.env.VERCEL_GIT_COMMIT_SHA || 'local'
-  });
+**Формат ответа:**
+```json
+{
+  "ok": true,
+  "time": "2024-01-20T10:30:00.000Z",
+  "env": {
+    "vercel": true,
+    "region": "fra1"
+  }
 }
 ```
 
@@ -294,6 +295,55 @@ https://t.me/your_excuseme_bot?startapp=test
 - initData проверяется через HMAC-SHA256
 - Токен бота хранится в переменных окружения
 - Доступ только для авторизованных пользователей бота
+
+## Мониторинг
+
+### Health Check
+
+Используйте `/api/health` для проверки состояния приложения:
+
+```bash
+# Локально
+curl http://localhost:3000/api/health
+
+# Production
+curl https://your-app.vercel.app/api/health
+```
+
+**Ответ:**
+```json
+{
+  "ok": true,
+  "time": "2024-01-20T10:30:00.000Z",
+  "env": {
+    "vercel": true,
+    "region": "fra1"
+  }
+}
+```
+
+**Поля:**
+- `ok` - статус приложения (всегда `true` если сервер отвечает)
+- `time` - текущее время сервера в ISO формате
+- `env.vercel` - запущено ли приложение на Vercel
+- `env.region` - регион Vercel (если применимо)
+
+### Использование в мониторинге
+
+Добавьте health check в ваш мониторинг:
+
+**Uptime Robot:**
+- URL: `https://your-app.vercel.app/api/health`
+- Keyword: `"ok":true`
+
+**Grafana/Prometheus:**
+```yaml
+- job_name: 'excuseme-health'
+  static_configs:
+    - targets: ['your-app.vercel.app']
+  metrics_path: '/api/health'
+  scheme: https
+```
 
 ## Лицензия
 
