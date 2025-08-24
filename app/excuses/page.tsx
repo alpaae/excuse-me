@@ -4,7 +4,7 @@ import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { History, Calendar, MessageSquare, Mail, Phone, User, Star, Heart, Copy, Play } from 'lucide-react';
+import { History, Calendar, MessageSquare, Mail, Phone, User, Star, Heart, Copy, Play, Sparkles, ArrowRight } from 'lucide-react';
 import { useToast } from '@/lib/use-toast';
 import { AuthGuard } from '@/lib/auth-guard';
 import { ErrorBoundary } from '@/components/error-boundary';
@@ -115,13 +115,13 @@ export default function ExcusesPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
 
-    return (
+  return (
     <ErrorBoundary>
       <AuthGuard>
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
@@ -167,121 +167,125 @@ export default function ExcusesPage() {
                 </div>
               </div>
 
-            {/* Ошибка */}
-            {error && (
-              <Card className="border-red-200 bg-red-50">
-                <CardContent className="pt-6">
-                  <p className="text-red-700">{error}</p>
-                  <Button 
-                    variant="outline" 
-                    className="mt-2"
-                    onClick={loadExcuses}
-                  >
-                    Попробовать снова
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
-            {/* Список отмазок */}
-            <div className="space-y-4">
-              {excuses.length === 0 ? (
-                <Card>
-                  <CardContent className="py-12 text-center">
-                    <p className="text-muted-foreground">
-                      У вас пока нет отмазок. Создайте первую!
-                    </p>
-                    <Button className="mt-4" onClick={() => window.location.href = '/'}>
-                      Создать отмазку
+              {/* Ошибка */}
+              {error && (
+                <Card className="border-red-200 bg-red-50 mb-6">
+                  <CardContent className="pt-6">
+                    <p className="text-red-700">{error}</p>
+                    <Button 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={loadExcuses}
+                    >
+                      Попробовать снова
                     </Button>
                   </CardContent>
                 </Card>
-              ) : (
-                excuses.map((excuse) => (
-                  <Card key={excuse.id} className="bg-white/80 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
-                    <CardHeader className="pb-4">
-                      <div className="flex items-start justify-between">
-                        <div className="space-y-3 flex-1">
-                          <div className="flex items-center gap-3">
-                            <CardTitle className="text-xl font-semibold text-gray-900">{excuse.input.scenario}</CardTitle>
-                            {excuse.is_favorite && (
-                              <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                            )}
-                          </div>
-                          <div className="flex items-center gap-4 text-sm text-gray-600">
-                            <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
-                              <Calendar className="h-4 w-4" />
-                              {new Date(excuse.created_at).toLocaleDateString()}
-                            </span>
-                            <span className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full">
-                              {getChannelIcon(excuse.input.channel)}
-                              <span className="capitalize">{excuse.input.channel}</span>
-                            </span>
-                            <span className="bg-purple-50 px-3 py-1 rounded-full capitalize">{excuse.input.tone}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <Badge variant="secondary" className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0">
-                            {excuse.input.lang.toUpperCase()}
-                          </Badge>
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => toggleFavorite(excuse.id, excuse.is_favorite)}
-                            className="hover:bg-red-50"
-                          >
-                            {excuse.is_favorite ? (
-                              <Heart className="h-5 w-5 fill-red-500 text-red-500" />
-                            ) : (
-                              <Heart className="h-5 w-5 text-gray-400 hover:text-red-500" />
-                            )}
-                          </Button>
-                        </div>
-                      </div>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                      <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-100">
-                        <p className="text-sm font-medium text-gray-700 mb-3">Сценарий:</p>
-                        <p className="text-gray-800 leading-relaxed">{excuse.input.scenario}</p>
-                        {excuse.input.context && (
-                          <>
-                            <p className="text-sm font-medium text-gray-700 mt-4 mb-3">Контекст:</p>
-                            <p className="text-gray-800 leading-relaxed">{excuse.input.context}</p>
-                          </>
-                        )}
-                      </div>
-                      
-                      <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-100">
-                        <p className="text-sm font-medium text-blue-700 mb-3">Результат:</p>
-                        <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{excuse.result_text}</p>
-                      </div>
+              )}
 
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => copyToClipboard(excuse.result_text)}
-                          className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
-                        >
-                          <Copy className="mr-2 h-4 w-4" />
-                          Копировать
-                        </Button>
-                        {excuse.tts_url && (
+              {/* Список отмазок */}
+              <div className="space-y-6">
+                {excuses.length === 0 ? (
+                  <Card className="bg-white/80 backdrop-blur-xl border-0 shadow-xl">
+                    <CardContent className="py-12 text-center">
+                      <p className="text-gray-600 mb-4">
+                        У вас пока нет отмазок. Создайте первую!
+                      </p>
+                      <Button 
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white"
+                        onClick={() => window.location.href = '/'}
+                      >
+                        Создать отмазку
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  excuses.map((excuse) => (
+                    <Card key={excuse.id} className="bg-white/80 backdrop-blur-xl border-0 shadow-xl hover:shadow-2xl transition-all duration-300">
+                      <CardHeader className="pb-4">
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-3 flex-1">
+                            <div className="flex items-center gap-3">
+                              <CardTitle className="text-xl font-semibold text-gray-900">{excuse.input.scenario}</CardTitle>
+                              {excuse.is_favorite && (
+                                <Star className="h-5 w-5 fill-yellow-400 text-yellow-400" />
+                              )}
+                            </div>
+                            <div className="flex items-center gap-4 text-sm text-gray-600">
+                              <span className="flex items-center gap-2 bg-gray-50 px-3 py-1 rounded-full">
+                                <Calendar className="h-4 w-4" />
+                                {new Date(excuse.created_at).toLocaleDateString()}
+                              </span>
+                              <span className="flex items-center gap-2 bg-blue-50 px-3 py-1 rounded-full">
+                                {getChannelIcon(excuse.input.channel)}
+                                <span className="capitalize">{excuse.input.channel}</span>
+                              </span>
+                              <span className="bg-purple-50 px-3 py-1 rounded-full capitalize">{excuse.input.tone}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <Badge variant="secondary" className="bg-gradient-to-r from-blue-100 to-purple-100 text-blue-800 border-0">
+                              {excuse.input.lang.toUpperCase()}
+                            </Badge>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => toggleFavorite(excuse.id, excuse.is_favorite)}
+                              className="hover:bg-red-50"
+                            >
+                              {excuse.is_favorite ? (
+                                <Heart className="h-5 w-5 fill-red-500 text-red-500" />
+                              ) : (
+                                <Heart className="h-5 w-5 text-gray-400 hover:text-red-500" />
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="space-y-6">
+                        <div className="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-xl border border-gray-100">
+                          <p className="text-sm font-medium text-gray-700 mb-3">Сценарий:</p>
+                          <p className="text-gray-800 leading-relaxed">{excuse.input.scenario}</p>
+                          {excuse.input.context && (
+                            <>
+                              <p className="text-sm font-medium text-gray-700 mt-4 mb-3">Контекст:</p>
+                              <p className="text-gray-800 leading-relaxed">{excuse.input.context}</p>
+                            </>
+                          )}
+                        </div>
+                        
+                        <div className="bg-gradient-to-br from-blue-50 to-purple-50 p-6 rounded-xl border border-blue-100">
+                          <p className="text-sm font-medium text-blue-700 mb-3">Результат:</p>
+                          <p className="text-gray-800 leading-relaxed whitespace-pre-wrap">{excuse.result_text}</p>
+                        </div>
+
+                        <div className="flex items-center gap-3">
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => playTTS(excuse.tts_url!)}
+                            onClick={() => copyToClipboard(excuse.result_text)}
                             className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
                           >
-                            <Play className="mr-2 h-4 w-4" />
-                            Воспроизвести
+                            <Copy className="mr-2 h-4 w-4" />
+                            Копировать
                           </Button>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
+                          {excuse.tts_url && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => playTTS(excuse.tts_url!)}
+                              className="flex-1 bg-white/50 backdrop-blur-sm border-gray-200 hover:bg-white/70"
+                            >
+                              <Play className="mr-2 h-4 w-4" />
+                              Воспроизвести
+                            </Button>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
