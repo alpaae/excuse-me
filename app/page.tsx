@@ -65,6 +65,7 @@ export default function HomePage() {
       return;
     }
 
+    // Очищаем предыдущие результаты и баннеры
     setGenerating(true);
     setResult('');
     setShowLimitBanner(false);
@@ -80,24 +81,24 @@ export default function HomePage() {
       const data = await response.json();
       
       if (response.status === 200 && data.success) {
-        // Успешная генерация
+        // Успешная генерация - показываем результат
         setResult(data.text);
         showSuccess(toastMessages.generate.success);
       } else if (response.status === 429 || data.error === 'RATE_LIMIT') {
-        // Rate limit ошибка
+        // Rate limit ошибка - показываем баннер
         setShowRateLimitBanner(true);
         showError(toastMessages.generate.rateLimit);
       } else if (response.status === 402 || data.error === 'FREE_LIMIT_REACHED') {
-        // Free limit ошибка
+        // Free limit ошибка - показываем баннер с CTA
         setShowLimitBanner(true);
         showError(toastMessages.generate.freeLimit);
       } else {
-        // Общая ошибка
+        // Общая ошибка - показываем в результате
         setResult('Ошибка при генерации. Попробуйте еще раз.');
         showError(toastMessages.generate.error);
       }
     } catch (error) {
-      // Ошибка сети
+      // Ошибка сети - показываем в результате
       setResult('Произошла ошибка сети. Проверьте подключение и попробуйте еще раз.');
       showError(toastMessages.general.serverError);
     } finally {
@@ -314,6 +315,50 @@ export default function HomePage() {
               </form>
             </CardContent>
           </Card>
+
+          {/* Rate Limit Banner */}
+          {showRateLimitBanner && (
+            <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3" data-testid="banner-rate-limit">
+                  <AlertCircle className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="font-medium text-orange-900 dark:text-orange-100">
+                      Слишком много запросов
+                    </h3>
+                    <p className="text-sm text-orange-700 dark:text-orange-300 mt-1">
+                      Пожалуйста, подождите немного перед следующим запросом.
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Free Limit Banner */}
+          {showLimitBanner && (
+            <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
+              <CardContent className="pt-6">
+                <div className="flex items-start gap-3" data-testid="banner-free-limit">
+                  <Crown className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h3 className="font-medium text-blue-900 dark:text-blue-100">
+                      Достигнут дневной лимит
+                    </h3>
+                    <p className="text-sm text-blue-700 dark:text-blue-300 mt-1 mb-3">
+                      Вы использовали все бесплатные генерации на сегодня. Перейдите на Pro для неограниченного доступа.
+                    </p>
+                    <Button 
+                      onClick={() => window.location.href = '/account'} 
+                      className="bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      Перейти на Pro
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* Результат */}
           {result && (
