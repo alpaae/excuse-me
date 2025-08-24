@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { SELECTORS, TEST_HELPERS, EXPECTED_TEXT } from '../selectors';
 
 test.describe('Homepage', () => {
   test('should display main page with generation form', async ({ page }) => {
@@ -22,23 +23,26 @@ test.describe('Homepage', () => {
     await expect(page.getByText('Русский')).toBeVisible(); // Язык по умолчанию
     
     // Проверяем кнопку генерации
-    await expect(page.getByRole('button', { name: 'Сгенерировать отмазку' })).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.GEN_SUBMIT)).toHaveText(EXPECTED_TEXT.GENERATION.BUTTON);
     
     // Проверяем призыв к авторизации для неавторизованных пользователей
     await expect(page.getByText('Войдите, чтобы сохранять историю')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Войти в аккаунт' })).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.BTN_LOGIN)).toHaveText(EXPECTED_TEXT.AUTH.LOGIN_BUTTON);
   });
 
   test('should show auth form when login button clicked', async ({ page }) => {
     await page.goto('/');
     
     // Кликаем на кнопку входа
-    await page.getByRole('button', { name: 'Войти в аккаунт' }).click();
+    await page.getByTestId(SELECTORS.BTN_LOGIN).click();
     
     // Проверяем, что отображается форма авторизации
-    await expect(page.getByRole('heading', { name: 'Добро пожаловать в ExcuseME' })).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.AUTH_DIALOG)).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Войти в ExcuseME' })).toBeVisible();
     await expect(page.getByLabel('Email')).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Отправить ссылку' })).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Отправить magic link' })).toBeVisible();
     await expect(page.getByRole('button', { name: 'Войти через GitHub' })).toBeVisible();
   });
 });

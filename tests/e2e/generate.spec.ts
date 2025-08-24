@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { SELECTORS, TEST_HELPERS, EXPECTED_TEXT } from '../selectors';
 
 test.describe('Excuse Generation', () => {
   test('should display result when API returns success', async ({ page }) => {
@@ -23,7 +24,7 @@ test.describe('Excuse Generation', () => {
     await page.getByLabel('Дополнительный контекст').fill('срочная работа');
     
     // Отправляем форму (должно показать auth форму)
-    await page.getByRole('button', { name: 'Сгенерировать отмазку' }).click();
+    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем, что показывается форма авторизации
     await expect(page.getByRole('heading', { name: 'Добро пожаловать в ExcuseME' })).toBeVisible();
@@ -53,10 +54,11 @@ test.describe('Excuse Generation', () => {
     
     // Заполняем и отправляем форму
     await page.getByLabel('Сценарий').fill('тест rate limit');
-    await page.getByRole('button', { name: 'Сгенерировать отмазку' }).click();
+    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
-    // Проверяем сообщение о rate limit
-    await expect(page.getByText('Слишком много запросов')).toBeVisible();
+    // Проверяем баннер rate limit
+    await expect(page.getByTestId(SELECTORS.BANNER_RATE_LIMIT)).toBeVisible();
+    await expect(page.getByText(EXPECTED_TEXT.BANNERS.RATE_LIMIT_TITLE)).toBeVisible();
   });
 
   test('should display free limit banner', async ({ page }) => {
@@ -82,11 +84,12 @@ test.describe('Excuse Generation', () => {
     
     // Заполняем и отправляем форму
     await page.getByLabel('Сценарий').fill('тест free limit');
-    await page.getByRole('button', { name: 'Сгенерировать отмазку' }).click();
+    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем баннер лимита
-    await expect(page.getByText('Достигнут дневной лимит')).toBeVisible();
-    await expect(page.getByText('Бесплатные пользователи могут генерировать до 3 отмазок в день')).toBeVisible();
+    await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toBeVisible();
+    await expect(page.getByText(EXPECTED_TEXT.BANNERS.FREE_LIMIT_TITLE)).toBeVisible();
+    await expect(page.getByText(EXPECTED_TEXT.BANNERS.FREE_LIMIT_DESCRIPTION)).toBeVisible();
     await expect(page.getByRole('button', { name: 'Перейти на Pro' })).toBeVisible();
   });
 
@@ -94,7 +97,7 @@ test.describe('Excuse Generation', () => {
     await page.goto('/');
     
     // Пытаемся отправить пустую форму
-    await page.getByRole('button', { name: 'Сгенерировать отмазку' }).click();
+    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
     // Проверяем, что поле сценария обязательно (HTML5 validation)
     const scenarioInput = page.getByLabel('Сценарий');

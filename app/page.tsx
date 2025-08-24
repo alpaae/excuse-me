@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
-import { Wand2, Copy, Share2, Volume2, Crown, History } from 'lucide-react';
+import { Wand2, Copy, Share2, Volume2, Crown, History, AlertCircle } from 'lucide-react';
 
 interface User {
   id: string;
@@ -25,6 +25,7 @@ export default function HomePage() {
   const [result, setResult] = useState('');
   const [showAuth, setShowAuth] = useState(false);
   const [showLimitBanner, setShowLimitBanner] = useState(false);
+  const [showRateLimitBanner, setShowRateLimitBanner] = useState(false);
   const { showSuccess, showError } = useToast();
   
   const [formData, setFormData] = useState({
@@ -74,8 +75,9 @@ export default function HomePage() {
         setResult('');
         showError(toastMessages.generate.freeLimit);
       } else if (data.error === 'RATE_LIMIT') {
-        setResult('Слишком много запросов. Попробуйте через минуту.');
+        setResult('');
         setShowLimitBanner(false);
+        setShowRateLimitBanner(true);
         showError(toastMessages.generate.rateLimit);
       } else {
         setResult('Ошибка при генерации. Попробуйте еще раз.');
@@ -121,7 +123,9 @@ export default function HomePage() {
   if (showAuth) {
     return (
       <main className="min-h-screen bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center p-4">
-        <AuthForm />
+        <div data-testid="auth-dialog">
+          <AuthForm />
+        </div>
       </main>
     );
   }
@@ -158,7 +162,7 @@ export default function HomePage() {
 
           {/* Баннер лимита */}
           {showLimitBanner && (
-            <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950">
+            <Card className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950" data-testid="banner-free-limit">
               <CardContent className="pt-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
@@ -178,6 +182,34 @@ export default function HomePage() {
                   >
                     <Crown className="mr-2 h-4 w-4" />
                     Перейти на Pro
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Баннер rate limit */}
+          {showRateLimitBanner && (
+            <Card className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950" data-testid="banner-rate-limit">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
+                    <div>
+                      <h3 className="font-semibold text-red-900 dark:text-red-100">
+                        Слишком много запросов
+                      </h3>
+                      <p className="text-sm text-red-700 dark:text-red-300">
+                        Попробуйте через минуту или обновите страницу
+                      </p>
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => setShowRateLimitBanner(false)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    Закрыть
                   </Button>
                 </div>
               </CardContent>
@@ -242,7 +274,7 @@ export default function HomePage() {
                   <div className="space-y-2">
                     <Label>Язык</Label>
                     <Select value={formData.lang} onValueChange={(value) => setFormData({ ...formData, lang: value })}>
-                      <SelectTrigger>
+                      <SelectTrigger data-testid="lang-select">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -257,13 +289,14 @@ export default function HomePage() {
                   <Label htmlFor="context">Дополнительный контекст (опционально)</Label>
                   <Input
                     id="context"
+                    data-testid="gen-context"
                     placeholder="Дополнительные детали для более точной отмазки..."
                     value={formData.context}
                     onChange={(e) => setFormData({ ...formData, context: e.target.value })}
                   />
                 </div>
 
-                <Button type="submit" className="w-full" disabled={generating}>
+                <Button type="submit" className="w-full" disabled={generating} data-testid="gen-submit">
                   <Wand2 className="mr-2 h-4 w-4" />
                   {generating ? 'Генерация...' : 'Сгенерировать отмазку'}
                 </Button>
@@ -278,7 +311,7 @@ export default function HomePage() {
                 <CardTitle>Результат</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="bg-muted p-4 rounded-lg">
+                <div className="bg-muted p-4 rounded-lg" data-testid="gen-result">
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">{result}</p>
                 </div>
                 
@@ -309,7 +342,7 @@ export default function HomePage() {
                 <p className="text-muted-foreground mb-4">
                   Войдите, чтобы сохранять историю отмазок и получить больше возможностей
                 </p>
-                <Button onClick={() => setShowAuth(true)}>
+                <Button onClick={() => setShowAuth(true)} data-testid="btn-login">
                   Войти в аккаунт
                 </Button>
               </CardContent>
