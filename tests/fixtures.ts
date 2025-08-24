@@ -3,6 +3,8 @@ import { test as base, expect, type Page } from '@playwright/test';
 // Расширяем базовый test с кастомными фикстурами
 export const test = base.extend<{
   mockApi: (route: string, json: any, status?: number) => Promise<void>;
+  mockGenerate: (mode: 'success' | 'rate' | 'free') => Promise<void>;
+  mockTts: (mode?: 'success' | 'empty') => Promise<void>;
 }>({
   // Устанавливаем baseURL
   baseURL: 'http://localhost:3000',
@@ -20,6 +22,83 @@ export const test = base.extend<{
     };
     
     await use(mockApi);
+  },
+  
+  // Кастомная фикстура для мока генерации
+  mockGenerate: async ({ page }, use) => {
+    const mockGenerate = async (mode: 'success' | 'rate' | 'free') => {
+      const scenarios = {
+        success: {
+          status: 200,
+          body: {
+            success: true,
+            text: 'OK: generated',
+            excuse_id: 'test-excuse-id-123',
+            requestId: 'test-request-id'
+          }
+        },
+        rate: {
+          status: 429,
+          body: {
+            error: 'RATE_LIMIT',
+            message: 'Too many requests',
+            requestId: 'test-request-id'
+          }
+        },
+        free: {
+          status: 402,
+          body: {
+            error: 'FREE_LIMIT_REACHED',
+            message: 'Daily free limit reached',
+            requestId: 'test-request-id'
+          }
+        }
+      };
+      
+      const scenario = scenarios[mode];
+      
+      await page.route('**/api/generate', async (route) => {
+        await route.fulfill({
+          status: scenario.status,
+          contentType: 'application/json',
+          body: JSON.stringify(scenario.body),
+        });
+      });
+    };
+    
+    await use(mockGenerate);
+  },
+  
+  // Кастомная фикстура для мока TTS
+  mockTts: async ({ page }, use) => {
+    const mockTts = async (mode: 'success' | 'empty' = 'success') => {
+      const scenarios = {
+        success: {
+          status: 200,
+          body: {
+            success: true,
+            url: '/dummy.mp3',
+            requestId: 'test-request-id'
+          }
+        },
+        empty: {
+          status: 204,
+          body: null
+        }
+      };
+      
+      const scenario = scenarios[mode];
+      
+      await page.route('**/api/tts', async (route) => {
+        await route.fulfill({
+          status: scenario.status,
+          contentType: 'application/json',
+          body: scenario.body ? JSON.stringify(scenario.body) : '',
+        });
+      });
+    };
+    
+    await use(mockTts);
   },
 });
 

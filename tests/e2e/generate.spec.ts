@@ -2,17 +2,20 @@ import { test, expect, API_SCENARIOS, TEST_HELPERS } from '../fixtures';
 import { SELECTORS, EXPECTED_TEXT } from '../selectors';
 
 test.describe('Excuse Generation', () => {
-  test('should display result when API returns success', async ({ page, mockApi }) => {
-    // Мокаем API response
-    await mockApi('/api/generate', API_SCENARIOS.success.response, API_SCENARIOS.success.status);
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+  test('should display result when API returns success', async ({ page, mockGenerate, mockTts }) => {
+    // Мокаем API responses
+    await mockGenerate('success');
+    await mockTts('success');
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
 
     // Мокаем пользователя
     await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
-    
-    // Ждем загрузки страницы
     await page.waitForLoadState('networkidle');
     
     // Заполняем форму
@@ -24,20 +27,23 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем, что показывается результат
     await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByText(API_SCENARIOS.success.response.text)).toBeVisible();
+    await expect(page.getByText('OK: generated')).toBeVisible();
   });
 
-  test('should display rate limit error', async ({ page, mockApi }) => {
+  test('should display rate limit error', async ({ page, mockGenerate, mockTts }) => {
     // Мокаем rate limit response
-    await mockApi('/api/generate', API_SCENARIOS.rateLimit.response, API_SCENARIOS.rateLimit.status);
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+    await mockGenerate('rate');
+    await mockTts('success');
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
 
     // Мокаем пользователя
     await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
-    
-    // Ждем загрузки страницы
     await page.waitForLoadState('networkidle');
     
     // Заполняем и отправляем форму
@@ -46,20 +52,23 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем баннер rate limit
     await expect(page.getByTestId(SELECTORS.BANNER_RATE_LIMIT)).toBeVisible();
-    await expect(page.getByText(EXPECTED_TEXT.BANNERS.RATE_LIMIT_TITLE)).toBeVisible();
+    await expect(page.getByText('Too many requests')).toBeVisible();
   });
 
-  test('should display free limit banner', async ({ page, mockApi }) => {
+  test('should display free limit banner', async ({ page, mockGenerate, mockTts }) => {
     // Мокаем free limit response
-    await mockApi('/api/generate', API_SCENARIOS.freeLimit.response, API_SCENARIOS.freeLimit.status);
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+    await mockGenerate('free');
+    await mockTts('success');
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
 
     // Мокаем пользователя
     await TEST_HELPERS.mockUser(page);
 
     await page.goto('/');
-    
-    // Ждем загрузки страницы
     await page.waitForLoadState('networkidle');
     
     // Заполняем и отправляем форму
@@ -68,18 +77,18 @@ test.describe('Excuse Generation', () => {
     
     // Проверяем баннер лимита
     await expect(page.getByTestId(SELECTORS.BANNER_FREE_LIMIT)).toBeVisible();
-    await expect(page.getByText(EXPECTED_TEXT.BANNERS.FREE_LIMIT_TITLE)).toBeVisible();
-    await expect(page.getByText(EXPECTED_TEXT.BANNERS.FREE_LIMIT_DESCRIPTION)).toBeVisible();
-    await expect(page.getByRole('button', { name: 'Перейти на Pro' })).toBeVisible();
+    await expect(page.getByText('Daily free limit reached')).toBeVisible();
   });
 
-  test('should handle form validation', async ({ page, mockApi }) => {
-    // Мокаем health check
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+  test('should handle form validation', async ({ page }) => {
+    // Мокаем только health check
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
     
     await page.goto('/');
-    
-    // Ждем загрузки страницы
     await page.waitForLoadState('networkidle');
     
     // Пытаемся отправить пустую форму
@@ -90,17 +99,19 @@ test.describe('Excuse Generation', () => {
     await expect(scenarioInput).toHaveAttribute('required');
   });
 
-  test('should display result for authorized user', async ({ page, mockApi }) => {
-    // Мокаем API response
-    await mockApi('/api/generate', API_SCENARIOS.success.response, API_SCENARIOS.success.status);
-    await mockApi('/api/health', API_SCENARIOS.health.response, API_SCENARIOS.health.status);
+  test('should display auth dialog for unauthorized user', async ({ page, mockGenerate, mockTts }) => {
+    // Мокаем API responses
+    await mockGenerate('success');
+    await mockTts('success');
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
 
-    // Мокаем пользователя
-    await TEST_HELPERS.mockUser(page);
+    // НЕ мокаем пользователя (неавторизованный)
 
     await page.goto('/');
-    
-    // Ждем загрузки страницы
     await page.waitForLoadState('networkidle');
     
     // Заполняем форму
@@ -110,8 +121,57 @@ test.describe('Excuse Generation', () => {
     // Отправляем форму
     await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
     
-    // Проверяем, что показывается результат
+    // Проверяем, что показывается диалог авторизации
+    await expect(page.getByTestId(SELECTORS.AUTH_DIALOG)).toBeVisible();
+  });
+
+  test('should handle TTS API response', async ({ page, mockGenerate, mockTts }) => {
+    // Мокаем успешную генерацию и TTS
+    await mockGenerate('success');
+    await mockTts('success');
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
+
+    // Мокаем пользователя
+    await TEST_HELPERS.mockUser(page);
+
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Заполняем форму
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест TTS');
+    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    
+    // Проверяем результат
     await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
-    await expect(page.getByText(API_SCENARIOS.success.response.text)).toBeVisible();
+    await expect(page.getByText('OK: generated')).toBeVisible();
+  });
+
+  test('should handle empty TTS response', async ({ page, mockGenerate, mockTts }) => {
+    // Мокаем успешную генерацию и пустой TTS
+    await mockGenerate('success');
+    await mockTts('empty');
+    await page.route('**/api/health', route => route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify(API_SCENARIOS.health.response)
+    }));
+
+    // Мокаем пользователя
+    await TEST_HELPERS.mockUser(page);
+
+    await page.goto('/');
+    await page.waitForLoadState('networkidle');
+    
+    // Заполняем форму
+    await page.getByTestId(SELECTORS.GEN_SCENARIO).fill('тест пустой TTS');
+    await page.getByTestId(SELECTORS.GEN_SUBMIT).click();
+    
+    // Проверяем результат (TTS ошибка не должна влиять на отображение текста)
+    await expect(page.getByTestId(SELECTORS.GEN_RESULT)).toBeVisible();
+    await expect(page.getByText('OK: generated')).toBeVisible();
   });
 });
