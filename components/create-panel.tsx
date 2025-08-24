@@ -69,7 +69,7 @@ export function CreatePanel() {
         {!result ? (
           // Form State
           <>
-            <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50">
+            <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50 flex-shrink-0">
               <CardTitle className="flex items-center space-x-3 text-2xl">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                   <Wand2 className="h-5 w-5 text-white" />
@@ -81,9 +81,10 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col">
-              <form onSubmit={handleGenerate} className="space-y-6 flex-1 flex flex-col" data-testid="gen-form">
-                <div className="flex-1 space-y-6">
+            <CardContent className="p-6 flex-1 flex flex-col min-h-0">
+              <form onSubmit={handleGenerate} className="flex-1 flex flex-col min-h-0" data-testid="gen-form">
+                {/* Scrollable Form Content */}
+                <div className="flex-1 overflow-y-auto space-y-6 pr-2">
                   <div className="space-y-3">
                     <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
                       What&apos;s the situation?
@@ -151,8 +152,8 @@ export function CreatePanel() {
                   <PromptTips />
                 </div>
 
-                {/* Sticky Generate Button */}
-                <div className="sticky bottom-0 pb-3 bg-gradient-to-t from-white/70 to-transparent backdrop-blur">
+                {/* Fixed Generate Button */}
+                <div className="flex-shrink-0 pt-4 border-t border-gray-100 bg-white/70 backdrop-blur">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-xs text-gray-500">Press ⌘⏎ / Ctrl⏎</span>
                   </div>
@@ -184,7 +185,7 @@ export function CreatePanel() {
         ) : (
           // Result State
           <>
-            <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
+            <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50 flex-shrink-0">
               <CardTitle className="flex items-center space-x-3 text-2xl">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
                   <CheckCircle className="h-5 w-5 text-white" />
@@ -196,8 +197,8 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col">
-              <div className="flex-1">
+            <CardContent className="p-6 flex-1 flex flex-col min-h-0">
+              <div className="flex-1 overflow-y-auto">
                 {resultRarity ? (
                   <ExcuseCard 
                     text={result} 
@@ -215,29 +216,31 @@ export function CreatePanel() {
                 )}
               </div>
               
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  onClick={() => {
-                    setResult('');
-                    setResultRarity(null);
-                    setResultExcuseId(null);
-                  }}
-                  variant="outline"
-                  className="flex-1 border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded-xl"
-                >
-                  <Wand2 className="h-4 w-4 mr-2" />
-                  Generate Another
-                </Button>
-                
-                <Button 
-                  onClick={() => {
-                    navigator.clipboard.writeText(result);
-                  }}
-                  className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl"
-                >
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Copy to Clipboard
-                </Button>
+              <div className="flex-shrink-0 pt-4 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row gap-4">
+                  <Button 
+                    onClick={() => {
+                      setResult('');
+                      setResultRarity(null);
+                      setResultExcuseId(null);
+                    }}
+                    variant="outline"
+                    className="flex-1 border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded-xl"
+                  >
+                    <Wand2 className="h-4 w-4 mr-2" />
+                    Generate Another
+                  </Button>
+                  
+                  <Button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(result);
+                    }}
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl"
+                  >
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                    Copy to Clipboard
+                  </Button>
+                </div>
               </div>
             </CardContent>
           </>
