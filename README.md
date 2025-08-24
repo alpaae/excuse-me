@@ -84,10 +84,40 @@ cp env.example .env.local
 
 ### 6. Настройка Telegram Mini App (опционально)
 
-1. Создайте бота через @BotFather
-2. Получите токен бота
-3. Добавьте в переменные окружения
-4. Настройте webhook для авторизации
+1. **Создание бота:**
+   - Откройте [@BotFather](https://t.me/BotFather) в Telegram
+   - Отправьте команду `/newbot`
+   - Следуйте инструкциям для создания бота
+   - Сохраните токен бота
+
+2. **Настройка Web App:**
+   - Отправьте команду `/setmenubutton` в @BotFather
+   - Выберите вашего бота
+   - Установите текст кнопки (например, "ExcuseME")
+   - Установите URL: `https://your-app.vercel.app/tg`
+   - Или используйте команду `/setcommands` для добавления команды
+
+3. **Альтернативная настройка через BotFather:**
+   ```
+   /mybots -> Выберите бота -> Bot Settings -> Menu Button
+   URL: https://your-app.vercel.app/tg
+   Text: ExcuseME
+   ```
+
+4. **Проверка initData:**
+   - **Development**: initData проверяется локально
+   - **Production**: initData проверяется на сервере через HMAC
+   - Убедитесь, что `TG_BOT_TOKEN` установлен в переменных окружения
+
+5. **Пример ссылки для тестирования:**
+   ```
+   https://t.me/your_bot_username?startapp=test
+   ```
+
+6. **Добавьте токен в переменные окружения:**
+   ```
+   TG_BOT_TOKEN=1234567890:ABCdefGHIjklMNOpqrsTUVwxyz
+   ```
 
 ### 7. Запуск разработки
 
@@ -140,11 +170,44 @@ npm run test
 
 ## Telegram Mini App
 
-Для настройки Telegram Mini App:
-1. Создайте бота через @BotFather
-2. Получите токен бота
-3. Добавьте в `.env.local`
-4. Настройте webhook для авторизации
+### Настройка
+
+1. **Создание бота через @BotFather:**
+   ```
+   /newbot
+   Bot name: ExcuseME Bot
+   Username: your_excuseme_bot
+   ```
+
+2. **Настройка Web App URL:**
+   ```
+   /setmenubutton
+   Выберите бота: @your_excuseme_bot
+   Text: ExcuseME
+   URL: https://your-app.vercel.app/tg
+   ```
+
+3. **Альтернативный способ через BotFather:**
+   - `/mybots` → Выберите бота → `Bot Settings` → `Menu Button`
+   - URL: `https://your-app.vercel.app/tg`
+   - Text: `ExcuseME`
+
+### Тестирование
+
+**Ссылка для тестирования:**
+```
+https://t.me/your_excuseme_bot?startapp=test
+```
+
+**Проверка initData:**
+- **Development**: проверка отключена для локальной разработки
+- **Production**: HMAC проверка на сервере с использованием `TG_BOT_TOKEN`
+
+### Безопасность
+
+- initData проверяется через HMAC-SHA256
+- Токен бота хранится в переменных окружения
+- Доступ только для авторизованных пользователей бота
 
 ## Лицензия
 
