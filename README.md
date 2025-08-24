@@ -4,11 +4,24 @@ SaaS приложение для генерации вежливых отмаз�
 
 ## Технологии
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS, shadcn/ui
+- **Frontend**: Next.js 15.5.0 (App Router), React 18.3.1, TypeScript 5.9.2
+- **Styling**: Tailwind CSS, shadcn/ui
 - **Backend**: Supabase (PostgreSQL, Auth, Storage)
-- **AI**: OpenAI (ChatGPT, TTS)
+- **AI**: OpenAI (Chat API, TTS)
 - **Payments**: Stripe
+- **Testing**: Playwright E2E
 - **Deployment**: Vercel
+
+### System Info
+```
+Operating System: darwin (arm64)
+Node: 24.6.0
+npm: 11.5.1
+Next.js: 15.5.0 (Latest)
+React: 18.3.1
+React DOM: 18.3.1
+TypeScript: 5.9.2
+```
 - **PWA**: Service Worker, Web App Manifest
 - **Telegram**: Mini App с HMAC верификацией
 
