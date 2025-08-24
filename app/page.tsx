@@ -234,11 +234,7 @@ export default function HomePage() {
 
                 <div className="space-y-2" key="lang-select">
                   <Label>Язык</Label>
-                  <LanguageSwitch 
-                    onLanguageChange={(lang) => {
-                      setFormData(prev => ({ ...prev, lang }));
-                    }}
-                  />
+                  <LanguageSwitch />
                 </div>
 
                 <div className="space-y-2">

@@ -162,7 +162,7 @@ export function I18nProvider({ children, initialLocale }: I18nProviderProps) {
     }
 
     setIsInitialized(true);
-  }, [initialLocale]); // Убираем currentLocale из зависимостей
+  }, [initialLocale, currentLocale]); // Добавляем currentLocale в зависимости
 
   // Функция для изменения локали
   const handleSetCurrentLocale = async (newLocale: string) => {
