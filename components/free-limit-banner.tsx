@@ -1,6 +1,6 @@
 'use client';
 
-import { useLimits, formatCountdown } from '@/lib/limits';
+import { useLimits, useCountdown } from '@/lib/limits';
 import { Card, CardContent } from '@/components/ui/card';
 import { Clock, Crown } from 'lucide-react';
 
@@ -16,7 +16,7 @@ export function FreeLimitBanner() {
     return null;
   }
 
-  const countdown = formatCountdown(limits.nextResetAt);
+  const countdown = useCountdown(limits.nextResetAt);
   const remaining = limits.remaining;
 
   return (

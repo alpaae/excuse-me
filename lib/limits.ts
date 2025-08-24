@@ -31,7 +31,7 @@ export function useLimits() {
   };
 }
 
-export function formatCountdown(nextResetAt: string): string {
+export function useCountdown(nextResetAt: string): string {
   const [countdown, setCountdown] = useState('');
 
   useEffect(() => {
