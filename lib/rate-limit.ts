@@ -26,50 +26,68 @@ class MemoryStore {
 }
 
 // Создаем rate limiter
-let rateLimiter: Ratelimit;
+let rateLimiter: Ratelimit | null = null;
 
 if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
-  // Production: используем Upstash Redis
-  const redis = new Redis({
-    url: process.env.UPSTASH_REDIS_REST_URL,
-    token: process.env.UPSTASH_REDIS_REST_TOKEN,
-  });
+  try {
+    // Production: используем Upstash Redis
+    const redis = new Redis({
+      url: process.env.UPSTASH_REDIS_REST_URL,
+      token: process.env.UPSTASH_REDIS_REST_TOKEN,
+    });
 
-  rateLimiter = new Ratelimit({
-    redis,
-    limiter: Ratelimit.slidingWindow(10, '1 m'), // 10 запросов в минуту
-    analytics: true,
-  });
-} else {
-  // Development: используем in-memory fallback
-  rateLimiter = new Ratelimit({
-    redis: new Map() as any, // Используем Map как fallback для development
-    limiter: Ratelimit.slidingWindow(10, '1 m'),
-    analytics: false,
-  });
+    rateLimiter = new Ratelimit({
+      redis,
+      limiter: Ratelimit.slidingWindow(10, '1 m'), // 10 запросов в минуту
+      analytics: true,
+    });
+  } catch (error) {
+    console.warn('Failed to initialize Redis rate limiter:', error);
+    rateLimiter = null;
+  }
 }
 
 export async function rateLimit(request: NextRequest, identifier?: string) {
+  // Если rate limiter не инициализирован, пропускаем проверку
+  if (!rateLimiter) {
+    return {
+      success: true,
+      limit: 10,
+      reset: Date.now() + 60000,
+      remaining: 10,
+    };
+  }
+
   const ip = ipAddress(request) ?? '127.0.0.1';
   const key = identifier ? `${identifier}:${ip}` : ip;
   
-  const { success, limit, reset, remaining } = await rateLimiter.limit(key);
-  
-  if (!success) {
+  try {
+    const { success, limit, reset, remaining } = await rateLimiter.limit(key);
+    
+    if (!success) {
+      return {
+        success: false,
+        limit,
+        reset,
+        remaining,
+      };
+    }
+    
     return {
-      success: false,
+      success: true,
       limit,
       reset,
       remaining,
     };
+  } catch (error) {
+    console.warn('Rate limiting failed, allowing request:', error);
+    return {
+      success: true,
+      limit: 10,
+      reset: Date.now() + 60000,
+      remaining: 10,
+    };
   }
-  
-  return {
-    success: true,
-    limit,
-    reset,
-    remaining,
-  };
 }
 
 export function createRateLimitMiddleware(identifier?: string) {
