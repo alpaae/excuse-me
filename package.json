@@ -9,9 +9,6 @@
     "lint": "eslint .",
     "lint:hooks": "eslint 'app/**/*.{ts,tsx}' --rule 'react-hooks/exhaustive-deps:error'",
     "type-check": "tsc --noEmit",
-    "test:e2e": "playwright test",
-    "test:e2e:headed": "playwright test --headed",
-    "test:e2e:ui": "playwright test --ui",
     "lighthouse": "node scripts/lighthouse.js",
     "lighthouse:dev": "npm run dev & sleep 10 && node scripts/lighthouse.js",
     "lighthouse:report": "open lighthouse-reports/$(ls -t lighthouse-reports/*.html | head -1)",
@@ -48,7 +45,6 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
-    "@playwright/test": "^1.55.0",
     "@types/jest": "^30.0.0",
     "@types/node": "^20",
     "@types/react": "^18",
