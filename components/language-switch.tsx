@@ -7,21 +7,8 @@ export function LanguageSwitch() {
     <select
       data-testid="lang-select"
       value={currentLocale}
-      onChange={async (e) => {
-        const lang = e.target.value;
-        await fetch('/api/i18n/lang', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({ lang }),
-        });
-        const url = new URL(window.location.href);
-        if (lang === 'en') {
-          url.searchParams.delete('lang');
-        } else {
-          url.searchParams.set('lang', lang);
-        }
-        history.replaceState(null, '', url.toString());
-        setCurrentLocale(lang);
+      onChange={(e) => {
+        setCurrentLocale(e.target.value);
       }}
     >
       <option value="en" data-testid="lang-option-en">English</option>
