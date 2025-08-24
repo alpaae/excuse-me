@@ -482,21 +482,36 @@ https://t.me/your_excuseme_bot?startapp=test
 
 ## Производительность и PWA
 
-### Lighthouse Аудит
+### Lighthouse без @lhci/cli
 
-Lighthouse автоматически проверяет производительность, PWA функциональность и Core Web Vitals.
+Проект использует lightweight Lighthouse скрипт без зависимости от `@lhci/cli`:
 
 **Запуск:**
 ```bash
-# Запуск аудита (требует запущенный dev сервер)
-npm run lighthouse
+# Запуск Lighthouse аудита (автоматически запускает сервер)
+npm run lh:ci
 
-# Автоматический запуск dev сервера + аудит
+# Запуск с dev сервером
 npm run lighthouse:dev
 
 # Открытие последнего отчета в браузере
 npm run lighthouse:report
 ```
+
+**Бюджет производительности:**
+- Performance ≥ 85 (mobile)
+- PWA installable = true
+- Accessibility ≥ 90
+- Best Practices ≥ 85
+- SEO ≥ 90
+
+**Особенности скрипта:**
+- ✅ Автоматический запуск Next.js сервера
+- ✅ Ожидание готовности через `/api/health`
+- ✅ Chrome headless с оптимизированными флагами
+- ✅ Mobile-first аудит (375x667, 2x DPR)
+- ✅ HTML отчет с timestamp
+- ✅ CI-ready (артефакты для GitHub Actions)
 
 **Интерпретация отчета:**
 
@@ -506,7 +521,7 @@ npm run lighthouse:report
    - CLS (Cumulative Layout Shift) < 0.1
    - TBT (Total Blocking Time) < 300ms
 
-2. **PWA Score (≥80):**
+2. **PWA Score (installable):**
    - ✅ Installable manifest
    - ✅ Service Worker
    - ✅ HTTPS
@@ -535,23 +550,29 @@ npm run lighthouse:report
 
 **Пример вывода:**
 ```
-📈 Результаты аудита:
-==================================================
-✅ PERFORMANCE: 92/100
-✅ ACCESSIBILITY: 95/100
-✅ BEST-PRACTICES: 88/100
-✅ SEO: 92/100
-✅ PWA: 85/100
+🚀 Starting Next.js server...
+✅ Server is ready!
+⏳ Waiting for server to be ready...
+✅ Server health check passed!
+🔍 Launching Chrome...
+📊 Running Lighthouse audit...
 
-🎯 Проверка бюджета:
-==================================================
-✅ performance: 92 >= 85
-✅ accessibility: 95 >= 90
-✅ best-practices: 88 >= 85
-✅ seo: 92 >= 90
-✅ pwa: 85 >= 80
+📈 Lighthouse Results:
+=====================
+Performance: 87.2/100 (target: ≥85)
+✅ Performance target met!
+PWA: 95.1/100 (target: installable)
+✅ PWA is installable!
+Accessibility: 92.3/100 (target: ≥90)
+✅ Accessibility target met!
+Best Practices: 88.7/100 (target: ≥85)
+✅ Best Practices target met!
+SEO: 91.5/100 (target: ≥90)
+✅ SEO target met!
 
-✅ Все метрики соответствуют бюджету!
+=====================
+🎉 All Lighthouse targets met!
+📄 Report saved: /path/to/lighthouse-reports/lighthouse-report-2025-01-24T10-30-00-000Z.html
 ```
 
 ## Readiness Checks
