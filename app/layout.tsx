@@ -1,126 +1,87 @@
-import type { Metadata, Viewport } from 'next';
+import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
-import { ToastProvider } from '@/components/toast-provider';
 import { SWRProvider } from '@/components/swr-provider';
+import { ToastProvider } from '@/components/toast-provider';
 
-// === FONT КОНФИГУРАЦИЯ ===
-// Next.js 15: обновленная конфигурация шрифтов
-const inter = Inter({ 
-  subsets: ['latin', 'cyrillic'],
-  display: 'swap',
-  variable: '--font-inter',
-  preload: true,
-});
+const inter = Inter({ subsets: ['latin'] });
 
-// === МЕТАДАННЫЕ ===
-// Next.js 15: обновленная структура метаданных
 export const metadata: Metadata = {
-  title: {
-    default: 'ExcuseME - Polite Excuses',
-    template: '%s | ExcuseME'
-  },
+  title: 'ExcuseME - Polite Excuses',
   description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support. Create polite excuses for any situation using AI.',
-  keywords: ['excuses', 'generator', 'polite', 'AI', 'OpenAI', 'PWA', 'Telegram'],
+  applicationName: 'ExcuseME',
   authors: [{ name: 'ExcuseME Team' }],
+  manifest: '/manifest.webmanifest',
+  keywords: ['excuses', 'generator', 'polite', 'AI', 'OpenAI', 'PWA', 'Telegram'],
   creator: 'ExcuseME',
   publisher: 'ExcuseME',
-  formatDetection: {
-    email: false,
-    address: false,
-    telephone: false,
-  },
-  
-  // === PWA МЕТАДАННЫЕ ===
-  manifest: '/manifest.webmanifest',
-  applicationName: 'ExcuseME',
+  robots: 'index, follow',
   category: 'productivity',
-  
-  // === OPEN GRAPH ===
-  openGraph: {
-    type: 'website',
-    locale: 'en_US',
-    url: 'https://excuseme.app',
-    title: 'ExcuseME - Polite Excuses',
-    description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support',
-    siteName: 'ExcuseME',
-  },
-  
-  // === TWITTER ===
-  twitter: {
-    card: 'summary',
-    title: 'ExcuseME - Polite Excuses',
-    description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support',
-    creator: '@excuseme_app',
-  },
-  
-  // === APPLE WEB APP ===
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: 'default',
-    title: 'ExcuseME',
-  },
-  
-  // === ИКОНКИ ===
-  icons: {
-    icon: '/favicon.ico',
-    shortcut: '/favicon.ico',
-  },
-  
-  // === АЛЬТЕРНАТИВНЫЕ ЯЗЫКИ ===
   alternates: {
     canonical: 'https://excuseme.app',
   },
-  
-  // === РОБОТЫ ===
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-video-preview': -1,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
+  formatDetection: {
+    telephone: false,
+    address: false,
+    email: false,
   },
-  
-  // === ВЕРИФИКАЦИЯ ===
   verification: {
     google: 'your-google-verification-code',
     yandex: 'your-yandex-verification-code',
   },
+  appleWebApp: {
+    capable: true,
+    title: 'ExcuseME',
+    statusBarStyle: 'default',
+  },
+  openGraph: {
+    title: 'ExcuseME - Polite Excuses',
+    description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support',
+    url: 'https://excuseme.app',
+    siteName: 'ExcuseME',
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary',
+    creator: '@excuseme_app',
+    title: 'ExcuseME - Polite Excuses',
+    description: 'AI-powered generator of polite excuses with PWA and Telegram Mini App support',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+  },
 };
 
-// === VIEWPORT КОНФИГУРАЦИЯ ===
-// Next.js 15: отдельный export для viewport
-export const viewport: Viewport = {
-  width: 'device-width',
-  initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#6f5cff' },
-    { media: '(prefers-color-scheme: dark)', color: '#8b7cff' },
-  ],
-  colorScheme: 'light dark',
-};
-
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={inter.variable}>
-
-      <body className={`${inter.className} antialiased`}>
-        <SWRProvider>
-          {children}
-          <ToastProvider />
-        </SWRProvider>
+    <html lang="en">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              document.querySelectorAll('body link[rel="icon"], body link[rel="apple-touch-icon"]').forEach(el => document.head.appendChild(el))
+            `,
+          }}
+        />
+      </head>
+      <body className={`${inter.className} antialiased bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden`}>
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/10 to-purple-300/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
         
-
+        <SWRProvider>
+          <ToastProvider />
+          {children}
+        </SWRProvider>
       </body>
     </html>
   );
