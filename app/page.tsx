@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, X } from 'lucide-react';
 import { CreatePanel } from '@/components/create-panel';
@@ -12,6 +12,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
+
+  // Временная отладка переменных окружения
+  useEffect(() => {
+    console.log('Environment variables check:');
+    console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
+    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET');
+  }, []);
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-screen overflow-hidden">
@@ -31,12 +38,7 @@ export default function HomePage() {
               <Button 
                 className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
                 data-testid="btn-login"
-                onClick={() => {
-                  // Временно показываем alert вместо модального окна
-                  // пока не настроен Supabase
-                  alert('Sign In functionality requires Supabase setup. Check AUTH_SETUP.md for instructions.');
-                  // setShowAuthModal(true);
-                }}
+                onClick={() => setShowAuthModal(true)}
               >
                 Sign In
               </Button>
