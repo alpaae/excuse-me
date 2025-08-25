@@ -45,8 +45,10 @@ jobs:
         STRIPE_WEBHOOK_SECRET: ${{ secrets.STRIPE_WEBHOOK_SECRET }}
         TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
         
-    - name: Deploy to Vercel (Preview)
-      run: |
-        echo "Deployment completed successfully!"
-        echo "Your app is available at: https://excuse-me-pavlo-berlizov-s-projects.vercel.app"
-        echo "Note: Production deployment requires manual promotion in Vercel Dashboard"
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
