@@ -9,7 +9,7 @@ interface RightHeroPanelProps {
 
 export function RightHeroPanel({ user }: RightHeroPanelProps) {
   return (
-    <div className="flex flex-col justify-center h-full max-w-[520px] mx-auto" data-testid="panel-why">
+    <div className="max-w-[520px] w-full" data-testid="panel-why">
       {/* Hero Section */}
       <div className="text-center mb-8">
         {user ? (

@@ -65,12 +65,12 @@ export function CreatePanel() {
   };
 
   return (
-    <div className="max-w-[640px] w-full mx-auto h-full flex flex-col" data-testid="panel-create">
-      <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden flex-1 flex flex-col max-h-full">
+    <div className="max-w-[640px] w-full mx-auto" data-testid="panel-create">
+      <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
         {!result ? (
           // Form State
           <>
-            <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50 flex-shrink-0">
+            <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50">
               <CardTitle className="flex items-center space-x-3 text-2xl">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
                   <Wand2 className="h-5 w-5 text-white" />
@@ -82,10 +82,9 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col">
-              <form onSubmit={handleGenerate} className="flex-1 flex flex-col" data-testid="gen-form">
-                {/* Scrollable Form Content */}
-                <div className="flex-1 overflow-y-auto space-y-6 pr-2">
+            <CardContent className="p-6">
+              <form onSubmit={handleGenerate} data-testid="gen-form">
+                <div className="space-y-6">
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
@@ -162,34 +161,34 @@ export function CreatePanel() {
 
                   {/* Prompt Tips */}
                   <PromptTips />
-                </div>
 
-                {/* Fixed Generate Button */}
-                <div className="flex-shrink-0 pt-4 border-t border-gray-100 bg-white/70 backdrop-blur mt-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs text-gray-500">Press ⌘⏎ / Ctrl⏎</span>
-                  </div>
-                  <Button 
-                    type="submit" 
-                    disabled={generating || !formData.scenario.trim()}
-                    className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                    data-testid="gen-submit"
-                  >
-                    <div className="flex items-center space-x-2">
-                      {generating ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                          <span>Generating...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Wand2 className="h-5 w-5" />
-                          <span>Generate Excuse</span>
-                          <ArrowRight className="h-4 w-4" />
-                        </>
-                      )}
+                  {/* Generate Button */}
+                  <div className="pt-4 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="text-xs text-gray-500">Press ⌘⏎ / Ctrl⏎</span>
                     </div>
-                  </Button>
+                    <Button 
+                      type="submit" 
+                      disabled={generating || !formData.scenario.trim()}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      data-testid="gen-submit"
+                    >
+                      <div className="flex items-center space-x-2">
+                        {generating ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <span>Generating...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Wand2 className="h-5 w-5" />
+                            <span>Generate Excuse</span>
+                            <ArrowRight className="h-4 w-4" />
+                          </>
+                        )}
+                      </div>
+                    </Button>
+                  </div>
                 </div>
               </form>
             </CardContent>
@@ -197,7 +196,7 @@ export function CreatePanel() {
         ) : (
           // Result State
           <>
-            <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50 flex-shrink-0">
+            <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
               <CardTitle className="flex items-center space-x-3 text-2xl">
                 <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
                   <CheckCircle className="h-5 w-5 text-white" />
@@ -209,27 +208,24 @@ export function CreatePanel() {
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6 flex-1 flex flex-col">
-              <div className="flex-1 overflow-y-auto">
+            <CardContent className="p-6">
+              <div className="space-y-6">
                 {resultRarity ? (
                   <ExcuseCard 
                     text={result} 
                     rarity={resultRarity} 
                     excuseId={resultExcuseId || undefined}
                     showCTA={true}
-                    className="mb-6"
                   />
                 ) : (
-                  <div className="bg-gray-50 rounded-xl p-6 mb-6">
+                  <div className="bg-gray-50 rounded-xl p-6">
                     <p className="text-gray-800 text-lg leading-relaxed whitespace-pre-wrap" data-testid="gen-result">
                       {result}
                     </p>
                   </div>
                 )}
-              </div>
-              
-              <div className="flex-shrink-0 pt-4 border-t border-gray-100 mt-4">
-                <div className="flex flex-col sm:flex-row gap-4">
+                
+                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100">
                   <Button 
                     onClick={() => {
                       setResult('');

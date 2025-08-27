@@ -112,35 +112,33 @@ export default function HomePage() {
       </header>
 
       {/* Row 2: Main Content */}
-      <main className="relative z-10 max-w-7xl mx-auto px-4 h-full">
-
-
+      <main className="relative z-10 max-w-7xl mx-auto px-4 py-8">
         {/* Desktop Layout: Two Columns */}
-        <div className="hidden md:grid md:grid-cols-2 md:gap-6 h-full">
+        <div className="hidden md:grid md:grid-cols-2 md:gap-8 md:items-start">
           {/* Left Column: Create Panel */}
-          <div className="flex items-center">
+          <div className="flex justify-center">
             <CreatePanel />
           </div>
           
           {/* Right Column: Hero Panel */}
-          <div className="flex items-center">
+          <div className="flex justify-center">
             <RightHeroPanel user={user} />
           </div>
         </div>
 
         {/* Mobile Layout: Tabs */}
-        <div className="md:hidden h-full flex flex-col">
-          <Tabs defaultValue="create" className="h-full flex flex-col" data-testid="home-tabs">
-            <TabsList className="grid w-full grid-cols-2 mb-4">
+        <div className="md:hidden">
+          <Tabs defaultValue="create" className="space-y-6" data-testid="home-tabs">
+            <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="create">Create</TabsTrigger>
               <TabsTrigger value="why">Why ExcuseME</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="create" className="flex-1 h-full overflow-hidden">
+            <TabsContent value="create" className="space-y-0">
               <CreatePanel />
             </TabsContent>
             
-            <TabsContent value="why" className="flex-1 h-full overflow-hidden">
+            <TabsContent value="why" className="space-y-0">
               <RightHeroPanel user={user} />
             </TabsContent>
           </Tabs>
