@@ -1,7 +1,7 @@
 {
-  "name": "ExcuseME - Вежливые отмазки",
+  "name": "ExcuseME - Polite Excuses",
   "short_name": "ExcuseME",
-  "description": "Генератор вежливых отмазок с поддержкой PWA и Telegram Mini App",
+  "description": "AI-powered generator of polite excuses with PWA and Telegram Mini App support",
   "start_url": "/?source=pwa&utm_source=pwa",
   "scope": "/",
   "display": "standalone",
@@ -9,7 +9,7 @@
   "background_color": "#0b0b0f",
   "theme_color": "#6f5cff",
   "categories": ["productivity", "utilities", "social"],
-  "lang": "ru",
+  "lang": "en",
   "dir": "ltr",
   "prefer_related_applications": false,
   "icons": [
@@ -64,9 +64,9 @@
   ],
   "shortcuts": [
     {
-      "name": "Создать отмазку",
-      "short_name": "Новая отмазка",
-      "description": "Быстро создать новую отмазку",
+      "name": "Create Excuse",
+      "short_name": "New Excuse",
+      "description": "Quickly create a new excuse",
       "url": "/?action=new&source=pwa",
       "icons": [
         {
@@ -76,9 +76,9 @@
       ]
     },
     {
-      "name": "Избранное",
-      "short_name": "Избранное",
-      "description": "Просмотр избранных отмазок",
+      "name": "Favorites",
+      "short_name": "Favorites",
+      "description": "View favorite excuses",
       "url": "/dashboard?tab=favorites&source=pwa",
       "icons": [
         {
@@ -94,14 +94,14 @@
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
-      "label": "Главная страница ExcuseME"
+      "label": "ExcuseME Homepage"
     },
     {
       "src": "/screenshots/mobile.png",
       "sizes": "390x844",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Мобильная версия ExcuseME"
+      "label": "ExcuseME Mobile Version"
     }
   ],
   "related_applications": [],

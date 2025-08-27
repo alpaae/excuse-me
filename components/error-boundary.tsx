@@ -57,17 +57,17 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
           <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-red-100 dark:bg-red-900">
             <AlertTriangle className="h-6 w-6 text-red-600 dark:text-red-400" />
           </div>
-          <CardTitle className="text-xl">Что-то пошло не так</CardTitle>
+          <CardTitle className="text-xl">Something went wrong</CardTitle>
           <CardDescription>
-            Произошла неожиданная ошибка. Не волнуйтесь, мы уже работаем над её устранением.
+            An unexpected error occurred. Don't worry, we're already working on fixing it.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {process.env.NODE_ENV === 'development' && error && (
             <details className="rounded-lg bg-gray-50 dark:bg-gray-800 p-4">
-              <summary className="cursor-pointer font-medium text-gray-700 dark:text-gray-300">
-                Детали ошибки (только для разработчиков)
-              </summary>
+                              <summary className="cursor-pointer font-medium text-gray-700 dark:text-gray-300">
+                  Error details (developers only)
+                </summary>
               <pre className="mt-2 text-sm text-gray-600 dark:text-gray-400 whitespace-pre-wrap">
                 {error.message}
                 {error.stack && `\n\n${error.stack}`}
@@ -78,7 +78,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
           <div className="flex flex-col gap-2">
             <Button onClick={resetError} className="w-full">
               <RefreshCw className="mr-2 h-4 w-4" />
-              Попробовать снова
+              Try again
             </Button>
             
             <Button 
@@ -86,7 +86,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
               onClick={() => window.location.href = '/'}
               className="w-full"
             >
-              Вернуться на главную
+              Back to home
             </Button>
           </div>
         </CardContent>
@@ -95,7 +95,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
   );
 }
 
-// HOC для оборачивания компонентов в Error Boundary
+// HOC for wrapping components in Error Boundary
 export function withErrorBoundary<P extends object>(
   Component: React.ComponentType<P>,
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>

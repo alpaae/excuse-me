@@ -36,7 +36,7 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       } else {
         setMessage('Check your email for magic link! You can close this window.');
         setEmail('');
-        // Автоматически закрываем модальное окно через 3 секунды
+        // Auto-close modal after 3 seconds
         setTimeout(() => {
           onSuccess?.();
         }, 3000);

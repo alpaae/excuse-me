@@ -37,7 +37,7 @@ export default function AccountPage() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Загружаем профиль
+        // Load profile
         const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
@@ -49,7 +49,7 @@ export default function AccountPage() {
           setDisplayName(profileData.display_name || '');
         }
 
-        // Загружаем подписку
+        // Load subscription
         const { data: subscriptionData } = await supabase
           .from('subscriptions')
           .select('*')

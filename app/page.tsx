@@ -19,7 +19,7 @@ export default function HomePage() {
   const supabase = createClient();
 
   useEffect(() => {
-    // Получаем текущего пользователя
+    // Get current user
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
@@ -28,13 +28,13 @@ export default function HomePage() {
 
     getUser();
 
-    // Подписываемся на изменения состояния аутентификации
+    // Subscribe to authentication state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         setUser(session?.user ?? null);
         setLoading(false);
         
-        // Закрываем модальное окно после успешной аутентификации
+        // Close modal after successful authentication
         if (event === 'SIGNED_IN') {
           setShowAuthModal(false);
         }
