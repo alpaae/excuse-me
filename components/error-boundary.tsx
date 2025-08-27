@@ -59,7 +59,7 @@ function DefaultErrorFallback({ error, resetError }: { error?: Error; resetError
           </div>
           <CardTitle className="text-xl">Something went wrong</CardTitle>
           <CardDescription>
-            An unexpected error occurred. Don't worry, we're already working on fixing it.
+            An unexpected error occurred. Don&apos;t worry, we&apos;re already working on fixing it.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
