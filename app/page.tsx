@@ -1,17 +1,61 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Sparkles, X } from 'lucide-react';
+import { Sparkles, X, User, LogOut } from 'lucide-react';
 import { CreatePanel } from '@/components/create-panel';
 import { RightHeroPanel } from '@/components/right-hero-panel';
 import { BottomTrustBar } from '@/components/bottom-trust-bar';
 import { OnboardingModal } from '@/components/onboarding-modal';
 import { AuthForm } from '@/components/auth/auth-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { createClient } from '@/lib/supabase';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
+  const [loading, setLoading] = useState(true);
+  const supabase = createClient();
+
+  useEffect(() => {
+    // Получаем текущего пользователя
+    const getUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setLoading(false);
+    };
+
+    getUser();
+
+    // Подписываемся на изменения состояния аутентификации
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setUser(session?.user ?? null);
+        setLoading(false);
+        
+        // Закрываем модальное окно после успешной аутентификации
+        if (event === 'SIGNED_IN') {
+          setShowAuthModal(false);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, [supabase.auth]);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-screen overflow-hidden">
@@ -28,13 +72,41 @@ export default function HomePage() {
               </h1>
             </div>
             <div className="flex items-center space-x-4">
-              <Button 
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                data-testid="btn-login"
-                onClick={() => setShowAuthModal(true)}
-              >
-                Sign In
-              </Button>
+              {user ? (
+                <>
+                  <Button
+                    variant="ghost"
+                    className="text-gray-700 hover:text-gray-900"
+                    onClick={() => window.location.href = '/dashboard'}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    History
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    className="text-gray-700 hover:text-gray-900"
+                    onClick={() => window.location.href = '/account'}
+                  >
+                    Account
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    onClick={handleSignOut}
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </>
+              ) : (
+                <Button 
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                  data-testid="btn-login"
+                  onClick={() => setShowAuthModal(true)}
+                >
+                  Sign In
+                </Button>
+              )}
             </div>
           </div>
         </div>
@@ -51,7 +123,7 @@ export default function HomePage() {
           
           {/* Right Column: Hero Panel */}
           <div className="flex items-center">
-            <RightHeroPanel />
+            <RightHeroPanel user={user} />
           </div>
         </div>
 
@@ -68,7 +140,7 @@ export default function HomePage() {
             </TabsContent>
             
             <TabsContent value="why" className="flex-1 h-full overflow-hidden">
-              <RightHeroPanel />
+              <RightHeroPanel user={user} />
             </TabsContent>
           </Tabs>
         </div>

@@ -34,9 +34,12 @@ export function AuthForm({ onSuccess }: AuthFormProps) {
       if (error) {
         setMessage(error.message);
       } else {
-        setMessage('Check your email for magic link!');
+        setMessage('Check your email for magic link! You can close this window.');
         setEmail('');
-        onSuccess?.();
+        // Автоматически закрываем модальное окно через 3 секунды
+        setTimeout(() => {
+          onSuccess?.();
+        }, 3000);
       }
     } catch (error) {
       setMessage('An error occurred while sending magic link');
