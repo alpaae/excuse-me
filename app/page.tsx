@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sparkles, X } from 'lucide-react';
 import { CreatePanel } from '@/components/create-panel';
@@ -12,13 +12,6 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
-
-  // Временная отладка переменных окружения
-  useEffect(() => {
-    console.log('Environment variables check:');
-    console.log('NEXT_PUBLIC_SUPABASE_URL:', process.env.NEXT_PUBLIC_SUPABASE_URL);
-    console.log('NEXT_PUBLIC_SUPABASE_ANON_KEY:', process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ? 'SET' : 'NOT SET');
-  }, []);
 
   return (
     <div className="grid grid-rows-[auto_1fr_auto] h-screen overflow-hidden">
@@ -90,9 +83,9 @@ export default function HomePage() {
       {/* Auth Modal */}
       {showAuthModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">Sign In</h2>
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[70vh] overflow-y-auto">
+            <div className="flex items-center justify-between p-4 border-b">
+              <h2 className="text-lg font-semibold text-gray-900">Sign In</h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -102,7 +95,7 @@ export default function HomePage() {
                 <X className="h-5 w-5" />
               </Button>
             </div>
-            <div className="p-6">
+            <div className="p-4">
               <AuthForm onSuccess={() => setShowAuthModal(false)} />
             </div>
           </div>
