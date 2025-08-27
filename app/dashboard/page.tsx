@@ -11,7 +11,6 @@ import { Star, Copy, Share2, Volume2, Heart, Calendar, MessageSquare, Phone, Use
 import { SocialProofBar } from '@/components/social-proof-bar';
 import { FreeLimitBanner } from '@/components/free-limit-banner';
 import { ExcuseCard } from '@/components/excuse-card';
-import { BottomTrustBar } from '@/components/bottom-trust-bar';
 
 interface Excuse {
   id: string;

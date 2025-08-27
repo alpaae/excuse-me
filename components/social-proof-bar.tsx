@@ -40,7 +40,7 @@ function AnimatedCounter({ value, duration = 500 }: AnimatedCounterProps) {
   }, [value, duration, displayValue]);
 
   return (
-    <span className="font-bold text-blue-600">
+    <span className="font-bold text-blue-600 text-lg">
       {displayValue.toLocaleString()}
     </span>
   );

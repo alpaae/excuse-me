@@ -5,12 +5,12 @@ import { Button } from '@/components/ui/button';
 import { Sparkles, X, User, LogOut } from 'lucide-react';
 import { CreatePanel } from '@/components/create-panel';
 import { RightHeroPanel } from '@/components/right-hero-panel';
-import { BottomTrustBar } from '@/components/bottom-trust-bar';
 import { OnboardingModal } from '@/components/onboarding-modal';
 import { AuthForm } from '@/components/auth/auth-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { createClient } from '@/lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { SocialProofBar } from '@/components/social-proof-bar';
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
@@ -58,7 +58,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="grid grid-rows-[auto_1fr_auto] h-screen overflow-hidden">
+    <div className="grid grid-rows-[auto_1fr] h-screen overflow-hidden">
       {/* Row 1: Top Bar */}
       <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -114,6 +114,21 @@ export default function HomePage() {
 
       {/* Row 2: Main Content */}
       <main className="relative z-10 max-w-7xl mx-auto px-4 h-full">
+        {/* Social Proof Counter - Prominently placed */}
+        <div className="text-center py-6">
+          <div className="inline-flex items-center space-x-3 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-full px-6 py-3 shadow-lg">
+            <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+              <Sparkles className="h-4 w-4 text-white" />
+            </div>
+            <div className="text-center">
+              <div className="text-sm font-medium text-blue-700">
+                <SocialProofBar />
+              </div>
+              <div className="text-xs text-blue-600">have created excuses today</div>
+            </div>
+          </div>
+        </div>
+
         {/* Desktop Layout: Two Columns */}
         <div className="hidden md:grid md:grid-cols-2 md:gap-6 h-full">
           {/* Left Column: Create Panel */}
@@ -145,9 +160,6 @@ export default function HomePage() {
           </Tabs>
         </div>
       </main>
-
-      {/* Row 3: Bottom Trust Bar */}
-      <BottomTrustBar />
 
       {/* Onboarding Modal */}
       <OnboardingModal />
