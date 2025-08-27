@@ -7,10 +7,11 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Wand2, ArrowRight, CheckCircle } from 'lucide-react';
+import { Wand2, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
 import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
+import { SocialProofBar } from '@/components/social-proof-bar';
 
 export function CreatePanel() {
   const [formData, setFormData] = useState({
@@ -86,9 +87,20 @@ export function CreatePanel() {
                 {/* Scrollable Form Content */}
                 <div className="flex-1 overflow-y-auto space-y-6 pr-2">
                   <div className="space-y-3">
-                    <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
-                      What&apos;s the situation?
-                    </Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
+                        What&apos;s the situation?
+                      </Label>
+                      {/* Social Proof Counter */}
+                      <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-full px-3 py-1 shadow-sm">
+                        <div className="w-5 h-5 bg-gradient-to-br from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                          <Sparkles className="h-3 w-3 text-white" />
+                        </div>
+                        <div className="text-xs font-medium text-blue-700">
+                          <SocialProofBar />
+                        </div>
+                      </div>
+                    </div>
                     <Textarea
                       id="scenario"
                       data-testid="gen-scenario"
