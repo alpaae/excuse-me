@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { User, Crown, LogOut, Save, ArrowRight, Sparkles } from 'lucide-react';
+import { User, Crown, LogOut, Save, ArrowRight, Sparkles, Shield, Settings, CreditCard, Zap } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -117,8 +117,11 @@ export default function AccountPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary"></div>
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading your account...</p>
+        </div>
       </div>
     );
   }
@@ -126,9 +129,16 @@ export default function AccountPage() {
   return (
     <AuthGuard>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        {/* Animated Background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-gradient-to-tr from-indigo-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-gradient-to-r from-blue-300/10 to-purple-300/10 rounded-full blur-3xl animate-pulse delay-500"></div>
+        </div>
+
         {/* Header */}
-        <header className="border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 z-50">
-          <div className="container mx-auto px-4 py-4">
+        <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0">
+          <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -147,7 +157,7 @@ export default function AccountPage() {
                     window.history.back();
                   }
                 }}
-                className="bg-white/50 backdrop-blur-sm hover:bg-white/70"
+                className="bg-white/50 backdrop-blur-sm hover:bg-white/70 text-gray-700"
               >
                 <ArrowRight className="mr-2 h-4 w-4 rotate-180" />
                 Back
@@ -156,163 +166,224 @@ export default function AccountPage() {
           </div>
         </header>
 
-        <div className="max-w-4xl mx-auto px-4 py-8 pb-24">
-          {/* Page Title */}
-          <div className="text-center mb-12">
-            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-xl">
-              <User className="h-10 w-10 text-white" />
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+          {/* Hero Section */}
+          <div className="text-center mb-16">
+            <div className="relative inline-block mb-8">
+              <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                <User className="h-12 w-12 text-white" />
+              </div>
+              <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+                <div className="w-3 h-3 bg-white rounded-full"></div>
+              </div>
             </div>
-            <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-3">
+            <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
               Account Settings
             </h1>
-            <p className="text-gray-600 text-lg">Manage your profile and subscription</p>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Manage your profile, subscription, and account preferences
+            </p>
           </div>
 
-          <div className="grid lg:grid-cols-2 gap-8">
-            {/* Profile Section */}
-            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
-              <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50">
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                    <User className="h-5 w-5 text-white" />
+          {/* Main Content Grid */}
+          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+            {/* Profile Card */}
+            <div className="lg:col-span-2">
+              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden">
+                <CardHeader className="pb-8 bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                      <User className="h-6 w-6 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-2xl font-bold text-gray-900">Profile Information</CardTitle>
+                      <CardDescription className="text-lg text-gray-600">
+                        Update your personal details and preferences
+                      </CardDescription>
+                    </div>
                   </div>
-                  <span>Profile</span>
-                </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
-                  Update your personal information
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent className="p-8 space-y-6">
-                <div className="space-y-3">
-                  <Label htmlFor="displayName" className="text-base font-semibold text-gray-700">
-                    Display Name
-                  </Label>
-                  <Input
-                    id="displayName"
-                    value={displayName}
-                    onChange={(e) => setDisplayName(e.target.value)}
-                    placeholder="Enter your name"
-                    className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
-                  />
-                </div>
+                </CardHeader>
                 
-                <div className="space-y-3">
-                  <Label className="text-base font-semibold text-gray-700">Email Address</Label>
-                  <Input
-                    value={profile?.id || ''}
-                    disabled
-                    className="bg-gray-50 border-gray-200 rounded-xl text-base"
-                  />
-                  <p className="text-sm text-gray-500">Email cannot be changed</p>
-                </div>
+                <CardContent className="p-8 space-y-8">
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <Label htmlFor="displayName" className="text-base font-semibold text-gray-700 flex items-center">
+                        <User className="h-4 w-4 mr-2 text-blue-600" />
+                        Display Name
+                      </Label>
+                      <Input
+                        id="displayName"
+                        value={displayName}
+                        onChange={(e) => setDisplayName(e.target.value)}
+                        placeholder="Enter your name"
+                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base h-12"
+                      />
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold text-gray-700 flex items-center">
+                        <Shield className="h-4 w-4 mr-2 text-green-600" />
+                        Email Address
+                      </Label>
+                      <Input
+                        value={profile?.id || ''}
+                        disabled
+                        className="bg-gray-50 border-gray-200 rounded-xl text-base h-12"
+                      />
+                      <p className="text-sm text-gray-500 flex items-center">
+                        <Shield className="h-3 w-3 mr-1" />
+                        Email cannot be changed
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4">
+                    <Button 
+                      onClick={handleSaveProfile} 
+                      disabled={saving}
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 h-14"
+                    >
+                      <Save className="mr-3 h-5 w-5" />
+                      {saving ? 'Saving Changes...' : 'Save Changes'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Subscription Card */}
+            <div className="lg:col-span-1">
+              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden h-fit">
+                <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <Crown className="h-5 w-5 text-white" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-xl font-bold text-gray-900">Subscription</CardTitle>
+                      <CardDescription className="text-gray-600">
+                        Your plan status
+                      </CardDescription>
+                    </div>
+                  </div>
+                </CardHeader>
                 
-                <Button 
-                  onClick={handleSaveProfile} 
-                  disabled={saving}
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
-                >
-                  <Save className="mr-2 h-4 w-4" />
-                  {saving ? 'Saving...' : 'Save Changes'}
-                </Button>
+                <CardContent className="p-6 space-y-6">
+                  <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
+                    <div>
+                      <p className="font-bold text-gray-900">Current Plan</p>
+                      <p className="text-sm text-gray-600">Unlimited excuses & premium features</p>
+                    </div>
+                    <Badge 
+                      variant={subscription ? 'default' : 'secondary'}
+                      className={`px-4 py-2 text-sm font-bold rounded-full ${
+                        subscription 
+                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' 
+                          : 'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700'
+                      }`}
+                    >
+                      {subscription ? 'Pro Plan' : 'Free Plan'}
+                    </Badge>
+                  </div>
+                  
+                  {subscription && (
+                    <div className="space-y-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200">
+                      <h4 className="font-bold text-green-900 flex items-center">
+                        <Zap className="h-4 w-4 mr-2" />
+                        Subscription Details
+                      </h4>
+                      <div className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center">
+                          <span className="text-green-700">Provider:</span>
+                          <span className="font-semibold text-green-900 capitalize">{subscription.provider}</span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-green-700">Valid until:</span>
+                          <span className="font-semibold text-green-900">
+                            {new Date(subscription.current_period_end).toLocaleDateString()}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {!subscription && (
+                    <div className="p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl border border-orange-200">
+                      <div className="text-center">
+                        <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-500 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
+                          <Crown className="h-8 w-8 text-white" />
+                        </div>
+                        <h4 className="font-bold text-orange-900 mb-3 text-lg">Upgrade to Pro</h4>
+                        <p className="text-orange-700 text-sm mb-6 leading-relaxed">
+                          Get unlimited excuse generations and unlock premium features
+                        </p>
+                        <Button 
+                          onClick={handleUpgradeSubscription} 
+                          className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                        >
+                          <Crown className="mr-2 h-5 w-5" />
+                          Upgrade to Pro
+                        </Button>
+                      </div>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+
+          {/* Additional Features Grid */}
+          <div className="grid md:grid-cols-3 gap-6 mb-12">
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Settings className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">Preferences</h3>
+                <p className="text-gray-600 text-sm">Customize your experience</p>
               </CardContent>
             </Card>
 
-            {/* Subscription Section */}
-            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
-              <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
-                <CardTitle className="flex items-center space-x-3 text-2xl">
-                  <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
-                    <Crown className="h-5 w-5 text-white" />
-                  </div>
-                  <span>Subscription</span>
-                </CardTitle>
-                <CardDescription className="text-lg text-gray-600">
-                  Your Pro subscription status
-                </CardDescription>
-              </CardHeader>
-              
-              <CardContent className="p-8 space-y-6">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-xl">
-                  <div>
-                    <p className="font-semibold text-gray-900">Current Plan</p>
-                    <p className="text-sm text-gray-600">Unlimited excuses & premium features</p>
-                  </div>
-                  <Badge 
-                    variant={subscription ? 'default' : 'secondary'}
-                    className={`px-3 py-1 text-sm font-semibold ${
-                      subscription 
-                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white' 
-                        : 'bg-gray-200 text-gray-700'
-                    }`}
-                  >
-                    {subscription ? 'Pro' : 'Free Plan'}
-                  </Badge>
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <CreditCard className="h-6 w-6 text-white" />
                 </div>
-                
-                {subscription && (
-                  <div className="space-y-4 p-4 bg-green-50 rounded-xl border border-green-200">
-                    <h4 className="font-semibold text-green-900">Subscription Details</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-green-700">Provider:</span>
-                        <span className="font-medium text-green-900 capitalize">{subscription.provider}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-green-700">Valid until:</span>
-                        <span className="font-medium text-green-900">
-                          {new Date(subscription.current_period_end).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                )}
+                <h3 className="font-bold text-gray-900 mb-2">Billing</h3>
+                <p className="text-gray-600 text-sm">Manage your payments</p>
+              </CardContent>
+            </Card>
 
-                {!subscription && (
-                  <div className="p-6 bg-gradient-to-r from-orange-50 to-red-50 rounded-xl border border-orange-200">
-                    <div className="text-center">
-                      <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                        <Crown className="h-6 w-6 text-white" />
-                      </div>
-                      <h4 className="font-semibold text-orange-900 mb-2">Upgrade to Pro</h4>
-                      <p className="text-orange-700 text-sm mb-4">
-                        Get unlimited excuse generations and unlock premium features
-                      </p>
-                      <Button 
-                        onClick={handleUpgradeSubscription} 
-                        className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white"
-                      >
-                        <Crown className="mr-2 h-4 w-4" />
-                        Upgrade to Pro
-                      </Button>
-                    </div>
-                  </div>
-                )}
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300">
+              <CardContent className="p-6 text-center">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                  <Shield className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="font-bold text-gray-900 mb-2">Security</h3>
+                <p className="text-gray-600 text-sm">Account protection</p>
               </CardContent>
             </Card>
           </div>
 
           {/* Sign Out Section */}
-          <div className="mt-8">
-            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden">
+          <div className="text-center">
+            <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden max-w-md mx-auto">
               <CardContent className="p-8">
-                <div className="text-center">
-                  <div className="w-12 h-12 bg-gradient-to-br from-gray-500 to-gray-600 rounded-xl flex items-center justify-center mx-auto mb-4">
-                    <LogOut className="h-6 w-6 text-white" />
-                  </div>
-                  <h3 className="font-semibold text-gray-900 mb-2">Sign Out</h3>
-                  <p className="text-gray-600 text-sm mb-6">
-                    Sign out of your account
-                  </p>
-                  <Button 
-                    variant="outline" 
-                    onClick={handleSignOut} 
-                    className="border-gray-300 hover:bg-gray-50 text-gray-700"
-                  >
-                    <LogOut className="mr-2 h-4 w-4" />
-                    Sign Out
-                  </Button>
+                <div className="w-16 h-16 bg-gradient-to-br from-gray-500 to-gray-600 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg">
+                  <LogOut className="h-8 w-8 text-white" />
                 </div>
+                <h3 className="font-bold text-gray-900 mb-3 text-xl">Sign Out</h3>
+                <p className="text-gray-600 text-sm mb-8 leading-relaxed">
+                  Sign out of your account. You can always sign back in later.
+                </p>
+                <Button 
+                  variant="outline" 
+                  onClick={handleSignOut} 
+                  className="border-gray-300 hover:bg-gray-50 text-gray-700 py-3 px-6 rounded-xl font-semibold"
+                >
+                  <LogOut className="mr-2 h-5 w-5" />
+                  Sign Out
+                </Button>
               </CardContent>
             </Card>
           </div>
