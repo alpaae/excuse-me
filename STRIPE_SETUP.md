@@ -31,13 +31,15 @@
 
 1. **Dashboard** → **Developers** → **Webhooks**
 2. **Add endpoint**
-3. **Endpoint URL:** `https://your-domain.com/api/stripe/webhook`
+3. **Endpoint URL:** `https://your-domain.vercel.app/api/stripe/webhook`
 4. **Events to send:**
-   - `checkout.session.completed`
+   - `checkout.session.completed` ⭐ **Обязательно**
    - `invoice.payment_succeeded`
    - `invoice.payment_failed`
    - `customer.subscription.deleted`
 5. **Copy Webhook Secret** (начинается с `whsec_`)
+
+**⚠️ Важно:** Замените `your-domain.vercel.app` на ваш реальный домен из Vercel Dashboard!
 
 ### **4. Получение API ключей**
 

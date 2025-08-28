@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Sparkles, X, User, LogOut } from 'lucide-react';
+import { Sparkles, X, User, LogOut, CheckCircle } from 'lucide-react';
 import { CreatePanel } from '@/components/create-panel';
 import { RightHeroPanel } from '@/components/right-hero-panel';
 import { OnboardingModal } from '@/components/onboarding-modal';
@@ -13,14 +14,37 @@ import { User as SupabaseUser } from '@supabase/supabase-js';
 import { LimitNotification } from '@/components/limit-notification';
 import { PremiumBadge } from '@/components/premium-badge';
 
-export default function HomePage() {
+function HomePageContent() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [userLimits, setUserLimits] = useState({ isPro: false, remaining: 3 });
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
+  const [paymentPlan, setPaymentPlan] = useState<string>('');
   const supabase = createClient();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Check for payment success
+    const payment = searchParams.get('payment');
+    const plan = searchParams.get('plan');
+    
+    if (payment === 'success' && plan) {
+      setShowPaymentSuccess(true);
+      setPaymentPlan(plan);
+      
+      // Refresh user limits after successful payment
+      if (user) {
+        refreshUserLimits();
+      }
+      
+      // Clear URL parameters
+      const url = new URL(window.location.href);
+      url.searchParams.delete('payment');
+      url.searchParams.delete('plan');
+      window.history.replaceState({}, '', url.toString());
+    }
+    
     // Get current user and limits
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -28,15 +52,7 @@ export default function HomePage() {
       
       // Load user limits if authenticated
       if (user) {
-        try {
-          const response = await fetch('/api/limits');
-          if (response.ok) {
-            const data = await response.json();
-            setUserLimits(data.limits);
-          }
-        } catch (error) {
-          console.error('Error loading limits:', error);
-        }
+        await refreshUserLimits();
       }
       
       setLoading(false);
@@ -58,7 +74,19 @@ export default function HomePage() {
     );
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth]);
+  }, [supabase.auth, searchParams, user]);
+
+  const refreshUserLimits = async () => {
+    try {
+      const response = await fetch('/api/limits');
+      if (response.ok) {
+        const data = await response.json();
+        setUserLimits(data.limits);
+      }
+    } catch (error) {
+      console.error('Error loading limits:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
@@ -75,6 +103,25 @@ export default function HomePage() {
 
   return (
     <div className="grid grid-rows-[auto_1fr] h-screen overflow-hidden">
+      {/* Payment Success Notification */}
+      {showPaymentSuccess && (
+        <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-in slide-in-from-right duration-300">
+          <CheckCircle className="h-5 w-5" />
+          <div>
+            <div className="font-semibold">Payment Successful!</div>
+            <div className="text-sm opacity-90">
+              {paymentPlan === 'monthly' ? 'Pro Monthly subscription activated' : '100 Generations Pack purchased'}
+            </div>
+          </div>
+          <button
+            onClick={() => setShowPaymentSuccess(false)}
+            className="ml-4 hover:bg-green-600 rounded p-1"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      
       {/* Row 1: Top Bar */}
       <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-4 py-4">
@@ -220,5 +267,17 @@ export default function HomePage() {
         </div>
       )}
     </div>
+  );
+}
+
+export default function HomePage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    }>
+      <HomePageContent />
+    </Suspense>
   );
 }

@@ -48,10 +48,12 @@ export async function POST(request: NextRequest) {
         const userId = session.metadata?.user_id;
         const plan = session.metadata?.plan;
         
+        logger.info('Processing checkout.session.completed', requestId, { userId, plan, sessionId: session.id });
+        
         if (userId) {
           if (plan === 'monthly') {
             // Месячная подписка
-            await supabase
+            const { error } = await supabase
               .from('subscriptions')
               .upsert({
                 user_id: userId,
@@ -60,9 +62,15 @@ export async function POST(request: NextRequest) {
                 plan_type: 'monthly',
                 current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
               });
+            
+            if (error) {
+              logger.error('Failed to update subscription for monthly plan', error, requestId);
+            } else {
+              logger.info('Successfully updated subscription for monthly plan', requestId, { userId });
+            }
           } else if (plan === 'pack100') {
             // Пакет 100 генераций
-            await supabase
+            const { error } = await supabase
               .from('subscriptions')
               .upsert({
                 user_id: userId,
@@ -72,7 +80,15 @@ export async function POST(request: NextRequest) {
                 generations_remaining: 100,
                 current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 year (no expiration)
               });
+            
+            if (error) {
+              logger.error('Failed to update subscription for pack100 plan', error, requestId);
+            } else {
+              logger.info('Successfully updated subscription for pack100 plan', requestId, { userId });
+            }
           }
+        } else {
+          logger.warn('No user_id found in session metadata', requestId, { sessionId: session.id });
         }
         break;
       }

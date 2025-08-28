@@ -74,8 +74,8 @@ export async function POST(request: NextRequest) {
         },
       ],
       mode: isSubscription ? 'subscription' : 'payment',
-      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?success=true&plan=${plan}`,
-      cancel_url: cancel_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?canceled=true`,
+      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/?payment=success&plan=${plan}`,
+      cancel_url: cancel_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/?payment=canceled`,
       customer_email: user.email,
       metadata: {
         user_id: user.id,
