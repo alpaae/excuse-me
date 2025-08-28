@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/lib/supabase-server';
 import { getWarsawDateString } from '@/lib/time-warsaw';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
+import { getTodayBoundaries } from '@/lib/time-validation';
 
 export async function GET(request: NextRequest) {
   const requestId = getRequestId(request);
@@ -44,17 +45,16 @@ export async function GET(request: NextRequest) {
         remaining = subscription.generations_remaining || 0;
       }
     } else {
-      // Проверяем дневной лимит по Warsaw timezone для всех остальных
-      const today = getWarsawDateString();
-      const todayStart = new Date(today + 'T00:00:00.000Z');
-      const todayEnd = new Date(today + 'T23:59:59.999Z');
+      // Проверяем дневной лимит по серверному времени (Warsaw timezone)
+      // Это защищает от манипуляций с датой на клиенте
+      const { start: todayStart, end: todayEnd } = getTodayBoundaries();
       
       const { count } = await supabase
         .from('excuses')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('created_at', todayStart.toISOString())
-        .lte('created_at', todayEnd.toISOString());
+        .gte('created_at', todayStart)
+        .lte('created_at', todayEnd);
 
       used = count || 0;
       remaining = Math.max(0, 3 - used);

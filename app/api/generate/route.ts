@@ -7,6 +7,7 @@ import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/log
 import { serverEnv } from '@/lib/env';
 import { getWarsawDateString, nextMidnightZonedISO } from '@/lib/time-warsaw';
 import { pickRarity } from '@/lib/rarity';
+import { getCurrentServerTime, getTodayBoundaries } from '@/lib/time-validation';
 
 // Node.js runtime для работы с OpenAI и Supabase
 export const runtime = 'nodejs';
@@ -115,17 +116,16 @@ export async function POST(request: NextRequest) {
         }
       }
     } else {
-      // Проверяем дневной лимит по Warsaw timezone для всех остальных
-      const today = getWarsawDateString();
-      const todayStart = new Date(today + 'T00:00:00.000Z');
-      const todayEnd = new Date(today + 'T23:59:59.999Z');
+      // Проверяем дневной лимит по серверному времени (Warsaw timezone)
+      // Это защищает от манипуляций с датой на клиенте
+      const { start: todayStart, end: todayEnd } = getTodayBoundaries();
       
       const { count } = await supabase
         .from('excuses')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', user.id)
-        .gte('created_at', todayStart.toISOString())
-        .lte('created_at', todayEnd.toISOString());
+        .gte('created_at', todayStart)
+        .lte('created_at', todayEnd);
 
       const used = count || 0;
       remaining = Math.max(0, 3 - used);
@@ -180,6 +180,9 @@ export async function POST(request: NextRequest) {
     const rarity = pickRarity(totalBefore || 0);
 
     // Сохраняем результат в БД с detected language and rarity
+    // Используем серверное время для защиты от манипуляций
+    const serverTime = getCurrentServerTime();
+    
     const { data: excuse, error: dbError } = await supabase
       .from('excuses')
       .insert({
@@ -188,6 +191,7 @@ export async function POST(request: NextRequest) {
         result_text: resultText,
         sent_via: channel,
         rarity: rarity,
+        created_at: serverTime, // Явно устанавливаем серверное время
       })
       .select()
       .single();
