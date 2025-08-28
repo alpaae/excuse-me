@@ -113,8 +113,11 @@ Add the following variables in your Vercel project settings:
 
 1. Create an account on [stripe.com](https://stripe.com)
 2. Get API keys from Dashboard
-3. Create a product and price for monthly subscription
+3. Create products and prices for both plans:
+   - **Pro Monthly** ($9.99/month) - unlimited generations
+   - **100 Generations Pack** ($4.99) - one-time purchase
 4. Add keys to environment variables
+5. **Detailed setup guide:** [STRIPE_SETUP.md](./STRIPE_SETUP.md)
 
 ### 6. Настройка Telegram Mini App (опционально)
 
@@ -466,7 +469,7 @@ npm run lighthouse:assert
 ```
 /app
   /(web)          # Web приложение
-  /dashboard      # Личный кабинет
+  /history        # История отмазок
   /account        # Настройки аккаунта
   /tg             # Telegram Mini App
   /admin          # Админ панель
@@ -488,7 +491,7 @@ The application uses a simplified middleware that only handles static asset rout
 - **Static assets**: Handles routing for API, Next.js, fonts, images, and PWA files
 - **Pass-through**: Simple pass-through for all application routes
 - `/(web)/*` (веб-приложение)
-- `/dashboard` (личный кабинет)
+- `/history` (история отмазок)
 - `/account` (настройки аккаунта)
 
 #### **Игнорируемые пути:**
@@ -1258,7 +1261,7 @@ Route (app)                                Size  First Load JS
 ├ ○ /_not-found                           183 B         266 kB
 ├ ○ /account                            3.15 kB         269 kB
 ├ ○ /admin/i18n                         4.08 kB         270 kB
-├ ○ /dashboard                          6.28 kB         272 kB
+├ ○ /history                            6.28 kB         272 kB
 + First Load JS shared by all            266 kB
   └ chunks/vendors-1c69582e47df27e3.js   264 kB
 ```

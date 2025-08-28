@@ -1,21 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase';
-import { getWarsawDateString, nextMidnightZonedISO } from '@/lib/time-warsaw';
-
-const DAILY_FREE_LIMIT = 3;
+import { createClient } from '@/lib/supabase-server';
+import { getWarsawDateString } from '@/lib/time-warsaw';
+import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 
 export async function GET(request: NextRequest) {
+  const requestId = getRequestId(request);
+  logger.info('Limits API started', requestId);
+  
   try {
     const supabase = createClient();
-    
-    // Get current user
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return createErrorResponse(
+        ErrorCodes.UNAUTHORIZED,
+        'Authentication required',
+        401,
+        requestId
+      );
     }
 
-    // Check if user has Pro subscription
+    // Проверяем подписку пользователя
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('*')
@@ -24,46 +29,68 @@ export async function GET(request: NextRequest) {
       .single();
 
     const isPro = !!subscription;
+    let remaining = 3; // По умолчанию 3 для всех
+    let used = 0;
+    let nextResetAt = new Date();
+    nextResetAt.setDate(nextResetAt.getDate() + 1);
+    nextResetAt.setHours(0, 0, 0, 0);
 
     if (isPro) {
-      // Pro users have unlimited excuses
-      return NextResponse.json({
-        remaining: Infinity,
-        daily: DAILY_FREE_LIMIT,
-        isPro: true,
-        nextResetAt: nextMidnightZonedISO()
-      });
+      if (subscription.plan_type === 'monthly') {
+        // Месячная подписка - безлимитные генерации
+        remaining = Infinity;
+      } else if (subscription.plan_type === 'pack100') {
+        // Пакет 100 генераций
+        remaining = subscription.generations_remaining || 0;
+      }
+    } else {
+      // Проверяем дневной лимит по Warsaw timezone для всех остальных
+      const today = getWarsawDateString();
+      const todayStart = new Date(today + 'T00:00:00.000Z');
+      const todayEnd = new Date(today + 'T23:59:59.999Z');
+      
+      const { count } = await supabase
+        .from('excuses')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_id', user.id)
+        .gte('created_at', todayStart.toISOString())
+        .lte('created_at', todayEnd.toISOString());
+
+      used = count || 0;
+      remaining = Math.max(0, 3 - used);
     }
 
-    // For free users, count excuses created today
-    const today = getWarsawDateString();
-    const todayStart = new Date(today + 'T00:00:00.000Z');
-    const todayEnd = new Date(today + 'T23:59:59.999Z');
-
-    const { count, error: countError } = await supabase
-      .from('excuses')
-      .select('*', { count: 'exact', head: true })
-      .eq('user_id', user.id)
-      .gte('created_at', todayStart.toISOString())
-      .lte('created_at', todayEnd.toISOString());
-
-    if (countError) {
-      console.error('Error counting excuses:', countError);
-      return NextResponse.json({ error: 'Failed to count excuses' }, { status: 500 });
-    }
-
-    const used = count || 0;
-    const remaining = Math.max(0, DAILY_FREE_LIMIT - used);
+    logger.info('Limits API completed successfully', requestId, { 
+      userId: user.id,
+      isPro,
+      remaining,
+      used
+    });
 
     return NextResponse.json({
-      remaining,
-      daily: DAILY_FREE_LIMIT,
-      isPro: false,
-      nextResetAt: nextMidnightZonedISO()
+      success: true,
+      limits: {
+        isPro,
+        remaining,
+        used,
+        total: isPro ? Infinity : 3,
+        nextResetAt: nextResetAt.toISOString(),
+      },
+      requestId,
     });
 
   } catch (error) {
-    console.error('Limits API error:', error);
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    logger.error(
+      'Limits API failed',
+      error instanceof Error ? error : new Error(String(error)),
+      requestId
+    );
+    
+    return createErrorResponse(
+      ErrorCodes.INTERNAL_ERROR,
+      'Internal server error',
+      500,
+      requestId
+    );
   }
 }

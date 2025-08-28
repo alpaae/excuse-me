@@ -294,7 +294,7 @@ describe('Middleware Functions', () => {
 
     it('should not ignore application paths', () => {
       expect(shouldIgnorePath('/')).toBe(false);
-      expect(shouldIgnorePath('/dashboard')).toBe(false);
+      expect(shouldIgnorePath('/history')).toBe(false);
       expect(shouldIgnorePath('/account')).toBe(false);
       expect(shouldIgnorePath('/admin')).toBe(false);
     });

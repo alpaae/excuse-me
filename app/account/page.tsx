@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase';
 import { AuthGuard } from '@/lib/auth-guard';
 import { Button } from '@/components/ui/button';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { User, Crown, LogOut, Save, ArrowRight, Sparkles, Shield, Settings, CreditCard, Zap } from 'lucide-react';
+import { User, Crown, LogOut, Save, ArrowRight, Sparkles, Shield, Settings, CreditCard, Zap, X } from 'lucide-react';
 
 interface Profile {
   id: string;
@@ -30,7 +31,10 @@ export default function AccountPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [displayName, setDisplayName] = useState('');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'pack100' | null>(null);
   const supabase = createClient();
+  const searchParams = useSearchParams();
 
   const loadUserData = useCallback(async () => {
     try {
@@ -68,7 +72,14 @@ export default function AccountPage() {
 
   useEffect(() => {
     loadUserData();
-  }, [loadUserData]);
+    
+    // Check for plan parameter in URL
+    const plan = searchParams.get('plan') as 'monthly' | 'pack100' | null;
+    if (plan && (plan === 'monthly' || plan === 'pack100')) {
+      setSelectedPlan(plan);
+      setShowUpgradeModal(true);
+    }
+  }, [loadUserData, searchParams]);
 
   const handleSaveProfile = async () => {
     if (!profile) return;
@@ -389,6 +400,134 @@ export default function AccountPage() {
           </div>
         </div>
       </div>
+
+      {/* Upgrade Modal */}
+      {showUpgradeModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <Card className="bg-white rounded-2xl shadow-2xl max-w-md w-full">
+            <CardHeader className="text-center pb-6">
+              <div className="flex items-center justify-between mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-blue-600 rounded-2xl flex items-center justify-center">
+                  <Crown className="h-6 w-6 text-white" />
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="text-gray-400 hover:text-gray-600"
+                >
+                  <X className="h-5 w-5" />
+                </Button>
+              </div>
+              <CardTitle className="text-2xl font-bold text-gray-900">
+                {selectedPlan === 'monthly' ? 'Pro Monthly Plan' : '100 Generations Pack'}
+              </CardTitle>
+              <CardDescription className="text-gray-600 mt-2">
+                {selectedPlan === 'monthly' 
+                  ? 'Unlimited generations with premium features' 
+                  : '100 generations with no expiration'
+                }
+              </CardDescription>
+            </CardHeader>
+
+            <CardContent className="space-y-6">
+              <div className="text-center">
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  {selectedPlan === 'monthly' ? '$9.99' : '$4.99'}
+                </div>
+                <div className="text-gray-500">
+                  {selectedPlan === 'monthly' ? 'per month' : 'one-time payment'}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                {selectedPlan === 'monthly' ? (
+                  <>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-gray-700">Unlimited excuse generations</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-gray-700">Priority support</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-gray-700">Advanced features</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-gray-700">100 generations</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-gray-700">No expiration date</span>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-5 h-5 bg-green-500 rounded-full flex items-center justify-center">
+                        <div className="w-2 h-2 bg-white rounded-full"></div>
+                      </div>
+                      <span className="text-gray-700">Perfect for occasional use</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="flex flex-col space-y-3">
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch('/api/stripe/checkout', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          plan: selectedPlan,
+                          success_url: `${window.location.origin}/account?success=true&plan=${selectedPlan}`,
+                          cancel_url: `${window.location.origin}/account?canceled=true`,
+                        }),
+                      });
+
+                      if (response.ok) {
+                        const data = await response.json();
+                        window.location.href = data.url;
+                      } else {
+                        console.error('Failed to create checkout session');
+                      }
+                    } catch (error) {
+                      console.error('Error creating checkout session:', error);
+                    }
+                    setShowUpgradeModal(false);
+                  }}
+                  className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white py-3 rounded-xl font-semibold"
+                >
+                  <Crown className="mr-2 h-5 w-5" />
+                  Upgrade Now
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowUpgradeModal(false)}
+                  className="w-full border-gray-300 hover:bg-gray-50 text-gray-700 py-3 rounded-xl"
+                >
+                  Maybe Later
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </AuthGuard>
   );
 }

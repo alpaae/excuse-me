@@ -14,7 +14,15 @@ export async function POST(request: NextRequest) {
   }
   
   try {
-    const { success_url, cancel_url } = await request.json();
+    const { success_url, cancel_url, plan } = await request.json();
+    
+    // Валидация плана
+    if (!plan || !['monthly', 'pack100'].includes(plan)) {
+      return NextResponse.json(
+        { error: 'Invalid plan. Must be "monthly" or "pack100"' },
+        { status: 400 }
+      );
+    }
     
     // Получаем пользователя
     const supabase = createClient();
@@ -43,27 +51,44 @@ export async function POST(request: NextRequest) {
         });
     }
 
+    // Определяем параметры в зависимости от плана
+    const isSubscription = plan === 'monthly';
+    const priceId = isSubscription 
+      ? serverEnv.STRIPE_PRICE_PRO_MONTHLY 
+      : serverEnv.STRIPE_PRICE_PACK_100;
+    
+    if (!priceId) {
+      return NextResponse.json(
+        { error: `Price ID not configured for plan: ${plan}` },
+        { status: 500 }
+      );
+    }
+
     // Создаем checkout сессию
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [
         {
-          price: serverEnv.STRIPE_PRICE_PRO_MONTHLY || '',
+          price: priceId,
           quantity: 1,
         },
       ],
-      mode: 'subscription',
-      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?success=true`,
+      mode: isSubscription ? 'subscription' : 'payment',
+      success_url: success_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?success=true&plan=${plan}`,
       cancel_url: cancel_url || `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/account?canceled=true`,
       customer_email: user.email,
       metadata: {
         user_id: user.id,
+        plan: plan,
       },
-      subscription_data: {
-        metadata: {
-          user_id: user.id,
+      ...(isSubscription && {
+        subscription_data: {
+          metadata: {
+            user_id: user.id,
+            plan: plan,
+          },
         },
-      },
+      }),
     });
 
     return NextResponse.json({

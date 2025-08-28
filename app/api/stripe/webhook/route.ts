@@ -46,17 +46,33 @@ export async function POST(request: NextRequest) {
       case 'checkout.session.completed': {
         const session = event.data.object as Stripe.Checkout.Session;
         const userId = session.metadata?.user_id;
+        const plan = session.metadata?.plan;
         
         if (userId) {
-          // Создаем или обновляем подписку
-          await supabase
-            .from('subscriptions')
-            .upsert({
-              user_id: userId,
-              provider: 'stripe',
-              status: 'active',
-              current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
-            });
+          if (plan === 'monthly') {
+            // Месячная подписка
+            await supabase
+              .from('subscriptions')
+              .upsert({
+                user_id: userId,
+                provider: 'stripe',
+                status: 'active',
+                plan_type: 'monthly',
+                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
+              });
+          } else if (plan === 'pack100') {
+            // Пакет 100 генераций
+            await supabase
+              .from('subscriptions')
+              .upsert({
+                user_id: userId,
+                provider: 'stripe',
+                status: 'active',
+                plan_type: 'pack100',
+                generations_remaining: 100,
+                current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 year (no expiration)
+              });
+          }
         }
         break;
       }

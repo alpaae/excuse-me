@@ -10,18 +10,35 @@ import { AuthForm } from '@/components/auth/auth-form';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { createClient } from '@/lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { LimitNotification } from '@/components/limit-notification';
+import { PremiumBadge } from '@/components/premium-badge';
 
 export default function HomePage() {
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userLimits, setUserLimits] = useState({ isPro: false, remaining: 3 });
   const supabase = createClient();
 
   useEffect(() => {
-    // Get current user
+    // Get current user and limits
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       setUser(user);
+      
+      // Load user limits if authenticated
+      if (user) {
+        try {
+          const response = await fetch('/api/limits');
+          if (response.ok) {
+            const data = await response.json();
+            setUserLimits(data.limits);
+          }
+        } catch (error) {
+          console.error('Error loading limits:', error);
+        }
+      }
+      
       setLoading(false);
     };
 
@@ -73,21 +90,37 @@ export default function HomePage() {
             <div className="flex items-center space-x-4">
               {user ? (
                 <>
+                  {/* User Limits for authenticated users */}
+                  <LimitNotification
+                    remaining={userLimits.remaining}
+                    isPro={userLimits.isPro}
+                    onUpgrade={() => window.location.href = '/account'}
+                    className="hidden sm:flex"
+                  />
+                  
                   <Button
                     variant="ghost"
                     className="text-gray-700 hover:text-gray-900"
-                    onClick={() => window.location.href = '/dashboard'}
+                    onClick={() => window.location.href = '/history'}
                   >
                     <User className="h-4 w-4 mr-2" />
                     History
                   </Button>
+                  
                   <Button
                     variant="ghost"
-                    className="text-gray-700 hover:text-gray-900"
+                    className="text-gray-700 hover:text-gray-900 relative"
                     onClick={() => window.location.href = '/account'}
                   >
                     Account
+                    {userLimits.isPro && (
+                      <PremiumBadge 
+                        size="sm" 
+                        className="absolute -top-1 -right-1" 
+                      />
+                    )}
                   </Button>
+                  
                   <Button
                     variant="outline"
                     className="border-gray-300 text-gray-700 hover:bg-gray-50"
@@ -98,13 +131,21 @@ export default function HomePage() {
                   </Button>
                 </>
               ) : (
-                <Button 
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
-                  data-testid="btn-login"
-                  onClick={() => setShowAuthModal(true)}
-                >
-                  Sign In
-                </Button>
+                <div className="flex items-center space-x-3">
+                  <LimitNotification
+                    remaining={3}
+                    isPro={false}
+                    onUpgrade={() => setShowAuthModal(true)}
+                    className="hidden sm:flex"
+                  />
+                  <Button 
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    data-testid="btn-login"
+                    onClick={() => setShowAuthModal(true)}
+                  >
+                    Sign In
+                  </Button>
+                </div>
               )}
             </div>
           </div>
@@ -117,7 +158,7 @@ export default function HomePage() {
         <div className="hidden md:grid md:grid-cols-2 md:gap-8 md:items-start">
           {/* Left Column: Create Panel */}
           <div className="flex justify-center">
-            <CreatePanel />
+            <CreatePanel userLimits={user ? userLimits : undefined} />
           </div>
           
           {/* Right Column: Hero Panel */}
@@ -128,6 +169,15 @@ export default function HomePage() {
 
         {/* Mobile Layout: Tabs */}
         <div className="md:hidden">
+          {/* Mobile Limit Notification */}
+          <div className="mb-4">
+            <LimitNotification
+              remaining={user ? userLimits.remaining : 3}
+              isPro={user ? userLimits.isPro : false}
+              onUpgrade={() => user ? window.location.href = '/account' : setShowAuthModal(true)}
+            />
+          </div>
+          
           <Tabs defaultValue="create" className="space-y-6" data-testid="home-tabs">
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="create">Create</TabsTrigger>
@@ -135,7 +185,7 @@ export default function HomePage() {
             </TabsList>
             
             <TabsContent value="create" className="space-y-0">
-              <CreatePanel />
+              <CreatePanel userLimits={user ? userLimits : undefined} />
             </TabsContent>
             
             <TabsContent value="why" className="space-y-0">

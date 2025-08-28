@@ -79,7 +79,7 @@
       "name": "Favorites",
       "short_name": "Favorites",
       "description": "View favorite excuses",
-      "url": "/dashboard?tab=favorites&source=pwa",
+              "url": "/history?tab=favorites&source=pwa",
       "icons": [
         {
           "src": "/icons/icon-96.png",

@@ -24,6 +24,7 @@ const serverSchema = z.object({
   // Stripe
   STRIPE_SECRET_KEY: z.string().optional(),
   STRIPE_PRICE_PRO_MONTHLY: z.string().optional(),
+  STRIPE_PRICE_PACK_100: z.string().optional(),
   STRIPE_WEBHOOK_SECRET: z.string().optional(),
   
   // Upstash Redis (опционально для rate limiting)
@@ -88,6 +89,7 @@ export function validateServerEnv() {
     // Stripe
     STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
     STRIPE_PRICE_PRO_MONTHLY: process.env.STRIPE_PRICE_PRO_MONTHLY,
+    STRIPE_PRICE_PACK_100: process.env.STRIPE_PRICE_PACK_100,
     STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET,
     
     // Upstash Redis

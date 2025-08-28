@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Проверяем лимиты для бесплатных пользователей
+    // Проверяем подписку пользователя
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('*')
@@ -94,11 +94,28 @@ export async function POST(request: NextRequest) {
       .single();
 
     const isPro = !!subscription;
-    let remaining = Infinity;
+    let remaining = 3; // По умолчанию 3 для всех
     let nextResetAt = nextMidnightZonedISO();
 
-    if (!isPro) {
-      // Проверяем дневной лимит по Warsaw timezone
+    if (isPro) {
+      if (subscription.plan_type === 'monthly') {
+        // Месячная подписка - безлимитные генерации
+        remaining = Infinity;
+      } else if (subscription.plan_type === 'pack100') {
+        // Пакет 100 генераций
+        remaining = subscription.generations_remaining || 0;
+        
+        if (remaining === 0) {
+          return NextResponse.json({
+            success: false,
+            error: 'PACK_LIMIT_REACHED',
+            remaining: 0,
+            nextResetAt,
+          }, { status: 402 });
+        }
+      }
+    } else {
+      // Проверяем дневной лимит по Warsaw timezone для всех остальных
       const today = getWarsawDateString();
       const todayStart = new Date(today + 'T00:00:00.000Z');
       const todayEnd = new Date(today + 'T23:59:59.999Z');
@@ -179,6 +196,23 @@ export async function POST(request: NextRequest) {
       logger.warn('Database error during excuse save', requestId, { error: dbError.message });
     }
 
+    // Обновляем лимиты после успешной генерации
+    let updatedRemaining = remaining;
+    if (isPro && subscription?.plan_type === 'pack100') {
+      // Уменьшаем количество оставшихся генераций для пакета 100
+      const newRemaining = Math.max(0, (subscription.generations_remaining || 0) - 1);
+      await supabase
+        .from('subscriptions')
+        .update({ generations_remaining: newRemaining })
+        .eq('user_id', user.id)
+        .eq('status', 'active');
+      
+      updatedRemaining = newRemaining;
+    } else if (!isPro) {
+      // Для бесплатных пользователей уменьшаем дневной лимит
+      updatedRemaining = remaining - 1;
+    }
+
     logger.info('Generate API completed successfully', requestId, { 
       scenario, 
       tone, 
@@ -194,7 +228,7 @@ export async function POST(request: NextRequest) {
       excuse_id: excuse?.id,
       requestId,
       limits: {
-        remaining: isPro ? Infinity : remaining - 1, // Уменьшаем на 1 после успешной генерации
+        remaining: updatedRemaining,
         nextResetAt,
       },
     });

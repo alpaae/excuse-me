@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,14 @@ import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
 import { SocialProofBar } from '@/components/social-proof-bar';
+import { LimitNotification } from '@/components/limit-notification';
+import { LimitReachedModal } from '@/components/limit-reached-modal';
 
-export function CreatePanel() {
+interface CreatePanelProps {
+  userLimits?: { isPro: boolean; remaining: number };
+}
+
+export function CreatePanel({ userLimits }: CreatePanelProps) {
   const [formData, setFormData] = useState({
     scenario: '',
     tone: 'Professional',
@@ -25,6 +31,31 @@ export function CreatePanel() {
   const [resultRarity, setResultRarity] = useState<'common' | 'rare' | 'legendary' | null>(null);
   const [resultExcuseId, setResultExcuseId] = useState<string | null>(null);
   const [showLegendaryPop, setShowLegendaryPop] = useState(false);
+  const [limits, setLimits] = useState({ isPro: false, remaining: 3, used: 0 });
+  const [showLimitModal, setShowLimitModal] = useState(false);
+
+  // Load limits on component mount or when userLimits prop changes
+  useEffect(() => {
+    if (userLimits) {
+      // Use limits from parent component
+      setLimits({ ...userLimits, used: 0 });
+    } else {
+      // Load limits from API for non-authenticated users
+      const loadLimits = async () => {
+        try {
+          const response = await fetch('/api/limits');
+          if (response.ok) {
+            const data = await response.json();
+            setLimits(data.limits);
+          }
+        } catch (error) {
+          console.error('Error loading limits:', error);
+        }
+      };
+
+      loadLimits();
+    }
+  }, [userLimits]);
 
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +80,11 @@ export function CreatePanel() {
         setResultRarity(data.rarity);
         setResultExcuseId(data.excuse_id);
         
+        // Update limits after successful generation
+        if (data.limits) {
+          setLimits(data.limits);
+        }
+        
         // Show legendary pop for first legendary in session
         if (data.rarity === 'legendary' && !sessionStorage.getItem('legendary:shown')) {
           setShowLegendaryPop(true);
@@ -56,12 +92,23 @@ export function CreatePanel() {
         }
       } else {
         console.error('Generation failed:', data.error);
+        
+        // Show limit modal if limit reached
+        if (response.status === 402 && (data.error === 'FREE_LIMIT_REACHED' || data.error === 'PACK_LIMIT_REACHED')) {
+          setShowLimitModal(true);
+        }
       }
     } catch (error) {
       console.error('Network error:', error);
     } finally {
       setGenerating(false);
     }
+  };
+
+  const handleUpgrade = (plan: 'monthly' | 'pack100') => {
+    // Redirect to account page with plan parameter
+    window.location.href = `/account?plan=${plan}`;
+    setShowLimitModal(false);
   };
 
   return (
@@ -83,6 +130,14 @@ export function CreatePanel() {
             </CardHeader>
             
             <CardContent className="p-6">
+              {/* Limit Notification */}
+              <LimitNotification
+                remaining={limits.remaining}
+                isPro={limits.isPro}
+                onUpgrade={() => setShowLimitModal(true)}
+                className="mb-6"
+              />
+              
               <form onSubmit={handleGenerate} data-testid="gen-form">
                 <div className="space-y-6">
                   <div className="space-y-3">
@@ -259,6 +314,13 @@ export function CreatePanel() {
       {showLegendaryPop && (
         <LegendaryPop onComplete={() => setShowLegendaryPop(false)} />
       )}
+      
+      {/* Limit Reached Modal */}
+      <LimitReachedModal
+        isOpen={showLimitModal}
+        onClose={() => setShowLimitModal(false)}
+        onUpgrade={handleUpgrade}
+      />
     </div>
   );
 }

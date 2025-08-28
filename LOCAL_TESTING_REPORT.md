@@ -25,7 +25,7 @@
 ### **5. Navigation Buttons**
 - **Проблема**: `window.history.back()` без SSR проверки
 - **Исправление**: Добавлена проверка в dashboard, excuses, account страницах
-- **Файлы**: `app/dashboard/page.tsx`, `app/excuses/page.tsx`, `app/account/page.tsx`
+- **Файлы**: `app/history/page.tsx`, `app/excuses/page.tsx`, `app/account/page.tsx`
 
 ### **6. Layout PWA Initialization**
 - **Проблема**: `window.addEventListener` без SSR проверки
