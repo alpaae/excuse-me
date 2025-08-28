@@ -49,5 +49,6 @@ jobs:
         NEXT_PUBLIC_FEATURE_PAYMENTS: 'false'
         STRIPE_SECRET_KEY: test
         STRIPE_PRICE_PRO_MONTHLY: price_test
+        STRIPE_PRICE_PACK_100: price_test_pack
         STRIPE_WEBHOOK_SECRET: whsec_test
         TG_BOT_TOKEN: test
