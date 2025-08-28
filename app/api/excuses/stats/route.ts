@@ -4,8 +4,8 @@ import { createClient } from '@/lib/supabase-server';
 export async function GET(request: NextRequest) {
   try {
     // Получаем пользователя
-    const supabase = createClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+      const supabase = await createClient();
+  const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
       return NextResponse.json(

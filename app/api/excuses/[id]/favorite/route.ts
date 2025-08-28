@@ -11,7 +11,7 @@ export async function POST(request: NextRequest, props: { params: Promise<{ id: 
     const { is_favorite } = await request.json();
     
     // Получаем пользователя
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {

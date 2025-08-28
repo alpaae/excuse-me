@@ -51,7 +51,7 @@ export function LimitReachedModal({ isOpen, onClose, onUpgrade }: LimitReachedMo
             Free Limit Reached! 🎯
           </CardTitle>
           <p className="text-gray-600 mt-2">
-            You've used all 3 free generations today. Choose a plan to continue creating excuses:
+            You&apos;ve used all 3 free generations today. Choose a plan to continue creating excuses:
           </p>
         </CardHeader>
 

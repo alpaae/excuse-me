@@ -8,7 +8,7 @@ export async function GET(request: NextRequest) {
   logger.info('Limits API started', requestId);
   
   try {
-    const supabase = createClient();
+    const supabase = await createClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
