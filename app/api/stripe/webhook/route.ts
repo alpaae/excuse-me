@@ -73,42 +73,78 @@ export async function POST(request: NextRequest) {
         if (userId) {
           logger.info('User ID found, processing plan:', requestId, { userId, plan });
           
-          if (plan === 'monthly') {
-            // Месячная подписка
+          // Check if subscription already exists to prevent duplicates
+          const { data: existingSubscription } = await supabase
+            .from('subscriptions')
+            .select('id, plan_type, status')
+            .eq('user_id', userId)
+            .eq('provider', 'stripe')
+            .eq('status', 'active')
+            .single();
+          
+          if (existingSubscription) {
+            logger.info('Subscription already exists, updating instead of creating', requestId, { 
+              userId, 
+              existingId: existingSubscription.id,
+              existingPlan: existingSubscription.plan_type 
+            });
+            
+            // Update existing subscription instead of creating new one
             const { error } = await supabase
               .from('subscriptions')
-              .upsert({
-                user_id: userId,
-                provider: 'stripe',
-                status: 'active',
-                plan_type: 'monthly',
-                generations_remaining: null, // Unlimited for monthly
-                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
-              });
+              .update({
+                plan_type: plan,
+                generations_remaining: plan === 'monthly' ? null : 100,
+                current_period_end: plan === 'monthly' 
+                  ? new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
+                  : new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 year
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingSubscription.id);
             
             if (error) {
-              logger.error('Failed to update subscription for monthly plan', error, requestId);
+              logger.error('Failed to update existing subscription', error, requestId);
             } else {
-              logger.info('Successfully updated subscription for monthly plan', requestId, { userId });
+              logger.info('Successfully updated existing subscription', requestId, { userId, plan });
             }
-          } else if (plan === 'pack100') {
-            logger.info('Processing pack100 subscription', requestId);
-            // Пакет 100 генераций
-            const { error } = await supabase
-              .from('subscriptions')
-              .upsert({
-                user_id: userId,
-                provider: 'stripe',
-                status: 'active',
-                plan_type: 'pack100',
-                generations_remaining: 100,
-                current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // +1 year (no expiration)
-              });
-            
-            if (error) {
-              logger.error('Failed to update subscription for pack100 plan', error, requestId);
-            } else {
-              logger.info('Successfully updated subscription for pack100 plan', requestId, { userId });
+          } else {
+            // Create new subscription only if none exists
+            if (plan === 'monthly') {
+              logger.info('Creating new monthly subscription', requestId);
+              const { error } = await supabase
+                .from('subscriptions')
+                .insert({
+                  user_id: userId,
+                  provider: 'stripe',
+                  status: 'active',
+                  plan_type: 'monthly',
+                  generations_remaining: null, // Unlimited for monthly
+                  current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
+                });
+              
+              if (error) {
+                logger.error('Failed to create monthly subscription', error, requestId);
+              } else {
+                logger.info('Successfully created monthly subscription', requestId, { userId });
+              }
+            } else if (plan === 'pack100') {
+              logger.info('Creating new pack100 subscription', requestId);
+              const { error } = await supabase
+                .from('subscriptions')
+                .insert({
+                  user_id: userId,
+                  provider: 'stripe',
+                  status: 'active',
+                  plan_type: 'pack100',
+                  generations_remaining: 100,
+                  current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // +1 year (no expiration)
+                });
+              
+              if (error) {
+                logger.error('Failed to create pack100 subscription', error, requestId);
+              } else {
+                logger.info('Successfully created pack100 subscription', requestId, { userId });
+              }
             }
           }
         } else {
@@ -123,21 +159,37 @@ export async function POST(request: NextRequest) {
         const userId = subscription.metadata?.user_id;
         
         if (userId) {
-          const { error } = await supabase
+          // Check if subscription already exists to prevent duplicates
+          const { data: existingSubscription } = await supabase
             .from('subscriptions')
-            .upsert({
-              user_id: userId,
-              provider: 'stripe',
-              status: 'active',
-              plan_type: 'monthly',
-              generations_remaining: null, // Unlimited for monthly
-              current_period_end: new Date(subscription.current_period_end * 1000)
-            });
+            .select('id, plan_type, status')
+            .eq('user_id', userId)
+            .eq('provider', 'stripe')
+            .eq('status', 'active')
+            .single();
           
-          if (error) {
-            logger.error('Failed to update subscription on invoice payment', error, requestId);
+          if (existingSubscription) {
+            logger.info('Subscription exists, updating current_period_end only', requestId, { 
+              userId, 
+              existingId: existingSubscription.id 
+            });
+            
+            // Only update the current_period_end for existing subscription
+            const { error } = await supabase
+              .from('subscriptions')
+              .update({
+                current_period_end: new Date(subscription.current_period_end * 1000),
+                updated_at: new Date().toISOString()
+              })
+              .eq('id', existingSubscription.id);
+            
+            if (error) {
+              logger.error('Failed to update subscription period', error, requestId);
+            } else {
+              logger.info('Successfully updated subscription period', requestId, { userId });
+            }
           } else {
-            logger.info('Successfully updated subscription on invoice payment', requestId, { userId });
+            logger.warn('No existing subscription found for invoice payment', requestId, { userId });
           }
         }
         break;
