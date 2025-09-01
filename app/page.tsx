@@ -293,28 +293,36 @@ function HomePageContent() {
             </div>
             
             {/* Info about free generations */}
-            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
-              <div className="flex items-center space-x-3 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-                  <Sparkles className="h-4 w-4 text-white" />
+            <div className="px-6 py-5 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+              <div className="max-w-sm mx-auto">
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                    <Sparkles className="h-5 w-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-lg">Get 3 Free Generations Daily</h3>
+                    <p className="text-sm text-gray-600">Sign in to access your daily free excuse generations</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="font-medium text-gray-900">Get 3 Free Generations Daily</h3>
-                  <p className="text-sm text-gray-600">Sign in to access your daily free excuse generations</p>
-                </div>
-              </div>
-              <div className="text-sm text-gray-600 space-y-1">
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>3 free generations every day</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>AI-powered professional excuses</span>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>Upgrade to Pro for unlimited access</span>
+                <div className="bg-white/60 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-green-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">3 free generations every day</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-4 w-4 text-blue-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">AI-powered professional excuses</span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <div className="w-6 h-6 bg-purple-100 rounded-full flex items-center justify-center">
+                      <CheckCircle className="h-4 w-4 text-purple-600" />
+                    </div>
+                    <span className="text-sm font-medium text-gray-700">Upgrade to Pro for unlimited access</span>
+                  </div>
                 </div>
               </div>
             </div>
