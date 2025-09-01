@@ -22,20 +22,35 @@ export async function POST(request: NextRequest) {
     // Use Service Role client for database operations
     const supabase = await createServiceClient();
 
-    // Get user's subscription to check if they have Stripe subscription
+    // Get user's Stripe subscription (any status)
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('*')
       .eq('user_id', userId)
       .eq('provider', 'stripe')
-      .eq('status', 'active')
+      .in('status', ['active', 'past_due', 'canceled'])
       .single();
 
     if (!subscription) {
       return NextResponse.json(
-        { error: 'No active Stripe subscription found' },
+        { error: 'No Stripe subscription found' },
         { status: 404 }
       );
+    }
+
+    // Check if subscription is valid for portal access
+    // All Stripe subscriptions (monthly and pack100) can access portal regardless of status
+    // This allows users to:
+    // - View invoice history
+    // - Manage payment methods
+    // - Reactivate canceled subscriptions (monthly)
+    // - Access billing information
+    if (subscription.status === 'canceled' && subscription.plan_type === 'pack100') {
+      // 100 Pack subscriptions can still access portal even if canceled
+      // (to view invoice history, payment methods, etc.)
+    } else if (subscription.status === 'canceled' && subscription.plan_type === 'monthly') {
+      // Monthly subscriptions can access portal even if canceled
+      // (to reactivate, view history, manage payment methods, etc.)
     }
 
     // Get or create Stripe customer
