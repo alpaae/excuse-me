@@ -22,28 +22,33 @@ function HomePageContent() {
   const [showPaymentSuccess, setShowPaymentSuccess] = useState(false);
   const [paymentPlan, setPaymentPlan] = useState<string>('');
   const supabase = createClient();
-  const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Check for payment success
-    const payment = searchParams.get('payment');
-    const plan = searchParams.get('plan');
-    
-    if (payment === 'success' && plan) {
-      setShowPaymentSuccess(true);
-      setPaymentPlan(plan);
+    // Check for payment success from URL
+    const checkPaymentSuccess = () => {
+      const urlParams = new URLSearchParams(window.location.search);
+      const payment = urlParams.get('payment');
+      const plan = urlParams.get('plan');
       
-      // Refresh user limits after successful payment
-      if (user) {
-        refreshUserLimits();
+      if (payment === 'success' && plan) {
+        setShowPaymentSuccess(true);
+        setPaymentPlan(plan);
+        
+        // Refresh user limits after successful payment
+        if (user) {
+          refreshUserLimits();
+        }
+        
+        // Clear URL parameters
+        const url = new URL(window.location.href);
+        url.searchParams.delete('payment');
+        url.searchParams.delete('plan');
+        window.history.replaceState({}, '', url.toString());
       }
-      
-      // Clear URL parameters
-      const url = new URL(window.location.href);
-      url.searchParams.delete('payment');
-      url.searchParams.delete('plan');
-      window.history.replaceState({}, '', url.toString());
-    }
+    };
+    
+    // Check on mount
+    checkPaymentSuccess();
     
     // Get current user and limits
     const getUser = async () => {
@@ -74,7 +79,7 @@ function HomePageContent() {
     );
 
     return () => subscription.unsubscribe();
-  }, [supabase.auth, searchParams, user]);
+  }, [supabase.auth, user]);
 
   const refreshUserLimits = async () => {
     try {
@@ -102,7 +107,7 @@ function HomePageContent() {
   }
 
   return (
-    <div className="grid grid-rows-[auto_1fr] h-screen overflow-hidden">
+    <div className="min-h-screen">
       {/* Payment Success Notification */}
       {showPaymentSuccess && (
         <div className="fixed top-4 right-4 z-50 bg-green-500 text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-in slide-in-from-right duration-300">
@@ -143,6 +148,7 @@ function HomePageContent() {
                     isPro={userLimits.isPro}
                     onUpgrade={() => window.location.href = '/account'}
                     className="hidden sm:flex"
+                    compact={true}
                   />
                   
                   <Button
@@ -184,6 +190,7 @@ function HomePageContent() {
                     isPro={false}
                     onUpgrade={() => setShowAuthModal(true)}
                     className="hidden sm:flex"
+                    compact={true}
                   />
                   <Button 
                     className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
@@ -231,11 +238,11 @@ function HomePageContent() {
               <TabsTrigger value="why">Why ExcuseME</TabsTrigger>
             </TabsList>
             
-            <TabsContent value="create" className="space-y-0">
+            <TabsContent value="create" className="space-y-0 h-auto">
               <CreatePanel userLimits={user ? userLimits : undefined} />
             </TabsContent>
             
-            <TabsContent value="why" className="space-y-0">
+            <TabsContent value="why" className="space-y-0 h-auto">
               <RightHeroPanel user={user} />
             </TabsContent>
           </Tabs>
