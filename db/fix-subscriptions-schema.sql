@@ -31,23 +31,45 @@ WHERE table_name = 'subscriptions'
 ORDER BY ordinal_position;
 
 -- Исправить RLS политики для webhook
--- Удалить старые политики
+-- Удалить ВСЕ существующие политики (включая новые)
 DROP POLICY IF EXISTS "subs owner select" ON subscriptions;
 DROP POLICY IF EXISTS "subs owner upsert" ON subscriptions;
 DROP POLICY IF EXISTS "subs owner update" ON subscriptions;
+DROP POLICY IF EXISTS "subscriptions_webhook_insert" ON subscriptions;
+DROP POLICY IF EXISTS "subscriptions_webhook_update" ON subscriptions;
+DROP POLICY IF EXISTS "subscriptions_user_select" ON subscriptions;
 
 -- Создать новые политики для webhook
 CREATE POLICY "subscriptions_webhook_insert" ON subscriptions
   FOR INSERT 
-  WITH CHECK (true); -- Разрешить вставку для webhook
+  WITH CHECK (true); -- Разрешить вставку для webhook (включая anon)
 
 CREATE POLICY "subscriptions_webhook_update" ON subscriptions
   FOR UPDATE 
-  USING (true); -- Разрешить обновление для webhook
+  USING (true); -- Разрешить обновление для webhook (включая anon)
 
 CREATE POLICY "subscriptions_user_select" ON subscriptions
   FOR SELECT 
   USING (auth.uid() = user_id); -- Пользователи видят только свои подписки
 
+-- Создать специальную политику для anon пользователей (webhook)
+CREATE POLICY "subscriptions_anon_all" ON subscriptions
+  FOR ALL 
+  USING (true) 
+  WITH CHECK (true); -- Разрешить все операции для anon (webhook)
+
 -- Включить RLS
 ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
+
+-- Проверить созданные политики
+SELECT 
+  schemaname,
+  tablename,
+  policyname,
+  permissive,
+  roles,
+  cmd,
+  qual,
+  with_check
+FROM pg_policies 
+WHERE tablename = 'subscriptions';

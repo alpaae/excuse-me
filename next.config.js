@@ -105,20 +105,54 @@ const nextConfig = {
       // Включаем tree shaking
       config.optimization.usedExports = true;
       
-      // Оптимизация размера бандлов
+      // Улучшенная оптимизация размера бандлов
       config.optimization.splitChunks = {
         chunks: 'all',
         cacheGroups: {
+          // Разделяем vendor на более мелкие чанки
           vendor: {
             test: /[\\/]node_modules[\\/]/,
             name: 'vendors',
             chunks: 'all',
+            priority: 10,
+          },
+          // Отдельный чанк для React
+          react: {
+            test: /[\\/]node_modules[\\/](react|react-dom)[\\/]/,
+            name: 'react',
+            chunks: 'all',
+            priority: 20,
+          },
+          // Отдельный чанк для UI компонентов
+          ui: {
+            test: /[\\/]node_modules[\\/](@radix-ui|@radix-ui\/react|class-variance-authority|clsx|tailwind-merge|lucide-react)[\\/]/,
+            name: 'ui',
+            chunks: 'all',
+            priority: 15,
+          },
+          // Отдельный чанк для Supabase
+          supabase: {
+            test: /[\\/]node_modules[\\/](@supabase|supabase)[\\/]/,
+            name: 'supabase',
+            chunks: 'all',
+            priority: 15,
           },
         },
       };
+      
+      // Оптимизация для мобильных устройств
+      config.optimization.minimize = true;
     }
 
     return config;
+  },
+
+  // === ДОПОЛНИТЕЛЬНЫЕ ОПТИМИЗАЦИИ ===
+  
+  // Включаем экспериментальные оптимизации
+  experimental: {
+    // Оптимизация загрузки страниц
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
   },
 };
 
