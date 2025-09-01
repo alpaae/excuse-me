@@ -139,7 +139,7 @@ function HomePageContent() {
                 ExcuseME
               </h1>
             </div>
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
                   {/* User Limits for authenticated users */}
@@ -153,19 +153,21 @@ function HomePageContent() {
                   
                   <Button
                     variant="ghost"
-                    className="text-gray-700 hover:text-gray-900"
+                    className="text-gray-700 hover:text-gray-900 px-2 sm:px-3"
                     onClick={() => window.location.href = '/history'}
                   >
-                    <User className="h-4 w-4 mr-2" />
-                    History
+                    <User className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">History</span>
+                    <span className="sm:hidden">Hist</span>
                   </Button>
                   
                   <Button
                     variant="ghost"
-                    className="text-gray-700 hover:text-gray-900 relative"
+                    className="text-gray-700 hover:text-gray-900 relative px-2 sm:px-3"
                     onClick={() => window.location.href = '/account'}
                   >
-                    Account
+                    <span className="hidden sm:inline">Account</span>
+                    <span className="sm:hidden">Acc</span>
                     {userLimits.isPro && (
                       <PremiumBadge 
                         size="sm" 
@@ -176,15 +178,16 @@ function HomePageContent() {
                   
                   <Button
                     variant="outline"
-                    className="border-gray-300 text-gray-700 hover:bg-gray-50"
+                    className="border-gray-300 text-gray-700 hover:bg-gray-50 px-2 sm:px-3"
                     onClick={handleSignOut}
                   >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
+                    <LogOut className="h-4 w-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Sign Out</span>
+                    <span className="sm:hidden">Out</span>
                   </Button>
                 </>
               ) : (
-                <div className="flex items-center space-x-3">
+                <div className="flex items-center space-x-2 sm:space-x-3">
                   <LimitNotification
                     remaining={3}
                     isPro={false}
@@ -193,11 +196,12 @@ function HomePageContent() {
                     compact={true}
                   />
                   <Button 
-                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+                    className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg hover:shadow-xl transition-all duration-200 px-3 sm:px-4"
                     data-testid="btn-login"
                     onClick={() => setShowAuthModal(true)}
                   >
-                    Sign In
+                    <span className="hidden sm:inline">Sign In</span>
+                    <span className="sm:hidden">Login</span>
                   </Button>
                 </div>
               )}
@@ -223,15 +227,6 @@ function HomePageContent() {
 
         {/* Mobile Layout: Tabs */}
         <div className="md:hidden">
-          {/* Mobile Limit Notification */}
-          <div className="mb-4">
-            <LimitNotification
-              remaining={user ? userLimits.remaining : 3}
-              isPro={user ? userLimits.isPro : false}
-              onUpgrade={() => user ? window.location.href = '/account' : setShowAuthModal(true)}
-              compact={true}
-            />
-          </div>
           
           <Tabs defaultValue="create" className="space-y-6" data-testid="home-tabs">
             <TabsList className="grid w-full grid-cols-2">
