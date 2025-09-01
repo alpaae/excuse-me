@@ -144,7 +144,7 @@ export default function ExcuseHistoryPage() {
   return (
     <ErrorBoundary>
       <AuthGuard>
-        <div className="bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-y-auto">
           {/* Animated Background */}
           <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -182,6 +182,11 @@ export default function ExcuseHistoryPage() {
                   <span className="text-sm font-medium text-gray-700">
                     {excuses.length} excuse{excuses.length !== 1 ? 's' : ''}
                   </span>
+                  {excuses.length > 5 && (
+                    <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
+                      Scroll to see more
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
