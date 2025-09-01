@@ -25,6 +25,7 @@ interface Subscription {
   generations_remaining: number | null;
   current_period_end: string;
   created_at: string;
+  stripe_customer_id?: string;
 }
 
 function AccountPageContent() {
@@ -121,6 +122,26 @@ function AccountPageContent() {
       }
     } catch (error) {
       console.error('Error creating checkout session:', error);
+    }
+  };
+
+  const handleManageBilling = async () => {
+    try {
+      const response = await fetch('/api/stripe/portal', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      });
+
+      if (response.ok) {
+        const { url } = await response.json();
+        if (url) {
+          window.location.href = url;
+        }
+      } else {
+        console.error('Failed to create billing portal session');
+      }
+    } catch (error) {
+      console.error('Error opening billing portal:', error);
     }
   };
 
@@ -365,6 +386,23 @@ function AccountPageContent() {
                           </div>
                         )}
                       </div>
+                      
+                      {/* Manage Billing Button for Stripe subscriptions */}
+                      {subscription.provider === 'stripe' && (
+                        <div className="pt-4 border-t border-gray-200">
+                          <Button
+                            onClick={handleManageBilling}
+                            className={`w-full py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
+                              subscription.plan_type === 'monthly'
+                                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white'
+                                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
+                            }`}
+                          >
+                            <CreditCard className="mr-2 h-4 w-4" />
+                            Manage Billing
+                          </Button>
+                        </div>
+                      )}
                     </div>
                   )}
 
@@ -411,7 +449,15 @@ function AccountPageContent() {
                   <CreditCard className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="font-bold text-gray-900 mb-2">Billing</h3>
-                <p className="text-gray-600 text-sm">Manage your payments</p>
+                <p className="text-gray-600 text-sm mb-4">Manage your payments</p>
+                {subscription?.provider === 'stripe' && (
+                  <Button
+                    onClick={handleManageBilling}
+                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                  >
+                    Manage Billing
+                  </Button>
+                )}
               </CardContent>
             </Card>
 
