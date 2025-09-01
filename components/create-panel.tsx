@@ -174,30 +174,30 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
         {!result ? (
           // Form State
           <>
-            <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 to-purple-50">
-              <CardTitle className="flex items-center space-x-3 text-2xl">
-                <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                  <Wand2 className="h-5 w-5 text-white" />
+            <CardHeader className="pb-4 bg-gradient-to-r from-blue-50 to-purple-50">
+              <CardTitle className="flex items-center space-x-3 text-xl">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Wand2 className="h-4 w-4 text-white" />
                 </div>
                 <span>Create Your Excuse</span>
               </CardTitle>
-              <CardDescription className="text-base text-gray-600">
+              <CardDescription className="text-sm text-gray-600">
                 Describe the situation and get a polished excuse in seconds
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6">
+            <CardContent className="p-4">
               {/* Limit Notification */}
               <LimitNotification
                 remaining={limits.remaining}
                 isPro={limits.isPro}
                 onUpgrade={() => setShowLimitModal(true)}
-                className="mb-6"
+                className="mb-4"
               />
               
               <form onSubmit={handleGenerate} data-testid="gen-form">
-                <div className="space-y-6">
-                  <div className="space-y-3">
+                <div className="space-y-4">
+                  <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="scenario" className="text-base font-semibold text-gray-700">
                         What&apos;s the situation?
@@ -219,15 +219,15 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                       value={formData.scenario}
                       onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setFormData({ ...formData, scenario: e.target.value })}
                       required
-                      className="min-h-[120px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
+                      className="min-h-[100px] resize-none border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base"
                     />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <Label className="text-base font-semibold text-gray-700">Tone</Label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Tone</Label>
                       <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
-                        <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-tone">
+                        <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl h-10" data-testid="gen-tone">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -240,10 +240,10 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                       </Select>
                     </div>
                     
-                    <div className="space-y-3">
-                      <Label className="text-base font-semibold text-gray-700">Channel</Label>
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700">Channel</Label>
                       <Select value={formData.channel} onValueChange={(value) => setFormData({ ...formData, channel: value })}>
-                        <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-channel">
+                        <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl h-10" data-testid="gen-channel">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -260,19 +260,19 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                   </div>
 
                   {/* Language Auto-Detection Info */}
-                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                     <div className="flex items-center space-x-2">
-                      <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                      <div className="w-4 h-4 bg-blue-600 rounded-full flex items-center justify-center">
                         <span className="text-white text-xs">🌐</span>
                       </div>
-                      <span className="text-sm text-blue-700 font-medium">
-                        Language will be automatically detected from your text
+                      <span className="text-xs text-blue-700 font-medium">
+                        Language auto-detected from your text
                       </span>
                     </div>
                   </div>
                   
-                  <div className="space-y-3">
-                    <Label htmlFor="context" className="text-base font-semibold text-gray-700">
+                  <div className="space-y-2">
+                    <Label htmlFor="context" className="text-sm font-semibold text-gray-700">
                       Additional Context (Optional)
                     </Label>
                     <Input
@@ -281,7 +281,7 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                       placeholder="Any specific details or requirements..."
                       value={formData.context}
                       onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFormData({ ...formData, context: e.target.value })}
-                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
+                      className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl h-10"
                     />
                   </div>
 
@@ -289,27 +289,27 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                   <PromptTips />
 
                   {/* Generate Button */}
-                  <div className="pt-4 border-t border-gray-100">
-                    <div className="flex items-center justify-between mb-3">
+                  <div className="pt-3 border-t border-gray-100">
+                    <div className="flex items-center justify-between mb-2">
                       <span className="text-xs text-gray-500">Press ⌘⏎ / Ctrl⏎</span>
                     </div>
                     <Button 
                       type="submit" 
                       disabled={generating || !formData.scenario.trim()}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                       data-testid="gen-submit"
                     >
                       <div className="flex items-center space-x-2">
                         {generating ? (
                           <>
-                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
                             <span>Generating...</span>
                           </>
                         ) : (
                           <>
-                            <Wand2 className="h-5 w-5" />
+                            <Wand2 className="h-4 w-4" />
                             <span>Generate Excuse</span>
-                            <ArrowRight className="h-4 w-4" />
+                            <ArrowRight className="h-3 w-3" />
                           </>
                         )}
                       </div>
@@ -322,20 +322,20 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
         ) : (
           // Result State
           <>
-            <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
-              <CardTitle className="flex items-center space-x-3 text-2xl">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
-                  <CheckCircle className="h-5 w-5 text-white" />
+            <CardHeader className="pb-4 bg-gradient-to-r from-green-50 to-emerald-50">
+              <CardTitle className="flex items-center space-x-3 text-xl">
+                <div className="w-8 h-8 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center">
+                  <CheckCircle className="h-4 w-4 text-white" />
                 </div>
                 <span>Your Excuse is Ready!</span>
               </CardTitle>
-              <CardDescription className="text-base text-gray-600">
+              <CardDescription className="text-sm text-gray-600">
                 Here&apos;s your polished excuse - copy, customize, or generate another
               </CardDescription>
             </CardHeader>
             
-            <CardContent className="p-6">
-              <div className="space-y-6">
+            <CardContent className="p-4">
+              <div className="space-y-4">
                 {resultRarity ? (
                   <ExcuseCard 
                     text={result} 
@@ -351,7 +351,7 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                   </div>
                 )}
                 
-                <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row gap-3 pt-3 border-t border-gray-100">
                   <Button 
                     onClick={() => {
                       setResult('');
@@ -359,9 +359,9 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                       setResultExcuseId(null);
                     }}
                     variant="outline"
-                    className="flex-1 border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded-xl"
+                    className="flex-1 border-gray-200 hover:border-blue-500 hover:bg-blue-50 rounded-xl py-2"
                   >
-                    <Wand2 className="h-4 w-4 mr-2" />
+                    <Wand2 className="h-3 w-3 mr-2" />
                     Generate Another
                   </Button>
                   
@@ -369,9 +369,9 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                     onClick={() => {
                       navigator.clipboard.writeText(result);
                     }}
-                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl"
+                    className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-xl py-2"
                   >
-                    <CheckCircle className="h-4 w-4 mr-2" />
+                    <CheckCircle className="h-3 w-3 mr-2" />
                     Copy to Clipboard
                   </Button>
                 </div>
