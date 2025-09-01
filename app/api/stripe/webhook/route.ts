@@ -83,9 +83,7 @@ export async function POST(request: NextRequest) {
                 status: 'active',
                 plan_type: 'monthly',
                 generations_remaining: null, // Unlimited for monthly
-                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
               });
             
             if (error) {
@@ -104,9 +102,7 @@ export async function POST(request: NextRequest) {
                 status: 'active',
                 plan_type: 'pack100',
                 generations_remaining: 100,
-                current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 year (no expiration)
-                created_at: new Date().toISOString(),
-                updated_at: new Date().toISOString()
+                current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // +1 year (no expiration)
               });
             
             if (error) {
@@ -135,8 +131,7 @@ export async function POST(request: NextRequest) {
               status: 'active',
               plan_type: 'monthly',
               generations_remaining: null, // Unlimited for monthly
-              current_period_end: new Date(subscription.current_period_end * 1000),
-              updated_at: new Date().toISOString()
+              current_period_end: new Date(subscription.current_period_end * 1000)
             });
           
           if (error) {
