@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@/lib/supabase-server';
+import { createServiceClient } from '@/lib/supabase-server';
 import { logger, getRequestId, createErrorResponse, ErrorCodes } from '@/lib/logger';
 import { serverEnv } from '@/lib/env';
 
@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
+    const supabase = await createServiceClient();
     logger.info('Supabase client created successfully', requestId);
 
     switch (event.type) {

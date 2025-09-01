@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Stripe from 'stripe';
-import { createClient } from '@/lib/supabase-server';
+import { createServiceClient } from '@/lib/supabase-server';
 import { serverEnv } from '@/lib/env';
 
 const stripe = new Stripe(serverEnv.STRIPE_SECRET_KEY || '', {
@@ -9,7 +9,7 @@ const stripe = new Stripe(serverEnv.STRIPE_SECRET_KEY || '', {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient();
+    const supabase = await createServiceClient();
     const { data: { user }, error: authError } = await supabase.auth.getUser();
     
     if (authError || !user) {
