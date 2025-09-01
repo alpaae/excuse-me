@@ -29,3 +29,25 @@ SELECT
 FROM information_schema.columns 
 WHERE table_name = 'subscriptions' 
 ORDER BY ordinal_position;
+
+-- Исправить RLS политики для webhook
+-- Удалить старые политики
+DROP POLICY IF EXISTS "subs owner select" ON subscriptions;
+DROP POLICY IF EXISTS "subs owner upsert" ON subscriptions;
+DROP POLICY IF EXISTS "subs owner update" ON subscriptions;
+
+-- Создать новые политики для webhook
+CREATE POLICY "subscriptions_webhook_insert" ON subscriptions
+  FOR INSERT 
+  WITH CHECK (true); -- Разрешить вставку для webhook
+
+CREATE POLICY "subscriptions_webhook_update" ON subscriptions
+  FOR UPDATE 
+  USING (true); -- Разрешить обновление для webhook
+
+CREATE POLICY "subscriptions_user_select" ON subscriptions
+  FOR SELECT 
+  USING (auth.uid() = user_id); -- Пользователи видят только свои подписки
+
+-- Включить RLS
+ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
