@@ -20,14 +20,39 @@ const openai = new OpenAI({
 function detectLanguage(text: string): string {
   const t = (text || '').trim();
   if (!t) return 'en';
-  // very rough heuristics
-  if (/[а-яё]/i.test(t)) return 'ru';
-  if (/[ñáéíóúü¿¡]/i.test(t)) return 'es';
-  if (/[ąćęłńóśźż]/i.test(t)) return 'pl';
-  if (/[äöüß]/i.test(t)) return 'de';
-  if (/[àâçéèêëîïôûùüÿœ]/i.test(t)) return 'fr';
-  // fallback
-  return 'en';
+  
+  // More accurate language detection
+  const patterns = [
+    { lang: 'ru', pattern: /[а-яё]/i, weight: 3 },
+    { lang: 'pl', pattern: /[ąćęłńóśźż]/i, weight: 3 },
+    { lang: 'de', pattern: /[äöüß]/i, weight: 2 },
+    { lang: 'fr', pattern: /[àâçéèêëîïôûùüÿœ]/i, weight: 2 },
+    { lang: 'es', pattern: /[ñáéíóúü¿¡]/i, weight: 2 },
+    { lang: 'it', pattern: /[àèéìíîòóù]/i, weight: 1 },
+    { lang: 'pt', pattern: /[ãâáàçéêíóôõú]/i, weight: 1 }
+  ];
+  
+  let bestLang = 'en';
+  let bestScore = 0;
+  
+  for (const { lang, pattern, weight } of patterns) {
+    const matches = (t.match(pattern) || []).length;
+    const score = matches * weight;
+    if (score > bestScore) {
+      bestScore = score;
+      bestLang = lang;
+    }
+  }
+  
+  // Additional context-based detection
+  const lowerText = t.toLowerCase();
+  if (lowerText.includes('polski') || lowerText.includes('polsce') || lowerText.includes('polak')) return 'pl';
+  if (lowerText.includes('russian') || lowerText.includes('россия') || lowerText.includes('русский')) return 'ru';
+  if (lowerText.includes('spanish') || lowerText.includes('español') || lowerText.includes('españa')) return 'es';
+  if (lowerText.includes('german') || lowerText.includes('deutsch') || lowerText.includes('deutschland')) return 'de';
+  if (lowerText.includes('french') || lowerText.includes('français') || lowerText.includes('france')) return 'fr';
+  
+  return bestLang;
 }
 
 export async function POST(request: NextRequest) {
@@ -40,7 +65,7 @@ export async function POST(request: NextRequest) {
   logger.info('Generate API started', requestId);
   
   try {
-    const { scenario, tone, channel, context, generateAudio } = await request.json();
+    const { scenario, tone, channel, lang, context, generateAudio } = await request.json();
     
     // Валидация входных данных
     if (!scenario || !tone || !channel) {
@@ -52,14 +77,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Server-side language detection
-    const combinedText = `${scenario} ${context || ''}`.trim();
-    const targetLang = detectLanguage(combinedText);
+    // Use selected language or detect from text if not specified
+    let targetLang = lang || 'en';
     
-    logger.info('Language detected', requestId, { 
+    // If no language specified, try to detect from text
+    if (!lang) {
+      const combinedText = `${scenario} ${context || ''}`.trim();
+      targetLang = detectLanguage(combinedText);
+    }
+    
+    logger.info('Language processing', requestId, { 
       scenario, 
       context, 
-      detectedLang: targetLang 
+      selectedLang: lang,
+      targetLang: targetLang 
     });
 
     // Получаем пользователя

@@ -24,6 +24,7 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
     scenario: '',
     tone: 'Professional',
     channel: 'Email',
+    lang: 'en',
     context: ''
   });
   const [generating, setGenerating] = useState(false);
@@ -61,16 +62,58 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
     e.preventDefault();
     if (!formData.scenario.trim()) return;
 
+    // Auto-detect language if not explicitly selected
+    let finalLang = formData.lang;
+    if (formData.lang === 'en' && (formData.scenario || formData.context)) {
+      const combinedText = `${formData.scenario} ${formData.context || ''}`.toLowerCase();
+      
+      // Simple language detection for common patterns
+      if (/[ąćęłńóśźż]/.test(combinedText) || 
+          combinedText.includes('polski') || 
+          combinedText.includes('polsce') || 
+          combinedText.includes('polak')) {
+        finalLang = 'pl';
+      } else if (/[а-яё]/.test(combinedText) || 
+                 combinedText.includes('россия') || 
+                 combinedText.includes('русский')) {
+        finalLang = 'ru';
+      } else if (/[ñáéíóúü]/.test(combinedText) || 
+                 combinedText.includes('español') || 
+                 combinedText.includes('españa')) {
+        finalLang = 'es';
+      } else if (/[äöüß]/.test(combinedText) || 
+                 combinedText.includes('deutsch') || 
+                 combinedText.includes('deutschland')) {
+        finalLang = 'de';
+      } else if (/[àâçéèêëîïôûùüÿœ]/.test(combinedText) || 
+                 combinedText.includes('français') || 
+                 combinedText.includes('france')) {
+        finalLang = 'fr';
+      }
+    }
+
     setGenerating(true);
     setResult('');
     setResultRarity(null);
     setResultExcuseId(null);
 
+    // Show language detection notification if auto-detected
+    if (finalLang !== formData.lang) {
+      const langNames = {
+        'pl': 'Polish', 'ru': 'Russian', 'es': 'Spanish', 
+        'de': 'German', 'fr': 'French', 'en': 'English'
+      };
+      console.log(`Auto-detected language: ${langNames[finalLang as keyof typeof langNames] || finalLang}`);
+    }
+
     try {
       const response = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          lang: finalLang
+        }),
       });
 
       const data = await response.json();
@@ -166,7 +209,7 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-3 gap-6">
                     <div className="space-y-3">
                       <Label className="text-base font-semibold text-gray-700">Tone</Label>
                       <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
@@ -195,6 +238,25 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                           <SelectItem value="Phone">Phone</SelectItem>
                           <SelectItem value="In Person">In Person</SelectItem>
                           <SelectItem value="Social Media">Social Media</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-3">
+                      <Label className="text-base font-semibold text-gray-700">Language</Label>
+                      <Select value={formData.lang} onValueChange={(value) => setFormData({ ...formData, lang: value })}>
+                        <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-language">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="en">English</SelectItem>
+                          <SelectItem value="pl">Polski</SelectItem>
+                          <SelectItem value="ru">Русский</SelectItem>
+                          <SelectItem value="es">Español</SelectItem>
+                          <SelectItem value="de">Deutsch</SelectItem>
+                          <SelectItem value="fr">Français</SelectItem>
+                          <SelectItem value="it">Italiano</SelectItem>
+                          <SelectItem value="pt">Português</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
