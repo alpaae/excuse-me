@@ -180,48 +180,48 @@ function AccountPageContent() {
           </div>
         </header>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
           {/* Hero Section */}
-          <div className="text-center mb-12 sm:mb-16">
-            <div className="relative inline-block mb-6 sm:mb-8">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
+          <div className="text-center mb-8 sm:mb-10">
+            <div className="relative inline-block mb-4 sm:mb-6">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl">
+                <User className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
-              <div className="absolute -top-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
+              <div className="absolute -top-1 -right-1 w-4 h-4 sm:w-6 sm:h-6 bg-green-500 rounded-full flex items-center justify-center border-3 border-white shadow-md">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-white rounded-full"></div>
               </div>
             </div>
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-3">
               Account Settings
             </h1>
-            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
+            <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto px-4">
               Manage your profile, subscription, and account preferences
             </p>
           </div>
 
           {/* Main Content Grid - Two Equal Columns */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-12">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8">
             {/* Profile Card */}
             <div>
               <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden h-full">
-                <CardHeader className="pb-8 bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
-                      <User className="h-6 w-6 text-white" />
+                <CardHeader className="pb-6 bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                      <User className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-2xl font-bold text-gray-900">Profile Information</CardTitle>
-                      <CardDescription className="text-lg text-gray-600">
+                      <CardTitle className="text-xl font-bold text-gray-900">Profile Information</CardTitle>
+                      <CardDescription className="text-base text-gray-600">
                         Update your personal details and preferences
                       </CardDescription>
                     </div>
                   </div>
                 </CardHeader>
                 
-                <CardContent className="p-8 space-y-8">
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                      <Label htmlFor="displayName" className="text-base font-semibold text-gray-700 flex items-center">
+                <CardContent className="p-6 space-y-6">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="displayName" className="text-sm font-semibold text-gray-700 flex items-center">
                         <User className="h-4 w-4 mr-2 text-blue-600" />
                         Display Name
                       </Label>
@@ -230,19 +230,19 @@ function AccountPageContent() {
                         value={displayName}
                         onChange={(e) => setDisplayName(e.target.value)}
                         placeholder="Enter your name"
-                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base h-12"
+                        className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl text-base h-10"
                       />
                     </div>
                     
-                    <div className="space-y-3">
-                      <Label className="text-base font-semibold text-gray-700 flex items-center">
+                    <div className="space-y-2">
+                      <Label className="text-sm font-semibold text-gray-700 flex items-center">
                         <Shield className="h-4 w-4 mr-2 text-green-600" />
                         Email Address
                       </Label>
                       <Input
                         value={profile?.id || ''}
                         disabled
-                        className="bg-gray-50 border-gray-200 rounded-xl text-base h-12"
+                        className="bg-gray-50 border-gray-200 rounded-xl text-base h-10"
                       />
                       <p className="text-sm text-gray-500 flex items-center">
                         <Shield className="h-3 w-3 mr-1" />
@@ -251,13 +251,13 @@ function AccountPageContent() {
                     </div>
                   </div>
                   
-                  <div className="pt-4">
+                  <div className="pt-3">
                     <Button 
                       onClick={handleSaveProfile} 
                       disabled={saving}
-                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-4 text-lg font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 h-14"
+                      className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white py-3 text-base font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 h-12"
                     >
-                      <Save className="mr-3 h-5 w-5" />
+                      <Save className="mr-2 h-4 w-4" />
                       {saving ? 'Saving Changes...' : 'Save Changes'}
                     </Button>
                   </div>
