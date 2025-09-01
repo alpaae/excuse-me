@@ -12,7 +12,7 @@ import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
 import { SocialProofBar } from '@/components/social-proof-bar';
-import { LimitNotification } from '@/components/limit-notification';
+
 import { LimitReachedModal } from '@/components/limit-reached-modal';
 
 interface CreatePanelProps {
@@ -211,15 +211,7 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
             </CardHeader>
             
             <CardContent className="p-4">
-              {/* Limit Notification */}
-              <LimitNotification
-                remaining={limits.remaining}
-                isPro={limits.isPro}
-                onUpgrade={() => setShowLimitModal(true)}
-                className="mb-4"
-              />
-              
-              {/* Pro Plan Info */}
+              {/* Plan Status Info */}
               {limits.isPro && (limits.remaining === null || limits.remaining === Infinity) && (
                 <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 mb-4">
                   <div className="flex items-center space-x-3">

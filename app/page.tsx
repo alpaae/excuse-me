@@ -178,25 +178,16 @@ function HomePageContent() {
             <div className="flex items-center space-x-2 sm:space-x-4">
               {user ? (
                 <>
-                  {/* User Limits for authenticated users */}
-                  <div className="flex items-center space-x-2">
-                    <LimitNotification
-                      remaining={userLimits.remaining}
-                      isPro={userLimits.isPro}
-                      onUpgrade={() => window.location.href = '/account'}
-                      className="hidden sm:flex"
-                      compact={true}
-                    />
-                    {userLimits.isPro && (
-                      <button
-                        onClick={refreshUserLimits}
-                        className="p-1 hover:bg-yellow-100 rounded-full transition-colors"
-                        title="Refresh limits"
-                      >
-                        <RefreshCw className="h-3 w-3 text-yellow-600" />
-                      </button>
-                    )}
-                  </div>
+                  {/* User Limits for authenticated users - Hidden for cleaner design */}
+                  {userLimits.isPro && (
+                    <button
+                      onClick={refreshUserLimits}
+                      className="p-2 hover:bg-yellow-100 rounded-full transition-colors"
+                      title="Refresh subscription status"
+                    >
+                      <RefreshCw className="h-4 w-4 text-yellow-600" />
+                    </button>
+                  )}
                   
                   <Button
                     variant="ghost"
