@@ -17,9 +17,10 @@ import { LimitReachedModal } from '@/components/limit-reached-modal';
 
 interface CreatePanelProps {
   userLimits?: { isPro: boolean; remaining: number };
+  onAuthRequired?: () => void; // Callback для открытия модала логина
 }
 
-export function CreatePanel({ userLimits }: CreatePanelProps) {
+export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
   const [formData, setFormData] = useState({
     scenario: '',
     tone: 'Professional',
@@ -60,6 +61,15 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
   const handleGenerate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.scenario.trim()) return;
+
+    // Check if user is authenticated
+    if (!userLimits) {
+      // User is not authenticated, show auth modal
+      if (onAuthRequired) {
+        onAuthRequired();
+      }
+      return;
+    }
 
     // Auto-detect language from input text
     const combinedText = `${formData.scenario} ${formData.context || ''}`.toLowerCase();

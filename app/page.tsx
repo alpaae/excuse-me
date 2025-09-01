@@ -238,7 +238,10 @@ function HomePageContent() {
         <div className="hidden md:grid md:grid-cols-2 md:gap-8 md:items-start">
           {/* Left Column: Create Panel */}
           <div className="flex justify-center">
-            <CreatePanel userLimits={user ? userLimits : undefined} />
+            <CreatePanel 
+              userLimits={user ? userLimits : undefined} 
+              onAuthRequired={() => setShowAuthModal(true)}
+            />
           </div>
           
           {/* Right Column: Hero Panel */}
@@ -257,7 +260,10 @@ function HomePageContent() {
             </TabsList>
             
             <TabsContent value="create" className="space-y-0 h-auto">
-              <CreatePanel userLimits={user ? userLimits : undefined} />
+              <CreatePanel 
+                userLimits={user ? userLimits : undefined} 
+                onAuthRequired={() => setShowAuthModal(true)}
+              />
             </TabsContent>
             
             <TabsContent value="why" className="space-y-0 h-auto">
@@ -273,9 +279,9 @@ function HomePageContent() {
       {/* Auth Modal */}
       {showAuthModal && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[70vh] overflow-y-auto">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full max-h-[80vh] overflow-y-auto">
             <div className="flex items-center justify-between p-4 border-b">
-              <h2 className="text-lg font-semibold text-gray-900">Sign In</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Sign In to Generate Excuses</h2>
               <Button
                 variant="ghost"
                 size="sm"
@@ -285,6 +291,34 @@ function HomePageContent() {
                 <X className="h-5 w-5" />
               </Button>
             </div>
+            
+            {/* Info about free generations */}
+            <div className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-b">
+              <div className="flex items-center space-x-3 mb-3">
+                <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <h3 className="font-medium text-gray-900">Get 3 Free Generations Daily</h3>
+                  <p className="text-sm text-gray-600">Sign in to access your daily free excuse generations</p>
+                </div>
+              </div>
+              <div className="text-sm text-gray-600 space-y-1">
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>3 free generations every day</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>AI-powered professional excuses</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Upgrade to Pro for unlimited access</span>
+                </div>
+              </div>
+            </div>
+            
             <div className="p-4">
               <AuthForm onSuccess={() => setShowAuthModal(false)} />
             </div>
