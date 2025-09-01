@@ -24,7 +24,6 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
     scenario: '',
     tone: 'Professional',
     channel: 'Email',
-    lang: 'en',
     context: ''
   });
   const [generating, setGenerating] = useState(false);
@@ -62,34 +61,52 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
     e.preventDefault();
     if (!formData.scenario.trim()) return;
 
-    // Auto-detect language if not explicitly selected
-    let finalLang = formData.lang;
-    if (formData.lang === 'en' && (formData.scenario || formData.context)) {
-      const combinedText = `${formData.scenario} ${formData.context || ''}`.toLowerCase();
-      
-      // Simple language detection for common patterns
-      if (/[ąćęłńóśźż]/.test(combinedText) || 
-          combinedText.includes('polski') || 
-          combinedText.includes('polsce') || 
-          combinedText.includes('polak')) {
-        finalLang = 'pl';
-      } else if (/[а-яё]/.test(combinedText) || 
-                 combinedText.includes('россия') || 
-                 combinedText.includes('русский')) {
-        finalLang = 'ru';
-      } else if (/[ñáéíóúü]/.test(combinedText) || 
-                 combinedText.includes('español') || 
-                 combinedText.includes('españa')) {
-        finalLang = 'es';
-      } else if (/[äöüß]/.test(combinedText) || 
-                 combinedText.includes('deutsch') || 
-                 combinedText.includes('deutschland')) {
-        finalLang = 'de';
-      } else if (/[àâçéèêëîïôûùüÿœ]/.test(combinedText) || 
-                 combinedText.includes('français') || 
-                 combinedText.includes('france')) {
-        finalLang = 'fr';
-      }
+    // Auto-detect language from input text
+    const combinedText = `${formData.scenario} ${formData.context || ''}`.toLowerCase();
+    let finalLang = 'en'; // Default to English
+    
+    // Enhanced language detection
+    if (/[ąćęłńóśźż]/.test(combinedText) || 
+        combinedText.includes('polski') || 
+        combinedText.includes('polsce') || 
+        combinedText.includes('polak') ||
+        combinedText.includes('polska')) {
+      finalLang = 'pl';
+    } else if (/[а-яё]/.test(combinedText) || 
+               combinedText.includes('россия') || 
+               combinedText.includes('русский') ||
+               combinedText.includes('русская')) {
+      finalLang = 'ru';
+    } else if (/[ñáéíóúü]/.test(combinedText) || 
+               combinedText.includes('español') || 
+               combinedText.includes('españa') ||
+               combinedText.includes('hola') ||
+               combinedText.includes('gracias')) {
+      finalLang = 'es';
+    } else if (/[äöüß]/.test(combinedText) || 
+               combinedText.includes('deutsch') || 
+               combinedText.includes('deutschland') ||
+               combinedText.includes('guten') ||
+               combinedText.includes('danke')) {
+      finalLang = 'de';
+    } else if (/[àâçéèêëîïôûùüÿœ]/.test(combinedText) || 
+               combinedText.includes('français') || 
+               combinedText.includes('france') ||
+               combinedText.includes('bonjour') ||
+               combinedText.includes('merci')) {
+      finalLang = 'fr';
+    } else if (/[àèéìíîòóù]/.test(combinedText) ||
+               combinedText.includes('italiano') ||
+               combinedText.includes('italia') ||
+               combinedText.includes('ciao') ||
+               combinedText.includes('grazie')) {
+      finalLang = 'it';
+    } else if (/[ãâáàçéêíóôõú]/.test(combinedText) ||
+               combinedText.includes('português') ||
+               combinedText.includes('portugal') ||
+               combinedText.includes('olá') ||
+               combinedText.includes('obrigado')) {
+      finalLang = 'pt';
     }
 
     setGenerating(true);
@@ -97,14 +114,12 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
     setResultRarity(null);
     setResultExcuseId(null);
 
-    // Show language detection notification if auto-detected
-    if (finalLang !== formData.lang) {
-      const langNames = {
-        'pl': 'Polish', 'ru': 'Russian', 'es': 'Spanish', 
-        'de': 'German', 'fr': 'French', 'en': 'English'
-      };
-      console.log(`Auto-detected language: ${langNames[finalLang as keyof typeof langNames] || finalLang}`);
-    }
+    // Log detected language for debugging
+    const langNames = {
+      'pl': 'Polish', 'ru': 'Russian', 'es': 'Spanish', 
+      'de': 'German', 'fr': 'French', 'it': 'Italian', 'pt': 'Portuguese', 'en': 'English'
+    };
+    console.log(`Auto-detected language: ${langNames[finalLang as keyof typeof langNames] || finalLang}`);
 
     try {
       const response = await fetch('/api/generate', {
@@ -209,7 +224,7 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                     />
                   </div>
                   
-                  <div className="grid grid-cols-3 gap-6">
+                  <div className="grid grid-cols-2 gap-6">
                     <div className="space-y-3">
                       <Label className="text-base font-semibold text-gray-700">Tone</Label>
                       <Select value={formData.tone} onValueChange={(value) => setFormData({ ...formData, tone: value })}>
@@ -242,23 +257,18 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
                       </Select>
                     </div>
 
-                    <div className="space-y-3">
-                      <Label className="text-base font-semibold text-gray-700">Language</Label>
-                      <Select value={formData.lang} onValueChange={(value) => setFormData({ ...formData, lang: value })}>
-                        <SelectTrigger className="border-gray-200 focus:border-blue-500 focus:ring-blue-500 rounded-xl" data-testid="gen-language">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="en">English</SelectItem>
-                          <SelectItem value="pl">Polski</SelectItem>
-                          <SelectItem value="ru">Русский</SelectItem>
-                          <SelectItem value="es">Español</SelectItem>
-                          <SelectItem value="de">Deutsch</SelectItem>
-                          <SelectItem value="fr">Français</SelectItem>
-                          <SelectItem value="it">Italiano</SelectItem>
-                          <SelectItem value="pt">Português</SelectItem>
-                        </SelectContent>
-                      </Select>
+
+                  </div>
+
+                  {/* Language Auto-Detection Info */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-5 h-5 bg-blue-600 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs">🌐</span>
+                      </div>
+                      <span className="text-sm text-blue-700 font-medium">
+                        Language will be automatically detected from your text
+                      </span>
                     </div>
                   </div>
                   

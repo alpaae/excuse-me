@@ -14,7 +14,7 @@ export function LegendaryPop({ onComplete }: LegendaryPopProps) {
     const timer = setTimeout(() => {
       setIsVisible(false);
       onComplete?.();
-    }, 3000); // Show for 3 seconds
+    }, 2000); // Show for 2 seconds
 
     return () => clearTimeout(timer);
   }, [onComplete]);

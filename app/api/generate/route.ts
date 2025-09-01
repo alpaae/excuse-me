@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
   logger.info('Generate API started', requestId);
   
   try {
-    const { scenario, tone, channel, lang, context, generateAudio } = await request.json();
+    const { scenario, tone, channel, context, generateAudio } = await request.json();
     
     // Валидация входных данных
     if (!scenario || !tone || !channel) {
@@ -77,20 +77,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Use selected language or detect from text if not specified
-    let targetLang = lang || 'en';
-    
-    // If no language specified, try to detect from text
-    if (!lang) {
-      const combinedText = `${scenario} ${context || ''}`.trim();
-      targetLang = detectLanguage(combinedText);
-    }
+    // Auto-detect language from input text
+    const combinedText = `${scenario} ${context || ''}`.trim();
+    const targetLang = detectLanguage(combinedText);
     
     logger.info('Language processing', requestId, { 
       scenario, 
       context, 
-      selectedLang: lang,
-      targetLang: targetLang 
+      detectedLang: targetLang 
     });
 
     // Получаем пользователя
