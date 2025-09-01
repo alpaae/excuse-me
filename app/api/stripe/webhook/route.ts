@@ -59,6 +59,7 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient();
+    logger.info('Supabase client created successfully', requestId);
 
     switch (event.type) {
       case 'checkout.session.completed': {
@@ -67,8 +68,11 @@ export async function POST(request: NextRequest) {
         const plan = session.metadata?.plan;
         
         logger.info('Processing checkout.session.completed', requestId, { userId, plan, sessionId: session.id });
+        logger.info('Session metadata:', requestId, { metadata: session.metadata });
         
         if (userId) {
+          logger.info('User ID found, processing plan:', requestId, { userId, plan });
+          
           if (plan === 'monthly') {
             // Месячная подписка
             const { error } = await supabase
@@ -90,6 +94,7 @@ export async function POST(request: NextRequest) {
               logger.info('Successfully updated subscription for monthly plan', requestId, { userId });
             }
           } else if (plan === 'pack100') {
+            logger.info('Processing pack100 subscription', requestId);
             // Пакет 100 генераций
             const { error } = await supabase
               .from('subscriptions')
