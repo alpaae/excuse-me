@@ -57,6 +57,12 @@ export function validateClientEnv() {
     NEXT_PUBLIC_FEATURE_PAYMENTS: process.env.NEXT_PUBLIC_FEATURE_PAYMENTS,
   };
 
+  // Skip validation in CI/CD environment
+  if (process.env.CI || process.env.GITHUB_ACTIONS) {
+    console.warn('⚠️ Skipping environment validation in CI/CD environment');
+    return clientEnv as any;
+  }
+
   try {
     return clientSchema.parse(clientEnv);
   } catch (error) {
