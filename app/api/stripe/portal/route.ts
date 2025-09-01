@@ -9,21 +9,24 @@ const stripe = new Stripe(serverEnv.STRIPE_SECRET_KEY || '', {
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createServiceClient();
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    // Get user ID from request body (sent from client)
+    const { userId } = await request.json();
     
-    if (authError || !user) {
+    if (!userId) {
       return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
+        { error: 'User ID required' },
+        { status: 400 }
       );
     }
+
+    // Use Service Role client for database operations
+    const supabase = await createServiceClient();
 
     // Get user's subscription to check if they have Stripe subscription
     const { data: subscription } = await supabase
       .from('subscriptions')
       .select('*')
-      .eq('user_id', user.id)
+      .eq('user_id', userId)
       .eq('provider', 'stripe')
       .eq('status', 'active')
       .single();
@@ -41,9 +44,8 @@ export async function POST(request: NextRequest) {
     if (!customerId) {
       // Create new Stripe customer
       const customer = await stripe.customers.create({
-        email: user.email,
         metadata: {
-          user_id: user.id,
+          user_id: userId,
         },
       });
       
