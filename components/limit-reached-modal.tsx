@@ -36,6 +36,8 @@ const plans = [
 ];
 
 export function LimitReachedModal({ isOpen, onClose, onUpgrade }: LimitReachedModalProps) {
+  const [selectedPlan, setSelectedPlan] = useState<'monthly' | 'pack100'>('monthly');
+  
   if (!isOpen) return null;
 
   return (
@@ -62,11 +64,13 @@ export function LimitReachedModal({ isOpen, onClose, onUpgrade }: LimitReachedMo
               <div
                 key={plan.id}
                 className={`relative p-6 rounded-xl border-2 transition-all duration-200 hover:shadow-lg cursor-pointer ${
-                  plan.popular 
+                  selectedPlan === plan.id
+                    ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-purple-50 shadow-lg' 
+                    : plan.popular 
                     ? 'border-purple-300 bg-gradient-to-br from-purple-50 to-blue-50' 
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
-                onClick={() => onUpgrade(plan.id as 'monthly' | 'pack100')}
+                onClick={() => setSelectedPlan(plan.id as 'monthly' | 'pack100')}
               >
                 {plan.popular && (
                   <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-blue-600 text-white border-0">
@@ -122,11 +126,11 @@ export function LimitReachedModal({ isOpen, onClose, onUpgrade }: LimitReachedMo
               Maybe Later
             </Button>
             <Button
-              onClick={() => onUpgrade('monthly')}
+              onClick={() => onUpgrade(selectedPlan)}
               className="flex-1 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
             >
               <Crown className="h-4 w-4 mr-2" />
-              Get Pro Monthly
+              Get {selectedPlan === 'monthly' ? 'Pro Monthly' : '100 Pack'}
             </Button>
           </div>
         </CardContent>
