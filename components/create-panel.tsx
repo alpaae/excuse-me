@@ -162,9 +162,23 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
     }
   };
 
-  const handleUpgrade = (plan: 'monthly' | 'pack100') => {
-    // Redirect to account page with plan parameter
-    window.location.href = `/account?plan=${plan}`;
+  const handleUpgrade = async (plan: 'monthly' | 'pack100') => {
+    try {
+      const response = await fetch('/api/stripe/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          plan: plan,
+        }),
+      });
+
+      const { url } = await response.json();
+      if (url) {
+        window.location.href = url;
+      }
+    } catch (error) {
+      console.error('Error creating checkout session:', error);
+    }
     setShowLimitModal(false);
   };
 

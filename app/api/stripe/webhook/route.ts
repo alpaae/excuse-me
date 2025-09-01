@@ -22,6 +22,14 @@ export async function POST(request: NextRequest) {
   const requestId = getRequestId(request);
   logger.info('Stripe webhook started', requestId);
   
+  // Логируем заголовки для диагностики
+  const headers = Object.fromEntries(request.headers.entries());
+  logger.info('Webhook headers', requestId, { 
+    'stripe-signature': headers['stripe-signature'] ? 'PRESENT' : 'MISSING',
+    'content-type': headers['content-type'],
+    'user-agent': headers['user-agent']
+  });
+  
   try {
     const body = await request.text();
     const signature = request.headers.get('stripe-signature')!;
@@ -30,8 +38,18 @@ export async function POST(request: NextRequest) {
 
     try {
       event = stripe.webhooks.constructEvent(body, signature, webhookSecret);
+      logger.info('Webhook signature verified successfully', requestId, { 
+        eventType: event.type,
+        eventId: event.id 
+      });
     } catch (err) {
       logger.error('Webhook signature verification failed', err instanceof Error ? err : new Error(String(err)), requestId);
+      logger.info('Webhook body preview', requestId, { 
+        bodyLength: body.length,
+        bodyStart: body.substring(0, 100),
+        signature: signature ? 'PRESENT' : 'MISSING',
+        webhookSecretLength: webhookSecret.length
+      });
       return createErrorResponse(
         ErrorCodes.VALIDATION_ERROR,
         'Invalid signature',

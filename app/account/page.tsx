@@ -107,8 +107,9 @@ function AccountPageContent() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          success_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/account?success=true`,
-          cancel_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/account?canceled=true`,
+          success_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/?payment=success&plan=${selectedPlan}`,
+          cancel_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/?payment=canceled`,
+          plan: selectedPlan,
         }),
       });
 
