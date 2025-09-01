@@ -139,7 +139,7 @@ function AccountPageContent() {
 
   return (
     <AuthGuard>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-y-auto">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
         {/* Animated Background */}
         <div className="fixed inset-0 overflow-hidden pointer-events-none">
           <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -180,7 +180,7 @@ function AccountPageContent() {
           </div>
         </header>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-6 sm:py-8 overflow-y-auto min-h-[calc(100vh-80px)]">
           {/* Hero Section */}
           <div className="text-center mb-8 sm:mb-10">
             <div className="relative inline-block mb-4 sm:mb-6">
@@ -401,6 +401,9 @@ function AccountPageContent() {
               </CardContent>
             </Card>
           </div>
+          
+          {/* Bottom Spacing for Better Scrolling */}
+          <div className="h-20"></div>
         </div>
       </div>
 
