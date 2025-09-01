@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Wand2, ArrowRight, CheckCircle, Sparkles } from 'lucide-react';
+import { Wand2, ArrowRight, CheckCircle, Sparkles, Crown } from 'lucide-react';
 import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
@@ -218,6 +218,36 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
                 onUpgrade={() => setShowLimitModal(true)}
                 className="mb-4"
               />
+              
+              {/* Pro Plan Info */}
+              {limits.isPro && limits.remaining === null && (
+                <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">
+                      <Crown className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-yellow-800">Pro Plan Active</h3>
+                      <p className="text-sm text-yellow-700">Unlimited generations • No daily limits</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Free Plan Info */}
+              {!limits.isPro && (
+                <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                      <Sparkles className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-blue-800">Free Plan</h3>
+                      <p className="text-sm text-blue-700">{limits.remaining}/3 generations today</p>
+                    </div>
+                  </div>
+                </div>
+              )}
               
               <form onSubmit={handleGenerate} data-testid="gen-form">
                 <div className="space-y-4">

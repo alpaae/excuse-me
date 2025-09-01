@@ -21,6 +21,8 @@ interface Subscription {
   id: string;
   provider: 'stripe' | 'telegram';
   status: 'active' | 'past_due' | 'canceled';
+  plan_type: 'monthly' | 'pack100';
+  generations_remaining: number | null;
   current_period_end: string;
   created_at: string;
 }
@@ -287,37 +289,81 @@ function AccountPageContent() {
                   <div className="flex items-center justify-between p-4 bg-gradient-to-r from-gray-50 to-gray-100 rounded-2xl">
                     <div>
                       <p className="font-bold text-gray-900">Current Plan</p>
-                      <p className="text-sm text-gray-600">Unlimited excuses & premium features</p>
+                      <p className="text-sm text-gray-600">
+                        {subscription?.plan_type === 'monthly' 
+                          ? 'Unlimited excuses & premium features' 
+                          : subscription?.plan_type === 'pack100'
+                          ? `${subscription.generations_remaining || 0} generations remaining`
+                          : 'Free plan with daily limits'
+                        }
+                      </p>
                     </div>
                     <Badge 
                       variant={subscription ? 'default' : 'secondary'}
                       className={`px-4 py-2 text-sm font-bold rounded-full ${
-                        subscription 
-                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg' 
+                        subscription?.plan_type === 'monthly'
+                          ? 'bg-gradient-to-r from-yellow-600 to-orange-600 text-white shadow-lg'
+                          : subscription?.plan_type === 'pack100'
+                          ? 'bg-gradient-to-r from-green-600 to-emerald-600 text-white shadow-lg'
                           : 'bg-gradient-to-r from-gray-200 to-gray-300 text-gray-700'
                       }`}
                     >
-                      {subscription ? 'Pro Plan' : 'Free Plan'}
+                      {subscription?.plan_type === 'monthly' 
+                        ? 'Pro Monthly' 
+                        : subscription?.plan_type === 'pack100'
+                        ? '100 Pack'
+                        : 'Free Plan'
+                      }
                     </Badge>
                   </div>
                   
                   {subscription && (
-                    <div className="space-y-4 p-4 bg-gradient-to-r from-green-50 to-emerald-50 rounded-2xl border border-green-200">
-                      <h4 className="font-bold text-green-900 flex items-center">
+                    <div className={`space-y-4 p-4 rounded-2xl border ${
+                      subscription.plan_type === 'monthly'
+                        ? 'bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200'
+                        : 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200'
+                    }`}>
+                      <h4 className={`font-bold flex items-center ${
+                        subscription.plan_type === 'monthly'
+                          ? 'text-yellow-900'
+                          : 'text-green-900'
+                      }`}>
                         <Zap className="h-4 w-4 mr-2" />
                         Subscription Details
                       </h4>
                       <div className="space-y-3 text-sm">
                         <div className="flex justify-between items-center">
-                          <span className="text-green-700">Provider:</span>
-                          <span className="font-semibold text-green-900 capitalize">{subscription.provider}</span>
+                          <span className={subscription.plan_type === 'monthly' ? 'text-yellow-700' : 'text-green-700'}>Plan Type:</span>
+                          <span className={`font-semibold capitalize ${
+                            subscription.plan_type === 'monthly' ? 'text-yellow-900' : 'text-green-900'
+                          }`}>
+                            {subscription.plan_type === 'monthly' ? 'Pro Monthly' : '100 Pack'}
+                          </span>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-green-700">Valid until:</span>
-                          <span className="font-semibold text-green-900">
+                          <span className={subscription.plan_type === 'monthly' ? 'text-yellow-700' : 'text-green-700'}>Status:</span>
+                          <span className={`font-semibold capitalize ${
+                            subscription.plan_type === 'monthly' ? 'text-yellow-900' : 'text-green-900'
+                          }`}>
+                            {subscription.status}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className={subscription.plan_type === 'monthly' ? 'text-yellow-700' : 'text-green-700'}>Valid until:</span>
+                          <span className={`font-semibold ${
+                            subscription.plan_type === 'monthly' ? 'text-yellow-900' : 'text-green-900'
+                          }`}>
                             {new Date(subscription.current_period_end).toLocaleDateString()}
                           </span>
                         </div>
+                        {subscription.plan_type === 'pack100' && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-green-700">Generations left:</span>
+                            <span className="font-semibold text-green-900">
+                              {subscription.generations_remaining || 0}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}
