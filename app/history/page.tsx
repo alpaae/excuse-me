@@ -144,7 +144,7 @@ export default function ExcuseHistoryPage() {
   return (
     <ErrorBoundary>
       <AuthGuard>
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 overflow-y-auto">
+        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100" style={{ scrollBehavior: 'smooth' }}>
           {/* Animated Background */}
           <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
             <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-blue-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -152,7 +152,7 @@ export default function ExcuseHistoryPage() {
           </div>
 
           {/* Header */}
-          <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 shadow-sm">
+          <header className="relative z-20 border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0 shadow-sm">
             <div className="max-w-4xl mx-auto px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
@@ -184,7 +184,7 @@ export default function ExcuseHistoryPage() {
                   </span>
                   {excuses.length > 5 && (
                     <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                      Scroll to see more
+                      {excuses.length} excuses • Scroll to see all
                     </span>
                   )}
                 </div>
@@ -193,7 +193,10 @@ export default function ExcuseHistoryPage() {
           </header>
 
           {/* Main Content */}
-          <div className="relative z-10 max-w-4xl mx-auto px-6 py-8">
+          <div 
+            className="relative z-10 max-w-4xl mx-auto px-6 py-8 overflow-y-auto max-h-[calc(100vh-120px)] md:max-h-[calc(100vh-140px)] scroll-smooth"
+            data-scroll-container
+          >
             {/* Error */}
             {error && (
               <Card className="border-red-200 bg-red-50 mb-6">
@@ -382,6 +385,22 @@ export default function ExcuseHistoryPage() {
             {/* Bottom spacing for better scroll experience */}
             <div className="h-20"></div>
           </div>
+
+          {/* Scroll to Top Button */}
+          {excuses.length > 3 && (
+            <button
+              onClick={() => {
+                const mainContent = document.querySelector('[data-scroll-container]');
+                if (mainContent) {
+                  mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+              }}
+              className="fixed bottom-6 right-6 z-30 bg-white/90 backdrop-blur-sm border border-gray-200/50 rounded-full p-3 shadow-lg hover:shadow-xl transition-all duration-200 hover:bg-white"
+              aria-label="Scroll to top"
+            >
+              <ChevronUp className="h-5 w-5 text-gray-600" />
+            </button>
+          )}
         </div>
       </AuthGuard>
     </ErrorBoundary>
