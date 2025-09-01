@@ -57,18 +57,4 @@ CREATE POLICY "Users can update own excuses" ON excuses
 CREATE POLICY "Users can delete own excuses" ON excuses
     FOR DELETE USING (auth.uid() = user_id);
 
--- ========================================
--- SOCIAL_PROOF TABLE POLICIES
--- ========================================
 
--- Политика для чтения социальных доказательств (всем)
-CREATE POLICY "Anyone can view social proof" ON social_proof
-    FOR SELECT USING (true);
-
--- Политика для вставки социальных доказательств (только через API)
-CREATE POLICY "Service can insert social proof" ON social_proof
-    FOR INSERT WITH CHECK (true);
-
--- Политика для обновления социальных доказательств (только через API)
-CREATE POLICY "Service can update social proof" ON social_proof
-    FOR UPDATE USING (true);

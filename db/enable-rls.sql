@@ -14,8 +14,7 @@ ALTER TABLE subscriptions ENABLE ROW LEVEL SECURITY;
 -- Включаем RLS на таблице excuses
 ALTER TABLE excuses ENABLE ROW LEVEL SECURITY;
 
--- Включаем RLS на таблице social_proof
-ALTER TABLE social_proof ENABLE ROW LEVEL SECURITY;
+
 
 -- ========================================
 -- VERIFY RLS STATUS
@@ -27,7 +26,7 @@ SELECT
     tablename,
     rowsecurity as rls_enabled
 FROM pg_tables 
-WHERE tablename IN ('profiles', 'subscriptions', 'excuses', 'social_proof')
+WHERE tablename IN ('profiles', 'subscriptions', 'excuses')
 ORDER BY tablename;
 
 -- ========================================

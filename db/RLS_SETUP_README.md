@@ -51,10 +51,6 @@
 - ✅ Пользователи создают только свои отмазки
 - ✅ Пользователи обновляют только свои отмазки
 
-### **Social Proof**
-- ✅ Все могут читать социальные доказательства
-- ✅ Только API может обновлять счетчики
-
 ## ⚠️ **Важные моменты**
 
 ### **Service Role Key**
@@ -85,7 +81,7 @@ SELECT
     tablename,
     rowsecurity as rls_enabled
 FROM pg_tables 
-WHERE tablename IN ('profiles', 'subscriptions', 'excuses', 'social_proof');
+WHERE tablename IN ('profiles', 'subscriptions', 'excuses');
 ```
 
 ### **Проверить политики:**
@@ -100,7 +96,7 @@ SELECT
     qual,
     with_check
 FROM pg_policies 
-WHERE tablename IN ('profiles', 'subscriptions', 'excuses', 'social_proof');
+WHERE tablename IN ('profiles', 'subscriptions', 'excuses');
 ```
 
 ## 🚀 **После настройки**
