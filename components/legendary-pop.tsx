@@ -11,16 +11,31 @@ export function LegendaryPop({ onComplete }: LegendaryPopProps) {
   const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    // Force hide after 2 seconds
     const timer = setTimeout(() => {
       setIsVisible(false);
-      onComplete?.();
-    }, 2000); // Show for 2 seconds
+    }, 2000);
 
-    return () => clearTimeout(timer);
+    // Call onComplete after animation
+    const completeTimer = setTimeout(() => {
+      onComplete?.();
+    }, 2200); // Wait for exit animation
+
+    // Ultimate fallback: force hide after 4 seconds
+    const fallbackTimer = setTimeout(() => {
+      setIsVisible(false);
+      onComplete?.();
+    }, 4000);
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(completeTimer);
+      clearTimeout(fallbackTimer);
+    };
   }, [onComplete]);
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {isVisible && (
         <motion.div
           className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none"
@@ -28,6 +43,15 @@ export function LegendaryPop({ onComplete }: LegendaryPopProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
+          onAnimationComplete={() => {
+            // Fallback: force hide if still visible after 3 seconds
+            if (isVisible) {
+              setTimeout(() => {
+                setIsVisible(false);
+                onComplete?.();
+              }, 1000);
+            }
+          }}
         >
           {/* Backdrop glow */}
           <motion.div
@@ -51,17 +75,18 @@ export function LegendaryPop({ onComplete }: LegendaryPopProps) {
               opacity: 1,
               rotate: 0
             }}
-            exit={{ 
-              scale: 0.8,
-              opacity: 0,
-              rotate: 10
-            }}
-            transition={{ 
-              type: "spring",
-              stiffness: 300,
-              damping: 20,
-              duration: 0.3
-            }}
+                      exit={{ 
+            scale: 0.8,
+            opacity: 0,
+            rotate: 10,
+            y: -20
+          }}
+          transition={{ 
+            type: "spring",
+            stiffness: 300,
+            damping: 20,
+            duration: 0.3
+          }}
           >
             {/* Sparkle effects */}
             <motion.div
@@ -115,6 +140,18 @@ export function LegendaryPop({ onComplete }: LegendaryPopProps) {
                 delay: 0.6
               }}
             />
+
+            {/* Close button */}
+            <button
+              onClick={() => {
+                setIsVisible(false);
+                setTimeout(() => onComplete?.(), 200);
+              }}
+              className="absolute top-2 right-2 w-8 h-8 bg-white/20 hover:bg-white/30 rounded-full flex items-center justify-center transition-colors"
+              aria-label="Close"
+            >
+              <span className="text-white text-lg">×</span>
+            </button>
 
             {/* Text content */}
             <motion.div

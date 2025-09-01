@@ -143,10 +143,9 @@ export function CreatePanel({ userLimits }: CreatePanelProps) {
           setLimits(data.limits);
         }
         
-        // Show legendary pop for first legendary in session
-        if (data.rarity === 'legendary' && !sessionStorage.getItem('legendary:shown')) {
+        // Show legendary pop for legendary excuses
+        if (data.rarity === 'legendary') {
           setShowLegendaryPop(true);
-          sessionStorage.setItem('legendary:shown', '1');
         }
       } else {
         console.error('Generation failed:', data.error);
