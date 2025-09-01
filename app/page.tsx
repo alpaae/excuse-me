@@ -72,30 +72,49 @@ function HomePageContent() {
     // Check on mount
     checkPaymentSuccess();
     
-    // Get current user and limits
+    // Get current user and limits with timeout
     const getUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      
-      // Load user limits if authenticated
-      if (user) {
-        await refreshUserLimits();
+      try {
+        // Add timeout for auth operations
+        const timeoutPromise = new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Auth timeout')), 15000)
+        );
+        
+        const authPromise = supabase.auth.getUser();
+        const result = await Promise.race([authPromise, timeoutPromise]) as any;
+        const { data: { user } } = result;
+        
+        setUser(user);
+        
+        // Load user limits if authenticated
+        if (user) {
+          await refreshUserLimits();
+        }
+        
+        setLoading(false);
+      } catch (error) {
+        console.error('Auth error:', error);
+        setLoading(false);
+        // Continue without user if auth fails
       }
-      
-      setLoading(false);
     };
 
     getUser();
 
-    // Subscribe to authentication state changes
+    // Subscribe to authentication state changes with timeout
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        setUser(session?.user ?? null);
-        setLoading(false);
-        
-        // Close modal after successful authentication
-        if (event === 'SIGNED_IN') {
-          setShowAuthModal(false);
+        try {
+          setUser(session?.user ?? null);
+          setLoading(false);
+          
+          // Close modal after successful authentication
+          if (event === 'SIGNED_IN') {
+            setShowAuthModal(false);
+          }
+        } catch (error) {
+          console.error('Auth state change error:', error);
+          setLoading(false);
         }
       }
     );
