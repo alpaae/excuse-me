@@ -153,6 +153,76 @@ export async function POST(request: NextRequest) {
         break;
       }
 
+      case 'customer.subscription.created': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const userId = subscription.metadata?.user_id;
+        const plan = subscription.metadata?.plan;
+        
+        logger.info('Processing customer.subscription.created', requestId, { userId, plan, subscriptionId: subscription.id });
+        
+        if (userId && plan === 'monthly') {
+          logger.info('Creating monthly subscription from subscription event', requestId);
+          
+          // Check if subscription already exists
+          const { data: existingSubscription } = await supabase
+            .from('subscriptions')
+            .select('id')
+            .eq('user_id', userId)
+            .eq('provider', 'stripe')
+            .eq('status', 'active')
+            .single();
+          
+          if (!existingSubscription) {
+            const { error } = await supabase
+              .from('subscriptions')
+              .insert({
+                user_id: userId,
+                provider: 'stripe',
+                status: 'active',
+                plan_type: 'monthly',
+                generations_remaining: null, // Unlimited for monthly
+                current_period_end: new Date(subscription.current_period_end * 1000)
+              });
+            
+            if (error) {
+              logger.error('Failed to create monthly subscription from subscription event', error, requestId);
+            } else {
+              logger.info('Successfully created monthly subscription from subscription event', requestId, { userId });
+            }
+          }
+        }
+        break;
+      }
+
+      case 'customer.subscription.updated': {
+        const subscription = event.data.object as Stripe.Subscription;
+        const userId = subscription.metadata?.user_id;
+        const plan = subscription.metadata?.plan;
+        
+        logger.info('Processing customer.subscription.updated', requestId, { userId, plan, subscriptionId: subscription.id });
+        
+        if (userId && plan === 'monthly') {
+          logger.info('Updating monthly subscription from subscription event', requestId);
+          
+          const { error } = await supabase
+            .from('subscriptions')
+            .update({
+              current_period_end: new Date(subscription.current_period_end * 1000),
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId)
+            .eq('provider', 'stripe')
+            .eq('status', 'active');
+          
+          if (error) {
+            logger.error('Failed to update monthly subscription from subscription event', error, requestId);
+          } else {
+            logger.info('Successfully updated monthly subscription from subscription event', requestId, { userId });
+          }
+        }
+        break;
+      }
+
       case 'invoice.payment_succeeded': {
         const invoice = event.data.object as Stripe.Invoice;
         const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
