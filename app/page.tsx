@@ -9,32 +9,13 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { createClient } from '@/lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 
-// Lazy load components for better performance
-const CreatePanel = dynamic(() => import('@/components/create-panel').then(mod => ({ default: mod.CreatePanel })), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>,
-  ssr: false
-});
-
-const RightHeroPanel = dynamic(() => import('@/components/right-hero-panel').then(mod => ({ default: mod.RightHeroPanel })), {
-  loading: () => <div className="animate-pulse bg-gray-200 h-96 rounded-lg"></div>,
-  ssr: false
-});
-
-const OnboardingModal = dynamic(() => import('@/components/onboarding-modal').then(mod => ({ default: mod.OnboardingModal })), {
-  ssr: false
-});
-
-const AuthForm = dynamic(() => import('@/components/auth/auth-form').then(mod => ({ default: mod.AuthForm })), {
-  ssr: false
-});
-
-const LimitNotification = dynamic(() => import('@/components/limit-notification').then(mod => ({ default: mod.LimitNotification })), {
-  ssr: false
-});
-
-const PremiumBadge = dynamic(() => import('@/components/premium-badge').then(mod => ({ default: mod.PremiumBadge })), {
-  ssr: false
-});
+// Import components directly for better reliability
+import { CreatePanel } from '@/components/create-panel';
+import { RightHeroPanel } from '@/components/right-hero-panel';
+import { OnboardingModal } from '@/components/onboarding-modal';
+import { AuthForm } from '@/components/auth/auth-form';
+import { LimitNotification } from '@/components/limit-notification';
+import { PremiumBadge } from '@/components/premium-badge';
 
 function HomePageContent() {
   const [showAuthModal, setShowAuthModal] = useState(false);
