@@ -220,7 +220,7 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
               />
               
               {/* Pro Plan Info */}
-              {limits.isPro && limits.remaining === null && (
+              {limits.isPro && (limits.remaining === null || limits.remaining === Infinity) && (
                 <div className="bg-gradient-to-r from-yellow-50 to-orange-50 border border-yellow-200 rounded-xl p-4 mb-4">
                   <div className="flex items-center space-x-3">
                     <div className="w-8 h-8 bg-gradient-to-br from-yellow-500 to-orange-500 rounded-xl flex items-center justify-center">

@@ -43,7 +43,7 @@ export function LimitNotification({ remaining, isPro, onUpgrade, className = '',
           </div>
         </div>
       );
-    } else {
+    } else if (remaining > 0) {
       // 100 Pack Plan
       if (compact) {
         return (
