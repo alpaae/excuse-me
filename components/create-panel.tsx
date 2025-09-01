@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { Wand2, ArrowRight, CheckCircle, Sparkles, Crown } from 'lucide-react';
+import { Wand2, ArrowRight, CheckCircle, Sparkles, Crown, Zap } from 'lucide-react';
 import { PromptTips } from '@/components/prompt-tips';
 import { ExcuseCard } from '@/components/excuse-card';
 import { LegendaryPop } from '@/components/legendary-pop';
@@ -221,6 +221,21 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
                     <div>
                       <h3 className="font-semibold text-yellow-800">Pro Plan Active</h3>
                       <p className="text-sm text-yellow-700">Unlimited generations • No daily limits</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* 100 Pack Info */}
+              {limits.isPro && limits.remaining !== null && limits.remaining !== Infinity && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-xl p-4 mb-4">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+                      <Zap className="h-4 w-4 text-white" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-green-800">100 Pack Active</h3>
+                      <p className="text-sm text-green-700">{limits.remaining} generations remaining</p>
                     </div>
                   </div>
                 </div>
