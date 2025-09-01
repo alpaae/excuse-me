@@ -111,6 +111,18 @@ export async function POST(request: NextRequest) {
             // Create new subscription only if none exists
             if (plan === 'monthly') {
               logger.info('Creating new monthly subscription', requestId);
+              
+              // Get or create Stripe customer
+              let customerId = session.customer as string;
+              if (!customerId && session.customer_email) {
+                // Create customer if not exists
+                const customer = await stripe.customers.create({
+                  email: session.customer_email,
+                  metadata: { user_id: userId },
+                });
+                customerId = customer.id;
+              }
+              
               const { error } = await supabase
                 .from('subscriptions')
                 .insert({
@@ -119,16 +131,29 @@ export async function POST(request: NextRequest) {
                   status: 'active',
                   plan_type: 'monthly',
                   generations_remaining: null, // Unlimited for monthly
-                  current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // +30 days
+                  current_period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // +30 days
+                  stripe_customer_id: customerId
                 });
               
               if (error) {
                 logger.error('Failed to create monthly subscription', error, requestId);
               } else {
-                logger.info('Successfully created monthly subscription', requestId, { userId });
+                logger.info('Successfully created monthly subscription', requestId, { userId, customerId });
               }
             } else if (plan === 'pack100') {
               logger.info('Creating new pack100 subscription', requestId);
+              
+              // Get or create Stripe customer
+              let customerId = session.customer as string;
+              if (!customerId && session.customer_email) {
+                // Create customer if not exists
+                const customer = await stripe.customers.create({
+                  email: session.customer_email,
+                  metadata: { user_id: userId },
+                });
+                customerId = customer.id;
+              }
+              
               const { error } = await supabase
                 .from('subscriptions')
                 .insert({
@@ -137,13 +162,14 @@ export async function POST(request: NextRequest) {
                   status: 'active',
                   plan_type: 'pack100',
                   generations_remaining: 100,
-                  current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // +1 year (no expiration)
+                  current_period_end: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // +1 year (no expiration)
+                  stripe_customer_id: customerId
                 });
               
               if (error) {
                 logger.error('Failed to create pack100 subscription', error, requestId);
               } else {
-                logger.info('Successfully created pack100 subscription', requestId, { userId });
+                logger.info('Successfully created pack100 subscription', requestId, { userId, customerId });
               }
             }
           }
@@ -181,13 +207,14 @@ export async function POST(request: NextRequest) {
                 status: 'active',
                 plan_type: 'monthly',
                 generations_remaining: null, // Unlimited for monthly
-                current_period_end: new Date(subscription.current_period_end * 1000)
+                current_period_end: new Date(subscription.current_period_end * 1000),
+                stripe_customer_id: subscription.customer as string
               });
             
             if (error) {
               logger.error('Failed to create monthly subscription from subscription event', error, requestId);
             } else {
-              logger.info('Successfully created monthly subscription from subscription event', requestId, { userId });
+              logger.info('Successfully created monthly subscription from subscription event', requestId, { userId, customerId: subscription.customer });
             }
           }
         }
@@ -269,16 +296,28 @@ export async function POST(request: NextRequest) {
         const invoice = event.data.object as Stripe.Invoice;
         const subscription = await stripe.subscriptions.retrieve(invoice.subscription as string);
         const userId = subscription.metadata?.user_id;
+        const plan = subscription.metadata?.plan;
         
         if (userId) {
-          await supabase
+          logger.info('Processing invoice.payment_failed', requestId, { userId, plan });
+          
+          // Update existing subscription status
+          const { error } = await supabase
             .from('subscriptions')
-            .upsert({
-              user_id: userId,
-              provider: 'stripe',
+            .update({
               status: 'past_due',
               current_period_end: new Date(subscription.current_period_end * 1000),
-            });
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId)
+            .eq('provider', 'stripe')
+            .eq('status', 'active');
+          
+          if (error) {
+            logger.error('Failed to update subscription status to past_due', error, requestId);
+          } else {
+            logger.info('Successfully updated subscription status to past_due', requestId, { userId });
+          }
         }
         break;
       }
@@ -286,16 +325,28 @@ export async function POST(request: NextRequest) {
       case 'customer.subscription.deleted': {
         const subscription = event.data.object as Stripe.Subscription;
         const userId = subscription.metadata?.user_id;
+        const plan = subscription.metadata?.plan;
         
         if (userId) {
-          await supabase
+          logger.info('Processing customer.subscription.deleted', requestId, { userId, plan });
+          
+          // Update existing subscription status
+          const { error } = await supabase
             .from('subscriptions')
-            .upsert({
-              user_id: userId,
-              provider: 'stripe',
+            .update({
               status: 'canceled',
               current_period_end: new Date(subscription.current_period_end * 1000),
-            });
+              updated_at: new Date().toISOString()
+            })
+            .eq('user_id', userId)
+            .eq('provider', 'stripe')
+            .eq('status', 'active');
+          
+          if (error) {
+            logger.error('Failed to update subscription status to canceled', error, requestId);
+          } else {
+            logger.info('Successfully updated subscription status to canceled', requestId, { userId });
+          }
         }
         break;
       }
