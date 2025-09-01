@@ -229,6 +229,7 @@ function HomePageContent() {
               remaining={user ? userLimits.remaining : 3}
               isPro={user ? userLimits.isPro : false}
               onUpgrade={() => user ? window.location.href = '/account' : setShowAuthModal(true)}
+              compact={true}
             />
           </div>
           
