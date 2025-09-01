@@ -151,14 +151,17 @@ function AccountPageContent() {
         <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl sticky top-0">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
+              <button 
+                onClick={() => window.location.href = '/'}
+                className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200"
+              >
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
                   <Sparkles className="h-6 w-6 text-white" />
                 </div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   ExcuseME
                 </h1>
-              </div>
+              </button>
               
               <Button 
                 variant="ghost" 
@@ -177,30 +180,30 @@ function AccountPageContent() {
           </div>
         </header>
 
-        <div className="relative z-10 max-w-6xl mx-auto px-6 py-12">
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
           {/* Hero Section */}
-          <div className="text-center mb-16">
-            <div className="relative inline-block mb-8">
-              <div className="w-24 h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
-                <User className="h-12 w-12 text-white" />
+          <div className="text-center mb-12 sm:mb-16">
+            <div className="relative inline-block mb-6 sm:mb-8">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-blue-600 to-purple-600 rounded-3xl flex items-center justify-center shadow-2xl">
+                <User className="h-10 w-10 sm:h-12 sm:w-12 text-white" />
               </div>
-              <div className="absolute -top-2 -right-2 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
-                <div className="w-3 h-3 bg-white rounded-full"></div>
+              <div className="absolute -top-2 -right-2 w-6 h-6 sm:w-8 sm:h-8 bg-green-500 rounded-full flex items-center justify-center border-4 border-white shadow-lg">
+                <div className="w-2 h-2 sm:w-3 sm:h-3 bg-white rounded-full"></div>
               </div>
             </div>
-            <h1 className="text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent mb-4">
               Account Settings
             </h1>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto px-4">
               Manage your profile, subscription, and account preferences
             </p>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid lg:grid-cols-3 gap-8 mb-12">
+          {/* Main Content Grid - Two Equal Columns */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-12">
             {/* Profile Card */}
-            <div className="lg:col-span-2">
-              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden">
+            <div>
+              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden h-full">
                 <CardHeader className="pb-8 bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
@@ -263,8 +266,8 @@ function AccountPageContent() {
             </div>
 
             {/* Subscription Card */}
-            <div className="lg:col-span-1">
-              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden h-fit">
+            <div>
+              <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-3xl overflow-hidden h-full">
                 <CardHeader className="pb-6 bg-gradient-to-r from-green-50 to-emerald-50">
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-green-600 to-emerald-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -344,7 +347,7 @@ function AccountPageContent() {
           </div>
 
           {/* Additional Features Grid */}
-          <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6 mb-12">
             <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-xl rounded-2xl overflow-hidden hover:shadow-2xl transition-all duration-300">
               <CardContent className="p-6 text-center">
                 <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-xl flex items-center justify-center mx-auto mb-4">
