@@ -39,15 +39,17 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if subscription is valid for portal access
-    // All Stripe subscriptions (monthly and pack100) can access portal regardless of status
+    // Monthly subscriptions can access portal for subscription management
+    // 100 Pack subscriptions can access portal for invoice history and payment methods
     // This allows users to:
     // - View invoice history
     // - Manage payment methods
-    // - Reactivate canceled subscriptions (monthly)
+    // - Reactivate canceled subscriptions (monthly only)
     // - Access billing information
     if (subscription.status === 'canceled' && subscription.plan_type === 'pack100') {
       // 100 Pack subscriptions can still access portal even if canceled
       // (to view invoice history, payment methods, etc.)
+      // Note: No subscription management needed for one-time purchases
     } else if (subscription.status === 'canceled' && subscription.plan_type === 'monthly') {
       // Monthly subscriptions can access portal even if canceled
       // (to reactivate, view history, manage payment methods, etc.)

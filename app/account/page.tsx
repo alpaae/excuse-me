@@ -391,15 +391,11 @@ function AccountPageContent() {
                       </div>
                       
                       {/* Manage Billing Button for Stripe subscriptions */}
-                      {subscription.provider === 'stripe' && (
+                      {subscription.provider === 'stripe' && subscription.plan_type === 'monthly' && (
                         <div className="pt-4 border-t border-gray-200">
                           <Button
                             onClick={handleManageBilling}
-                            className={`w-full py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 ${
-                              subscription.plan_type === 'monthly'
-                                ? 'bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white'
-                                : 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white'
-                            }`}
+                            className="w-full py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 bg-gradient-to-r from-yellow-600 to-orange-600 hover:from-yellow-700 hover:to-orange-700 text-white"
                           >
                             <CreditCard className="mr-2 h-4 w-4" />
                             Manage Billing
