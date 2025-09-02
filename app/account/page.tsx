@@ -104,15 +104,15 @@ function AccountPageContent() {
     }
   };
 
-  const handleUpgradeSubscription = async () => {
+  const handleUpgradeSubscription = async (plan: 'monthly' | 'pack100' = 'monthly') => {
     try {
       const response = await fetch('/api/stripe/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          success_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/?payment=success&plan=${selectedPlan}`,
+          success_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/?payment=success&plan=${plan}`,
           cancel_url: `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/?payment=canceled`,
-          plan: selectedPlan,
+          plan: plan,
         }),
       });
 
@@ -419,13 +419,22 @@ function AccountPageContent() {
                         <p className="text-orange-700 text-sm mb-6 leading-relaxed">
                           Get unlimited excuse generations and unlock premium features
                         </p>
-                        <Button 
-                          onClick={handleUpgradeSubscription} 
-                          className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
-                        >
-                          <Crown className="mr-2 h-5 w-5" />
-                          Upgrade to Pro
-                        </Button>
+                        <div className="space-y-3">
+                          <Button 
+                            onClick={() => handleUpgradeSubscription('monthly')} 
+                            className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                          >
+                            <Crown className="mr-2 h-5 w-5" />
+                            Pro Monthly - $9.99/month
+                          </Button>
+                          <Button 
+                            onClick={() => handleUpgradeSubscription('pack100')} 
+                            className="w-full bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
+                          >
+                            <Zap className="mr-2 h-5 w-5" />
+                            100 Pack - $4.99
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   )}

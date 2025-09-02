@@ -244,14 +244,23 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
               {/* Free Plan Info */}
               {!limits.isPro && (
                 <div className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl p-4 mb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                      <Sparkles className="h-4 w-4 text-white" />
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                        <Sparkles className="h-4 w-4 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-blue-800">Free Plan</h3>
+                        <p className="text-sm text-blue-700">{limits.remaining}/3 generations today</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold text-blue-800">Free Plan</h3>
-                      <p className="text-sm text-blue-700">{limits.remaining}/3 generations today</p>
-                    </div>
+                    <Button
+                      onClick={() => handleUpgrade('monthly')}
+                      className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                    >
+                      <Crown className="h-4 w-4 mr-2" />
+                      Upgrade to Pro
+                    </Button>
                   </div>
                 </div>
               )}
