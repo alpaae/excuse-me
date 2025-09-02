@@ -192,6 +192,18 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
     setShowLimitModal(false);
   };
 
+  const handleUpgradeClick = () => {
+    if (!userLimits) {
+      // User is not authenticated, show auth modal
+      if (onAuthRequired) {
+        onAuthRequired();
+      }
+    } else {
+      // User is authenticated, show plan selection modal
+      setShowLimitModal(true);
+    }
+  };
+
   return (
     <div className="max-w-[640px] w-full mx-auto" data-testid="panel-create">
       <Card className="bg-white/90 backdrop-blur-xl border-0 shadow-2xl rounded-2xl overflow-hidden">
@@ -255,8 +267,8 @@ export function CreatePanel({ userLimits, onAuthRequired }: CreatePanelProps) {
                       </div>
                     </div>
                     <Button
-                      onClick={() => handleUpgrade('monthly')}
-                      className="bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white px-4 py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
+                      onClick={() => handleUpgradeClick()}
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 py-2 text-sm font-semibold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200"
                     >
                       <Crown className="h-4 w-4 mr-2" />
                       Upgrade to Pro
