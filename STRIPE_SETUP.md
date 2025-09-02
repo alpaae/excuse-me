@@ -15,7 +15,7 @@
 2. **Name:** `Pro Monthly Subscription`
 3. **Description:** `Unlimited excuse generations with premium features`
 4. **Pricing model:** `Standard pricing`
-5. **Price:** `$9.99` per month
+5. **Price:** `$4.99` per month
 6. **Billing period:** `Monthly`
 7. **Copy Price ID** (начинается с `price_`)
 
@@ -116,7 +116,7 @@ WHERE plan_type IS NULL;
 
 ## 🔧 **Типы планов**
 
-### **Pro Monthly ($9.99/месяц)**
+### **Pro Monthly ($4.99/месяц)**
 - ✅ Безлимитные генерации
 - ✅ Приоритетная поддержка
 - ✅ Расширенные функции

@@ -114,7 +114,7 @@ Add the following variables in your Vercel project settings:
 1. Create an account on [stripe.com](https://stripe.com)
 2. Get API keys from Dashboard
 3. Create products and prices for both plans:
-   - **Pro Monthly** ($9.99/month) - unlimited generations
+   - **Pro Monthly** ($4.99/month) - unlimited generations
    - **100 Generations Pack** ($4.99) - one-time purchase
 4. Add keys to environment variables
 5. **Detailed setup guide:** [STRIPE_SETUP.md](./STRIPE_SETUP.md)

@@ -421,7 +421,7 @@ function AccountPageContent() {
                             className="w-full bg-gradient-to-r from-orange-600 to-red-600 hover:from-orange-700 hover:to-red-700 text-white py-3 rounded-xl font-semibold shadow-lg hover:shadow-xl transition-all duration-200"
                           >
                             <Crown className="mr-2 h-5 w-5" />
-                            Pro Monthly - $9.99/month
+                            Pro Monthly - $4.99/month
                           </Button>
                           <Button 
                             onClick={() => handleUpgradeSubscription('pack100')} 
@@ -540,7 +540,7 @@ function AccountPageContent() {
             <CardContent className="space-y-6">
               <div className="text-center">
                 <div className="text-4xl font-bold text-gray-900 mb-2">
-                  {selectedPlan === 'monthly' ? '$9.99' : '$4.99'}
+                  {selectedPlan === 'monthly' ? '$4.99' : '$4.99'}
                 </div>
                 <div className="text-gray-500">
                   {selectedPlan === 'monthly' ? 'per month' : 'one-time payment'}

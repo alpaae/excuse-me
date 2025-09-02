@@ -16,7 +16,7 @@ const plans = [
   {
     id: 'monthly',
     name: 'Pro Monthly',
-    price: '$9.99',
+            price: '$4.99',
     period: 'per month',
     features: ['Unlimited generations', 'Priority support', 'Advanced features'],
     icon: <Infinity className="h-5 w-5" />,
