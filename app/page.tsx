@@ -318,22 +318,10 @@ function HomePageContent() {
 
         {/* Desktop Layout */}
         <div className="hidden lg:block">
-          <div className="max-w-7xl mx-auto px-6 py-12">
+          <div className="max-w-7xl mx-auto px-6 py-8">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
               {/* Left Column - Create Panel */}
-              <div className="space-y-8">
-                <div className="space-y-4">
-                  <h2 className="text-4xl font-bold text-gray-900 leading-tight">
-                    Create Perfect Excuses
-                    <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                      in Seconds
-                    </span>
-                  </h2>
-                  <p className="text-xl text-gray-600 leading-relaxed">
-                    Transform any situation into a polished, believable excuse with our AI-powered generator
-                  </p>
-                </div>
-                
+              <div className="flex justify-center">
                 <CreatePanel 
                   userLimits={userLimits} 
                   onAuthRequired={handleAuthRequired}
