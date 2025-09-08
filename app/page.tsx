@@ -8,6 +8,9 @@ import dynamic from 'next/dynamic';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { createClient } from '@/lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
+import { preloadCriticalPages } from '@/lib/navigation';
+import { OptimizedLink } from '@/components/optimized-link';
+import { cachedAPI, cacheHelpers } from '@/lib/api-cache';
 
 // Import components directly for better reliability
 import { CreatePanel } from '@/components/create-panel';
@@ -30,17 +33,17 @@ function HomePageContent() {
     if (!user) return;
     
     try {
-      const response = await fetch('/api/limits');
-      if (response.ok) {
-        const data = await response.json();
-        setUserLimits(data.limits);
-      }
+      const data = await cachedAPI.getLimits();
+      setUserLimits(data.limits);
     } catch (error) {
       console.error('Error refreshing limits:', error);
     }
   }, [user]);
 
   useEffect(() => {
+    // Preload critical pages for faster navigation
+    preloadCriticalPages();
+    
     // Check for payment success from URL
     const checkPaymentSuccess = () => {
       const urlParams = new URLSearchParams(window.location.search);
@@ -135,6 +138,8 @@ function HomePageContent() {
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     setUserLimits({ isPro: false, remaining: 3 });
+    // Clear cache on logout
+    cacheHelpers.invalidateAllCache();
   };
 
   const handleAuthRequired = () => {
@@ -211,14 +216,9 @@ function HomePageContent() {
                   )}
                   
                   {/* User Avatar */}
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => window.location.href = '/account'}
-                    className="p-2 sm:p-2 rounded-xl hover:bg-blue-50 text-gray-600"
-                  >
+                  <OptimizedLink href="/account" className="p-2 sm:p-2 rounded-xl hover:bg-blue-50 text-gray-600 inline-flex items-center">
                     <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </Button>
+                  </OptimizedLink>
                   
                   {/* Sign Out */}
                   <Button
