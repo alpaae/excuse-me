@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useCallback, useRef } from 'react';
 import { useOptimizedNavigation } from '@/lib/navigation';
 
@@ -20,18 +21,15 @@ export function OptimizedLink({
   preload = true,
   replace = false 
 }: OptimizedLinkProps) {
-  const { navigate, preload: preloadPage } = useOptimizedNavigation();
+  const { preload: preloadPage } = useOptimizedNavigation();
   const preloadTimeoutRef = useRef<NodeJS.Timeout>();
 
-  const handleClick = useCallback(async (e: React.MouseEvent) => {
-    e.preventDefault();
-    
+  const handleClick = useCallback((e: React.MouseEvent) => {
     if (onClick) {
       onClick();
     }
-
-    await navigate(href, { replace });
-  }, [href, onClick, navigate, replace]);
+    // Let Next.js Link handle the navigation
+  }, [onClick]);
 
   const handleMouseEnter = useCallback(() => {
     if (preload && !preloadTimeoutRef.current) {
@@ -49,14 +47,15 @@ export function OptimizedLink({
   }, []);
 
   return (
-    <a
+    <Link
       href={href}
       className={className}
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
+      replace={replace}
     >
       {children}
-    </a>
+    </Link>
   );
 }

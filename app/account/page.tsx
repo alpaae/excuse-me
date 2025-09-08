@@ -2,8 +2,10 @@
 
 import { useEffect, useState, useCallback, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { createClient } from '@/lib/supabase';
 import { AuthGuard } from '@/lib/auth-guard';
+import { userCache } from '@/lib/user-cache';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -44,17 +46,26 @@ function AccountPageContent() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
+        // Check cache first
+        const cachedData = userCache.get(user.id);
+        
+        if (cachedData) {
+          console.log('Using cached user data');
+          setProfile(cachedData.profile);
+          setDisplayName(cachedData.profile?.display_name || '');
+          setSubscription(cachedData.subscription);
+          setLoading(false);
+          return;
+        }
+
+        console.log('Loading fresh user data');
+        
         // Load profile
         const { data: profileData } = await supabase
           .from('profiles')
           .select('*')
           .eq('id', user.id)
           .single();
-
-        if (profileData) {
-          setProfile(profileData);
-          setDisplayName(profileData.display_name || '');
-        }
 
         // Load subscription
         const { data: subscriptionData } = await supabase
@@ -64,7 +75,18 @@ function AccountPageContent() {
           .eq('status', 'active')
           .single();
 
+        // Update state
+        if (profileData) {
+          setProfile(profileData);
+          setDisplayName(profileData.display_name || '');
+        }
         setSubscription(subscriptionData);
+
+        // Cache the data
+        userCache.set(user.id, {
+          profile: profileData,
+          subscription: subscriptionData
+        });
       }
     } catch (error) {
       console.error('Error loading user data:', error);
@@ -95,7 +117,11 @@ function AccountPageContent() {
         .eq('id', profile.id);
 
       if (!error) {
-        setProfile({ ...profile, display_name: displayName });
+        const updatedProfile = { ...profile, display_name: displayName };
+        setProfile(updatedProfile);
+        
+        // Invalidate cache to force refresh on next load
+        userCache.invalidate(profile.id);
       }
     } catch (error) {
       console.error('Error saving profile:', error);
@@ -149,6 +175,10 @@ function AccountPageContent() {
   };
 
   const handleSignOut = async () => {
+    // Clear user cache before signing out
+    if (profile) {
+      userCache.invalidate(profile.id);
+    }
     await supabase.auth.signOut();
     window.location.href = '/';
   };
@@ -178,8 +208,8 @@ function AccountPageContent() {
         <header className="relative z-10 border-b border-white/20 bg-white/80 backdrop-blur-xl">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center justify-between">
-              <button 
-                onClick={() => window.location.href = '/'}
+              <Link 
+                href="/"
                 className="flex items-center space-x-3 hover:opacity-80 transition-opacity duration-200"
               >
                 <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
@@ -188,7 +218,7 @@ function AccountPageContent() {
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent">
                   ExcuseME
                 </h1>
-              </button>
+              </Link>
               
               <Button 
                 variant="ghost" 

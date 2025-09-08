@@ -9,7 +9,7 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { createClient } from '@/lib/supabase';
 import { User as SupabaseUser } from '@supabase/supabase-js';
 import { preloadCriticalPages } from '@/lib/navigation';
-import { OptimizedLink } from '@/components/optimized-link';
+import Link from 'next/link';
 import { cachedAPI, cacheHelpers } from '@/lib/api-cache';
 
 // Import components directly for better reliability
@@ -216,9 +216,9 @@ function HomePageContent() {
                   )}
                   
                   {/* User Avatar */}
-                  <OptimizedLink href="/account" className="p-2 sm:p-2 rounded-xl hover:bg-blue-50 text-gray-600 inline-flex items-center">
+                  <Link href="/account" className="p-2 sm:p-2 rounded-xl hover:bg-blue-50 text-gray-600 inline-flex items-center">
                     <User className="h-4 w-4 sm:h-5 sm:w-5" />
-                  </OptimizedLink>
+                  </Link>
                   
                   {/* Sign Out */}
                   <Button

@@ -46,15 +46,14 @@ export class NavigationManager {
         await this.preloadPage(path);
       }
 
-      // Navigate
-      if (options?.replace) {
-        window.history.replaceState({}, '', path);
-      } else {
-        window.history.pushState({}, '', path);
+      // Use window.location for navigation (simpler and more reliable)
+      if (typeof window !== 'undefined') {
+        if (options?.replace) {
+          window.location.replace(path);
+        } else {
+          window.location.href = path;
+        }
       }
-
-      // Trigger route change
-      window.dispatchEvent(new PopStateEvent('popstate'));
     } finally {
       this.loadingStates.set(loadingKey, false);
     }
