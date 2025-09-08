@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { AnimatedBackground } from '@/components/animated-background';
@@ -24,7 +24,11 @@ export const metadata: Metadata = {
     title: 'ExcuseME - AI-Powered Excuse Generator',
     description: 'Transform awkward situations into graceful exits with AI-powered, context-aware excuses that feel natural and professional.',
   },
-  viewport: 'width=device-width, initial-scale=1',
+};
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: '#3b82f6',
 };
 
