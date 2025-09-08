@@ -273,46 +273,12 @@ function HomePageContent() {
 
         {/* Mobile Layout */}
         <div className="block lg:hidden">
-          <div className="px-4 py-6 space-y-6">
-            {/* Hero Section - Mobile */}
-            <div className="text-center space-y-4">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
-                Create Perfect Excuses
-                <span className="block text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">
-                  in Seconds
-                </span>
-              </h2>
-              <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                Transform any situation into a polished, believable excuse with our AI-powered generator
-              </p>
-            </div>
-
+          <div className="px-4 py-6">
             {/* Create Panel - Mobile */}
             <CreatePanel 
               userLimits={userLimits} 
               onAuthRequired={handleAuthRequired}
             />
-
-            {/* Features Section - Mobile */}
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-gray-900 text-center">Why Choose ExcuseME?</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
-                  <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <Sparkles className="h-6 w-6 text-white" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 text-center mb-2">AI-Powered</h4>
-                  <p className="text-sm text-gray-600 text-center">Advanced AI generates contextually appropriate excuses</p>
-                </div>
-                <div className="bg-white/80 backdrop-blur-xl rounded-2xl p-4 border border-white/20">
-                  <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-2xl flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="h-6 w-6 text-white" />
-                  </div>
-                  <h4 className="font-semibold text-gray-900 text-center mb-2">Professional</h4>
-                  <p className="text-sm text-gray-600 text-center">Maintain your reputation with polished excuses</p>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
